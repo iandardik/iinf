@@ -17,7 +17,7 @@
 \maketitle
 
 \section{Introduction}
-IC3PO proposed an automatic method for performing ``finite convergence checks" \cite{goel2021symmetry}.  In this document I will describe the problem, the proposed algorithm, as well as issues that I discovered.  Throughout this document I will adopt the conventions as used in \cite{goel2021symmetry}, but I have chosen different variable names for convenience and readability.
+IC3PO proposed an automatic method for performing ``finite convergence checks" \cite{goel2021symmetry}.  In this document I will describe the problem, the proposed algorithm, as well as issues that I discovered.  Throughout this document I will adopt the conventions as used in \cite{goel2021symmetry}, but I have chosen different variable names for convenience and readability.  There are several places in this document that ought to have proofs, but each one is very simple and I can include them if anyone is interested.
 
 \section{Preliminaries}
 Let $P$ be either a property or a transition system.  Then the \textit{template} of $P$ is $P(S_1,...,S_n)$ where $n \in \mathbb{N}$ and each $S_i$ is a sort.  A finite instance of $P$ is denoted as $P(|S_1|,...,|S_n|)$, where each $|S_i| \in \mathbb{N}$ denotes the size of sort $S_i$.  For example, if we have a property $Init$ parameterized by two sorts $S_1$ and $S_2$, then $Init(S_1,S_2)$ is the template of $Init$ while $Init(2,3)$ is a finite instance.
@@ -36,53 +36,53 @@ Given the problem statement outlined in the previous section, \cite{goel2021symm
 \end{enumerate}
 
 \section{Counterexample}
-There is a simple counterexample to this proposed solution.  We begin by defining the property $R$ and then proceed to describe the counterexample.
+There is a simple counterexample to this proposed solution.  We begin by defining the properties $Q$ and $R$ and then proceed to describe the counterexample.
 
-\subsection{The \textit{R} Property}
-Suppose that $T = (Init,Trans)$ is a transition system parameterized by a single sort $S$, and has at least one reachable state outside of $Init$.  Further suppose that $Q$ is an inductive invariant for $T(S)$.  Then we define $R(m) = Q \land (|S|=m \rightarrow Init)$.  Because $T$ has at least one reachable state outside of $Init$, it is clear that $Init$ is neither inductive nor invariant.  It follows that there is no value of $m \in \mathbb{N}$ such that $R(m)$ is an inductive invariant for $T(S)$.
+\subsection{The \textit{Q} and \textit{R} Properties}
+Suppose that $T = (Init,Trans)$ is a transition system parameterized by a single sort $S$, and has at least one reachable state outside of $Init$.  We will make use of two properties:
+\begin{enumerate}
+  \item $Q$, which is any inductive invariant for $T(S)$
+  \item $R(m) := (|S|=m) \rightarrow Init$
+\end{enumerate}
+
+Because $T$ has at least one reachable state outside of $Init$, it is clear that $Init$ is neither inductive nor invariant.  It follows that there is no value of $m \in \mathbb{N}$ such that $Q \land R(m)$ is an inductive invariant for $T(S)$.
 
 \subsection{\textit{R}(1) Counterexample}
-The proposed solution in section \ref{sol} will incorrectly decide that $R(1)$ is an inductive invariant.  To see why, consider an arbitrary basesize vector $V = \{v\}$ where $v \in \mathbb{N}$.  Then IC3PO will check the following for finite convergence:
+The proposed solution in section \ref{sol} will incorrectly decide that $Q \land R(1)$ is an inductive invariant.  To see why, consider an arbitrary basesize vector $V = \{v\}$ where $v \in \mathbb{N}$.  Then IC3PO will check the following for finite convergence:
 \begin{enumerate}
-  \item $Init(v+1) \rightarrow (R(1))(v+1)$
-  \item $(R(1))(v+1) \land Trans(v+1) \rightarrow (R(1))'(v+1)$
+  \item $Init(v+1) \rightarrow (Q \land R(1))(v+1)$
+  \item $(Q \land R(1))(v+1) \land Trans(v+1) \rightarrow (Q \land R(1))'(v+1)$
 \end{enumerate}
 
 Notice that if $v>0$, then
 \begin{align*}
-  &(R(1))(v+1)\\
-  \iff &Q \land (v+1=1 \rightarrow Init)\\
-  \iff &Q \land (false \rightarrow Init)\\
-  \iff &Q\\
+  &(Q \land R(1))(v+1)\\
+  \iff &Q(v+1) \land (v+1=1 \rightarrow Init)\\
+  \iff &Q(v+1) \land (false \rightarrow Init)\\
+  \iff &Q(v+1)\\
 \end{align*}
 
-Thus, for any basesize larger than 0, the finite convergence check reduces to checking whether $Q$ is an inductive invariant.  Because $Q$ is an inductive invariant, the algorithm will incorrectly decide that $R(1)$ is an inductive invariant.
+Thus, for any basesize larger than 0, the finite convergence check reduces to checking whether $Q(v+1)$ is an inductive invariant.  Because $Q$ is an inductive invariant, the algorithm will incorrectly decide that $Q \land R(1)$ is an inductive invariant.
 
 \subsection{\textit{R}(1) Counterexample in IC3PO}
 The $R(1)$ counterexample is easily realized in IC3PO with the following Ivy program:
 
 \begin{verbatim}
   #lang ivy1.7
-
   type num
-
   relation val(X:num)
-
   after init {
     val(X) := false;
   }
-
   action t(x:num) = {
     val(x) := true;
   }
-
   export t
-
   invariant [Q] val(X) | ~val(X)
   invariant [R(1)] (forall X:num,Y. X = Y) -> (forall Z. ~val(Z))
 \end{verbatim}
 
-In this Ivy program there is a single sort $num$, and $Q$ is separated from $R(1)$ for convenience.  Notice that
+In this Ivy program there is a single sort $num$.  Notice that in this program:
 \begin{align*}
   &Q\\
   \iff &\forall X: \text{val(X)} \lor \neg\text{val(X)}\\
@@ -96,36 +96,30 @@ which is clearly an inductive invariant, and
   \iff &(|num|=1) \rightarrow Init\\
 \end{align*}
 
-Running IC3PO on this program with $|num|=0$ yields a property violation as expected.  Running with $|num|=1$ yields a property violation too; this is expected because IC3PO finds the property violation while it tries to synthesize an invariant (not during the finite convergence check).  For any values of $|num|>1$ however, IC3PO incorrectly posits that the conjunction of $Q$ and $R(1)$ is an inductive invariant.  Since this example is in EPR, I was able to run ivy\_check (which does not use finite interpretations of the sorts) to produce a counterexample and verify that $Q \land R(1)$ is not an inductive invariant.
+Running IC3PO on this program with $|num|=0$ yields a property violation as expected.  Running with $|num|=1$ yields a property violation too; this is expected because IC3PO finds the property violation while it tries to synthesize an invariant (not during the finite convergence check).  For any values of $|num|>1$ however, IC3PO incorrectly posits that the conjunction of $Q$ and $R(1)$ is an inductive invariant.  Since this example is in EPR, I was able to run \textit{ivy\_check} (which does not use finite interpretations of the sorts) to produce a counterexample and verify that $Q \land R(1)$ is not an inductive invariant.
 
 \subsection{\textit{R}(m) Counterexamples}
 This counterexample generalizes to higher values of $m$, though I have not tested it on IC3PO yet (because I don't know how to test for cardinality of a sort in Ivy).  Imagine the following Ivy program:
 
 \begin{verbatim}
   #lang ivy1.7
-
   type num
-
   relation val(X:num)
-
   after init {
     val(X) := false;
   }
-
   action t(x:num) = {
     val(x) := true;
   }
-
   export t
-
   invariant [Q] val(X) | ~val(X)
   invariant [R(100)] (|num|=100) -> (forall Z. ~val(Z))
 \end{verbatim}
 
-In this case, the conjunction of the invariants is still clearly not an inductive invariant.  However, users of IC3PO will most likely choose basesizes of small integers such as 2 or 3; checking for convergence using the method in \ref{sol} will incorrectly decide that the conjunction of the invariants \textit{is} an inductive invariant.  In this case, the user would need to choose a basesize of 99 or larger for the method to work properly.
+In this case, the conjunction of the invariants ($Q \land R(100)$) is still clearly not an inductive invariant.  However, users of IC3PO will most likely choose basesizes of small integers such as 2 or 3; checking for convergence using the method in \ref{sol} will incorrectly decide that the conjunction of the invariants \textit{is} an inductive invariant.  In this case, the user would need to choose a basesize of 99 or 100 for the method to work properly.
 
 \section{Discussion}
-Since $m$ can be arbitrarily chosen to create $R(m)$, \textit{no} finite number of checks on finite instances are sufficient to prove that a a property is an inductive invariant.  However, if we restrict our checks to only properties of some special form, then a finite number of checks may be possible.
+Since $m$ can be arbitrarily chosen to create $R(m)$, \textit{no} finite number of checks on finite instances are sufficient to prove that a a property is an inductive invariant.  However, it is possible that there is some restricted class of properties for which a finite number of checks does suffice.
 
 \section{Conclusion}
 A counterexample to IC3PO's finite convergence detection algorithm is presented.  It is possible that restricting the universe of allowed inductive invariants could make the method (or a similar one) work, and this would be a very interesting research direction.
