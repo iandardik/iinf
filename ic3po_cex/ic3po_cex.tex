@@ -1,7 +1,3 @@
-\title{IC3PO Finite Convergence Check}
-\author{Ian Dardik}
-\date{\today}
-
 \documentclass[12pt]{article}
 \usepackage{anysize}
 \marginsize{1.2cm}{1.4cm}{.4cm}{1cm}
@@ -11,25 +7,29 @@
 \usepackage{amsfonts}
 \usepackage{hyperref}
 
+\title{IC3PO Finite Convergence Check}
+\author{Ian Dardik}
+\date{\today}
+
+
 \begin{document}
 
 \maketitle
 
 \section{Introduction}
-%IC3PO proposed an automatic method for performing ``finite convergence checks" \cite{goel2021symmetry}.  In this document I will describe the problem, the proposed algorithm, as well as issues that I discovered.  Throughout this document I will adopt the conventions as used in \cite{goel2021symmetry}.
-IC3PO proposed an automatic method for performing ``finite convergence checks" [1].  In this document I will describe the problem, the proposed algorithm, as well as issues that I discovered.  Throughout this document I will adopt the conventions as used in [1].
+IC3PO proposed an automatic method for performing ``finite convergence checks" \cite{goel2021symmetry}.  In this document I will describe the problem, the proposed algorithm, as well as issues that I discovered.  Throughout this document I will adopt the conventions as used in \cite{goel2021symmetry}, but I have chosen different variable names for convenience and readability.
 
 \section{Preliminaries}
-Let $P$ be either a property or a transition system.  Then the \textit{template} of $P$ is $P(S_1,...,S_n)$ where $n \in \mathbb{N}$ and each $S_i$ is a sort.  A finite instance of $P$ is denoted as $P(|S_1|,...,|S_n|)$, where each $|S_i|$ denotes the size of sort $S_i$ in the finite instance.  For example, if we have a property $Init$ parameterized by two sorts, then $Init(S_1,S_2)$ is the template of $Init$ while $Init(2,3)$ is a finite instance.
+Let $P$ be either a property or a transition system.  Then the \textit{template} of $P$ is $P(S_1,...,S_n)$ where $n \in \mathbb{N}$ and each $S_i$ is a sort.  A finite instance of $P$ is denoted as $P(|S_1|,...,|S_n|)$, where each $|S_i| \in \mathbb{N}$ denotes the size of sort $S_i$.  For example, if we have a property $Init$ parameterized by two sorts $S_1$ and $S_2$, then $Init(S_1,S_2)$ is the template of $Init$ while $Init(2,3)$ is a finite instance.
 
 \section{Problem Statement}
-\label{problem-statement}
-Given a transition system $T = (Init,Trans)$ with template $T(S_1,...,S_n)$ and a property $P(S_1,...,S_n)$, we want to determine whether $P(S_1,...,S_n)$ is an inductive invariant for $T(S_1,...,S_n)$.
+\label{stmt}
+Given a transition system $T = (Init,Trans)$ with template $T(S_1,...,S_n)$ and a property $P$ with template $(S_1,...,S_n)$, we want to determine whether $P(S_1,...,S_n)$ is an inductive invariant for $T(S_1,...,S_n)$.  $P(S_1,...,S_n)$ is said to be an inductive invariant for $T(S_1,...,S_n)$ iff $P(|S_1|,...,|S_n|)$ is an inductive invariant for $T(|S_1|,...,|S_n|)$ for all $\{|S_1|,...,|S_n|\} \in \mathbb{N}^n$.
+
 
 \section{Proposed Solution}
 \label{sol}
-Given the problem statement outlined in section problem-statement, [1] proposes the following algorithm: Identify a vector $V$ of sort \textit{base sizes}, where $V = \{v_1,...,v_n\}$.  $V$ must be chosen such that $T(v_1,...,v_n)$ exhibits non-trivial behavior; ``non-trivial behavior" is glossed over in the IC3PO paper but is intuitively sort sizes large enough to see some complex behaviors in the protocol $T$.  Then $P$ is an inductive invariant if the following check holds for $1 \leq i \leq n$:
-%Given the problem statement outlined in section \ref{problem-statement}, [1] proposes the following algorithm: Identify a vector $V$ of sort \textit{base sizes}, where $V = \{v_1,...,v_n\}$.  $V$ must be chosen such that $T(v_1,...,v_n)$ exhibits non-trivial behavior; ``non-trivial behavior" is glossed over in the IC3PO paper but is intuitively sort sizes large enough to see some complex behaviors in the protocol $T$.  Then $P$ is an inductive invariant if the following check holds for $1 \leq i \leq n$:
+Given the problem statement outlined in the previous section, \cite{goel2021symmetry} proposes the following algorithm: Manually identify a vector $V \in \mathbb{N}^n$ which assigns \textit{basesizes} to each of the $n$ sorts.  $V$ must be chosen such that $T(v_1,...,v_n)$ exhibits non-trivial behavior; ``non-trivial behavior" is glossed over in the IC3PO paper but is intuitively sort sizes large enough to see some complex behaviors in the protocol $T$.  Then $P$ is an inductive invariant if the following checks hold for $1 \leq i \leq n$:
 \begin{enumerate}
   \item $Init(v_1,..,v_i+1,..,v_n) \rightarrow P(v_1,..,v_i+1,..,v_n)$
   \item $P(v_1,..,v_i+1,..,v_n) \land Trans(v_1,..,v_i+1,..,v_n) \rightarrow P'(v_1,..,v_i+1,..,v_n)$
@@ -39,19 +39,26 @@ Given the problem statement outlined in section problem-statement, [1] proposes 
 There is a simple counterexample to this proposed solution.  We begin by defining the property $R$ and then proceed to describe the counterexample.
 
 \subsection{The \textit{R} Property}
-Suppose that $T = (Init,Trans)$ is a transition system with a single sort $S$ and at least one reachable state outside of $Init$.  Suppose that $Q$ is an inductive invariant for $T(S)$, and let $R(m) = Q \land (|S|=m) \rightarrow Init$.  Because $T$ has at least one reachable state outside of $Init$, it is clear that $Init$ is neither inductive nor invariant, and hence $R(m)$ cannot be inductive invariant for all $m \in \{1,2,...\}$.  
+Suppose that $T = (Init,Trans)$ is a transition system parameterized by a single sort $S$, and has at least one reachable state outside of $Init$.  Further suppose that $Q$ is an inductive invariant for $T(S)$.  Then we define $R(m) = Q \land (|S|=m \rightarrow Init)$.  Because $T$ has at least one reachable state outside of $Init$, it is clear that $Init$ is neither inductive nor invariant.  It follows that there is no value of $m \in \mathbb{N}$ such that $R(m)$ is an inductive invariant for $T(S)$.
 
-\subsection{\textit{R(1)} Counterexample}
-%The proposed solution in section \ref{sol} will incorrectly decide that $R(1)$ is an inductive invariant.  To see why, consider an arbitrary base size vector $V = \{v\}$ where $v \in \{1,2,...\}$.  Then IC3PO will check the following for finite convergence:
-The proposed solution in section sol will incorrectly decide that $R(1)$ is an inductive invariant.  To see why, consider an arbitrary base size vector $V = \{v\}$ where $v \in \{1,2,...\}$.  Then IC3PO will check the following for finite convergence:
+\subsection{\textit{R}(1) Counterexample}
+The proposed solution in section \ref{sol} will incorrectly decide that $R(1)$ is an inductive invariant.  To see why, consider an arbitrary basesize vector $V = \{v\}$ where $v \in \mathbb{N}$.  Then IC3PO will check the following for finite convergence:
 \begin{enumerate}
   \item $Init(v+1) \rightarrow (R(1))(v+1)$
   \item $(R(1))(v+1) \land Trans(v+1) \rightarrow (R(1))'(v+1)$
 \end{enumerate}
 
-Notice that $(R(1))(v+1) \iff Q \land (v+1=1) \rightarrow Init \iff Q$, where the second biconditional follows because $v+1 \neq 1$ for all values of $v$.  Thus, both checks will pass because $Q$ is an inductive invariant.
+Notice that if $v>0$, then
+\begin{align*}
+  &(R(1))(v+1)\\
+  \iff &Q \land (v+1=1 \rightarrow Init)\\
+  \iff &Q \land (false \rightarrow Init)\\
+  \iff &Q\\
+\end{align*}
 
-\subsection{\textit{R(1)} Counterexample in IC3PO}
+Thus, for any basesize larger than 0, the finite convergence check reduces to checking whether $Q$ is an inductive invariant.  Because $Q$ is an inductive invariant, the algorithm will incorrectly decide that $R(1)$ is an inductive invariant.
+
+\subsection{\textit{R}(1) Counterexample in IC3PO}
 The $R(1)$ counterexample is easily realized in IC3PO with the following Ivy program:
 
 \begin{verbatim}
@@ -71,15 +78,27 @@ The $R(1)$ counterexample is easily realized in IC3PO with the following Ivy pro
 
   export t
 
-  invariant [safety] val(X) | ~val(X)
-  invariant [bad] (forall X:num,Y. X = Y) -> (forall Z. ~val(Z))
+  invariant [Q] val(X) | ~val(X)
+  invariant [R(1)] (forall X:num,Y. X = Y) -> (forall Z. ~val(Z))
 \end{verbatim}
 
-In this Ivy program, $Q$ (the safety property) is simply $true$ which is an inductive invariant.  $R(1)$ is realized as the invariant ``bad", which states that if there's exactly one constant in the sort ``num", then all values of ``val" are $false$ (which is identical to $Init$).
+In this Ivy program there is a single sort $num$, and $Q$ is separated from $R(1)$ for convenience.  Notice that
+\begin{align*}
+  &Q\\
+  \iff &\forall X: \text{val(X)} \lor \neg\text{val(X)}\\
+  \iff &true\\
+\end{align*}
 
-Running IC3PO on this program with $|S|=0$ or $|S|=1$ yields a property violation, while $|S|=2$ or higher suggests that $safety$ and $bad$ are together an inductive invariant.  Running ivy\_check (which does not use finite interpretations of the sorts) shows a counterexample on this program.
+which is clearly an inductive invariant, and
+\begin{align*}
+  &R(1)\\
+  \iff &(\forall X,Y: X=Y) \rightarrow (\forall Z, \neg\text{val(Z)})\\
+  \iff &(|num|=1) \rightarrow Init\\
+\end{align*}
 
-\subsection{\textit{R(m)} Counterexamples}
+Running IC3PO on this program with $|num|=0$ yields a property violation as expected.  Running with $|num|=1$ yields a property violation too; this is expected because IC3PO finds the property violation while it tries to synthesize an invariant (not during the finite convergence check).  For any values of $|num|>1$ however, IC3PO incorrectly posits that the conjunction of $Q$ and $R(1)$ is an inductive invariant.  Since this example is in EPR, I was able to run ivy\_check (which does not use finite interpretations of the sorts) to produce a counterexample and verify that $Q \land R(1)$ is not an inductive invariant.
+
+\subsection{\textit{R}(m) Counterexamples}
 This counterexample generalizes to higher values of $m$, though I have not tested it on IC3PO yet (because I don't know how to test for cardinality of a sort in Ivy).  Imagine the following Ivy program:
 
 \begin{verbatim}
@@ -99,18 +118,20 @@ This counterexample generalizes to higher values of $m$, though I have not teste
 
   export t
 
-  invariant [safety] val(X) | ~val(X)
+  invariant [Q] val(X) | ~val(X)
   invariant [R(100)] (|num|=100) -> (forall Z. ~val(Z))
 \end{verbatim}
 
-%In this case the conjunction of the invariants is still clearly not an inductive invariant.  However, users of IC3PO will most likely choose base sizes of small integers such as 2 or 3; checking for convergence using the method in \ref{sol} will incorrectly decide that the conjunction of the invariants \textit{is} an inductive invariant.  In this case, the user would need to choose a base size of 99 or larger for the method to work properly.
-In this case the conjunction of the invariants is still clearly not an inductive invariant.  However, users of IC3PO will most likely choose base sizes of small integers such as 2 or 3; checking for convergence using the method in sol will incorrectly decide that the conjunction of the invariants \textit{is} an inductive invariant.  In this case, the user would need to choose a base size of 99 or larger for the method to work properly.
+In this case, the conjunction of the invariants is still clearly not an inductive invariant.  However, users of IC3PO will most likely choose basesizes of small integers such as 2 or 3; checking for convergence using the method in \ref{sol} will incorrectly decide that the conjunction of the invariants \textit{is} an inductive invariant.  In this case, the user would need to choose a basesize of 99 or larger for the method to work properly.
+
+\section{Discussion}
+Since $m$ can be arbitrarily chosen to create $R(m)$, \textit{no} finite number of checks on finite instances are sufficient to prove that a a property is an inductive invariant.  However, if we restrict our checks to only properties of some special form, then a finite number of checks may be possible.
 
 \section{Conclusion}
-A counterexample to IC3PO's finite convergence detection algorithm is presented.  It is possible that restricting the universe of allowed inductive invariants could make the method work, and this would be a very interesting research direction.
+A counterexample to IC3PO's finite convergence detection algorithm is presented.  It is possible that restricting the universe of allowed inductive invariants could make the method (or a similar one) work, and this would be a very interesting research direction.
 
 
-%\bibliographystyle{plain}
-%\bibliography{refs.bib}
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}
