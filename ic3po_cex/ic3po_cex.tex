@@ -62,7 +62,7 @@ Notice that if $v>0$, then
   \iff &Q(v+1)\\
 \end{align*}
 
-Thus, for any basesize larger than 0, the finite convergence check reduces to checking whether $Q(v+1)$ is an inductive invariant.  Because $Q$ is an inductive invariant, the algorithm will incorrectly decide that $Q \land R(1)$ is an inductive invariant.
+Thus, for any basesize larger than 0, the finite convergence check reduces to checking whether $Q(v+1)$ is an inductive invariant in $T(v+1)$.  Because $Q$ is an inductive invariant, this check will pass and the algorithm will incorrectly decide that $Q \land R(1)$ is an inductive invariant.
 
 \subsection{\textit{R}(1) Counterexample in IC3PO}
 The $R(1)$ counterexample is easily realized in IC3PO with the following Ivy program:
@@ -119,7 +119,7 @@ This counterexample generalizes to higher values of $m$, though I have not teste
 In this case, the conjunction of the invariants ($Q \land R(100)$) is still clearly not an inductive invariant.  However, users of IC3PO will most likely choose basesizes of small integers such as 2 or 3; checking for convergence using the method in \ref{sol} will incorrectly decide that the conjunction of the invariants \textit{is} an inductive invariant.  In this case, the user would need to choose a basesize of 99 or 100 for the method to work properly.
 
 \section{Discussion}
-Since $m$ can be arbitrarily chosen to create $R(m)$, \textit{no} finite number of checks on finite instances are sufficient to prove that a a property is an inductive invariant.  However, it is possible that there is some restricted class of properties for which a finite number of checks does suffice.
+Since $m$ can be arbitrarily chosen to create $R(m)$, \textit{no} finite number of checks on finite instances are sufficient to prove that a property is an inductive invariant.  However, it is possible that there is some restricted class of properties for which a finite number of checks does suffice.
 
 \section{Conclusion}
 A counterexample to IC3PO's finite convergence detection algorithm is presented.  It is possible that restricting the universe of allowed inductive invariants could make the method (or a similar one) work, and this would be a very interesting research direction.
