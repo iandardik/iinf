@@ -1,0 +1,96 @@
+\documentclass[12pt]{article}
+\usepackage{anysize}
+\marginsize{1.2cm}{1.4cm}{.4cm}{1cm}
+
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{amsthm}
+
+\newtheorem{lemma}{Lemma}
+
+\title{Verification of ToyCS Using a Cutoff}
+\author{Ian Dardik}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+We introduce the ToyCS protocol and present a key safety property.  We then prove protocol correctness using a cutoff proof.
+
+\section{ToyCS}
+ToyCS is encoded in TLA+ as follows:
+\begin{verbatim}
+  Init == cs = {}
+
+  Next ==
+      \E p \in ProcSet :
+          /\ cs = {}
+          /\ cs' = cs \cup {p}
+
+  TypeOK == cs \in SUBSET ProcSet
+
+  Safety == \A p,q \in cs : p = q
+\end{verbatim}
+
+The variable \textit{cs} represents the critical section, while \textit{Safety} is effectively mutual exclusion.  ToyCS is trivially simple by design.  $Safety$ is in fact an inductive invariant itself, and happens to be exactly equal to $Reach$, the set of all reachable states.
+
+\section{Verification}
+
+\subsection{Why Use a Cutoff Proof?}
+\label{ssec:why}
+ToyCS and its key safety property are trivial; standard techniques such as model checking and the invariant method can easily be leveraged to verify ToyCS.  We will demonstrate correctness using the invariant method--specifically using a cutoff proof to prove consecution--in hopes that eventually we will discover a more general cutoff proof technique that can be automated.
+
+\subsection{Cutoff Proofs}
+There are many different styles of cutoff proofs.  In this note we will informally consider a cutoff proof to be an inductive proof on $\mathbb{N}$, where the cutoff is the highest natual that we use in the base case.  Thus, the cutoff proof will be a proof for the consecution step in the invariant method; initiation must still be proved in the usual way.
+
+\subsection{Initiation}
+Clearly it is the case that $Init \rightarrow Safety$.
+
+\subsection{Consecution}
+As mentioned in section \ref{ssec:why}, we will use a cutoff proof to establish consecution.  We begin by establishing a key lemma:
+
+\begin{lemma}
+  Let $S(n) := \{s | s \models Safety(n)\}$.  Then $\forall n \in \mathbb{N}, S(n+1) = S(n) \cup \{(cs = \{n+1\})\}$.
+\end{lemma}
+\begin{proof}
+  Let $n \in \mathbb{N}$ be given.  By \textit{TypeOK}, the entire state space is $\{(cs = x) | x \subseteq ProcSet\}$.  Now
+  \begin{align*}
+    S(n) = &\{s | s \models Safety(n)\}\\
+    = &\{(cs = \emptyset), (cs = \{0\}), ..., (cs = \{n\})\}\\
+  \end{align*}
+
+  Likewise, $S(n+1) = \{(cs = \emptyset), (cs = \{0\}), ..., (cs = \{n+1\})\}$.  Hence
+  \begin{align*}
+    S(n+1) = &\{(cs = \emptyset), (cs = \{0\}), ..., (cs = \{n+1\})\}\\
+    = &\{(cs = \emptyset), (cs = \{0\}), ..., (cs = \{n\})\} \cup \{(cs = \{n+1\})\}\\
+    = &S(n) \cup \{(cs = \{n+1\})\}\\
+  \end{align*}
+\end{proof}
+
+Next we present an argument the inductive cutoff proof to establish consecution.
+
+\begin{lemma}
+  $Safety$ is an inductive invariant for ToyCS, and hence is an inductive invariant for the finite instantiation of each $n \in \mathbb{N}$.  More precisely, $\forall n \in \mathbb{N}, Post(S(n)) \subseteq S(n)$.
+\end{lemma}
+\begin{proof}
+  In the base case, let $n=0$ and then $Post(S(0)) = \emptyset \subseteq S(0)$.  Now assume that for $n \in \mathbb{N}$, $Post(S(n)) \subseteq S(n)$.  Then
+  \begin{align*}
+    Post(S(n+1)) = &Post(S(n) \cup (cs = \{n+1\}))\\
+    = &Post(S(n) \cup \emptyset)\\
+    = &Post(S(n))\\
+    \subseteq &S(n)\\
+    \subset &S(n+1)
+  \end{align*}
+
+  Where $S(n) \subset S(n+1)$ clearly holds due to Lemma 1.
+\end{proof}
+
+\section{Conclusion}
+We have verified ToyCS using a cutoff proof during consecusion of the invariant method.  Hopefully in the future the proof techniques for a cutoff proof will converge into a more general algorithm or technique to help us verify parametric distributed protocols.
+
+\end{document}
