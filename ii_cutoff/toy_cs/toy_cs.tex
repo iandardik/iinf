@@ -78,7 +78,7 @@ Next we present an argument the inductive cutoff proof to establish consecution.
   $Safety$ is an inductive invariant for ToyCS, and hence is an inductive invariant for the finite instantiation of each $n \in \mathbb{N}$.  More precisely, $\forall n \in \mathbb{N}, Post(S(n)) \subseteq S(n)$.
 \end{lemma}
 \begin{proof}
-  In the base case, let $n=0$ and then $Post(S(0)) = \emptyset \subseteq S(0)$.  Now assume that for $n \in \mathbb{N}$, $Post(S(n)) \subseteq S(n)$.  Then
+  In the base case, let $n=0$ and then $Post(S(0)) = \emptyset \subseteq S(0)$.  Now assume that for $n \in \mathbb{N}$, $Post(S(n)) \subseteq S(n)$.  Then by Lemma 1 and the inductive hypothesis:
   \begin{align*}
     Post(S(n+1)) = &Post(S(n) \cup (cs = \{n+1\}))\\
     = &Post(S(n) \cup \emptyset)\\
@@ -86,9 +86,9 @@ Next we present an argument the inductive cutoff proof to establish consecution.
     \subseteq &S(n)\\
     \subset &S(n+1)
   \end{align*}
-
-  Where $S(n) \subset S(n+1)$ clearly holds due to Lemma 1.
 \end{proof}
+
+As a final note, we only used 0 to establish the base case in Lemma 2, and hence 0 is the cutoff for ToyCS.
 
 \section{Conclusion}
 We have verified ToyCS using a cutoff proof during consecusion of the invariant method.  Hopefully in the future the proof techniques for a cutoff proof will converge into a more general algorithm or technique to help us verify parametric distributed protocols.
