@@ -1,0 +1,40 @@
+\documentclass[12pt]{article}
+\usepackage{anysize}
+\marginsize{1.2cm}{1.4cm}{.4cm}{1cm}
+
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{amsthm}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+
+\title{CAV 2022 Protocol Conversion}
+\author{Ian Dardik}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a nontrivial exercise.  There are two main bottlenecks that we will cover in this note in the sections below.
+
+The two bottlenecks: quorum overlap property, and staying in EPR (ultimately we just trust IC3PO).
+
+\section{Conversion}
+Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a nontrivial exercise.  In particular, working within EPR and describing the \textit{Quorum Overlap} property were the two complications we encountered during conversion.  We will begin by describing our solution to these two complications, and then describing the conversion.
+
+The \textit{MongoLoglessDynamicRaft} protocol relies on the \textit{Quorum Overlap} property to safely move to new server configurations.  The \textit{Quorum Overlap} property is a relation between two confgurations (sets of servers):
+\begin{definition}
+  Given two configurations $c_1, c_2 \in 2^{Server}$, $c_1$ and $c_2$ exhibit the \textit{Quorum Overlap} property iff $\forall Q_1 \in Quorums(c_1), \forall Q_2 \in Quorums(c_2), \exists x \in Server, x \in Q_1 \land x \in Q_2$.
+\end{definition}
+
+Unfortunately, this statement naturally contains a $\forall\exists$ edge from the set $2^{Server}$ to itself, placing the property outside of Stratified EPR (Padon, et al.).  While techniques such as \textit{information hiding} exist for fitting an Ivy specification into EPR, we found these techniques to be nontrivial and we are still working to fit MLDR into EPR.  To bypass this difficulty, we leveraged the IC3PO tool, which includes a mechanism for checking inductiveness of a property outside of EPR.  Working outside of EPR--and more generally, FAU--allowed us to easily encode a powerset module as well as the Quorum Overlap property.
+
+Once we encoded the Quorum Overlap property as a relation, the translation from TLA+ to Ivy was straightforward.  
+
+\end{document}
