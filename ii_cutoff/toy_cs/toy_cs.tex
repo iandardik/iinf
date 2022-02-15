@@ -52,7 +52,7 @@ There are many different styles of cutoff proofs.  In this note we will informal
 Clearly it is the case that $Init \rightarrow Safety$.
 
 \subsection{Consecution}
-As mentioned in section \ref{ssec:why}, we will use a cutoff proof to establish consecution.  We begin by establishing a key lemma:
+As mentioned in section \ref{ssec:why}, we will use a cutoff proof to establish consecution.  We begin by establishing two key lemmas:
 
 \begin{lemma}
   Let $S(n) := \{s | s \models Safety(n)\}$.  Then $\forall n \in \mathbb{N}, S(n+1) = S(n) \cup \{(cs = \{n+1\})\}$.
@@ -72,23 +72,37 @@ As mentioned in section \ref{ssec:why}, we will use a cutoff proof to establish 
   \end{align*}
 \end{proof}
 
-Next we present an argument the inductive cutoff proof to establish consecution.
-
 \begin{lemma}
-  $Safety$ is an inductive invariant for ToyCS, and hence is an inductive invariant for the finite instantiation of each $n \in \mathbb{N}$.  More precisely, $\forall n \in \mathbb{N}, Post(S(n)) \subseteq S(n)$.
+  Let $Post_{*n}$ be short hand for $Post_{ProcSet=\{n\}}$.  Then $Post_{*n}(S(n)) = S(n)$.
 \end{lemma}
 \begin{proof}
-  In the base case, let $n=0$ and then $Post(S(0)) = \emptyset \subseteq S(0)$.  Now assume that for $n \in \mathbb{N}$, $Post(S(n)) \subseteq S(n)$.  Then by Lemma 1 and the inductive hypothesis:
   \begin{align*}
-    Post(S(n+1)) = &Post(S(n) \cup (cs = \{n+1\}))\\
-    = &Post(S(n) \cup \emptyset)\\
-    = &Post(S(n))\\
-    \subseteq &S(n)\\
-    \subset &S(n+1)
+    Post_{*n}(S(n)) = &Post_{*n}(\{(cs = \emptyset),...,(cs = \{n\})\})\\
+    = &\{(cs = \{n\})\} \cup \{(cs = \emptyset),...,(cs = \{n\})\}\\
+    = &S(n)\\
   \end{align*}
 \end{proof}
 
-As a final note, we only used 0 to establish the base case in Lemma 2, and hence 0 is the cutoff for ToyCS.
+Next we present an argument using an inductive cutoff proof to establish consecution.
+
+\begin{lemma}
+  $Safety$ is an inductive invariant for ToyCS, and hence is an inductive invariant for the finite instantiation of each $n \in \mathbb{N}$.  More precisely, $\forall n \in \mathbb{N}, Post_n(S(n)) \subseteq S(n)$.
+\end{lemma}
+\begin{proof}
+  In the base case, let $n=0$ and then $Post_n(S(0)) = \{(cs = \emptyset)\} = S(0)$.  Now assume that for $n \in \mathbb{N}$, $Post_n(S(n)) \subseteq S(n)$.  Then by Lemma 1, Lemma 2, and the inductive hypothesis:
+  \begin{align*}
+    Post_{n+1}(S(n+1)) = &Post_n(S(n+1)) \cup Post_{*n+1}(S(n+1))\\
+    = &Post_n(S(n)) \cup Post_n(\{(cs=\{n+1\})\}) \cup Post_{*n+1}(S(n+1))\\
+    = &Post_n(S(n)) \cup Post_n(\{(cs=\{n+1\})\}) \cup S(n+1)\\
+    \subseteq &S(n+1)\\
+  \end{align*}
+\end{proof}
+
+Two notes:
+\begin{enumerate}
+  \item We only used 0 to establish the base case in Lemma 2, and hence 0 is the cutoff for ToyCS.
+  \item $Post$ is parameterized by $ProcSet$, and hence we write $Post_n$ or $Post_{n+1}$ in the proof.
+\end{enumerate}
 
 \section{Conclusion}
 We have verified ToyCS using a cutoff proof during consecusion of the invariant method.  Hopefully in the future the proof techniques for a cutoff proof will converge into a more general algorithm or technique to help us verify parametric distributed protocols.
