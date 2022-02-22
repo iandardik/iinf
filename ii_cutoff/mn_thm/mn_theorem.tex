@@ -1,0 +1,65 @@
+\documentclass[12pt]{article}
+\usepackage{anysize}
+\marginsize{1.2cm}{1.4cm}{.4cm}{1cm}
+
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{amsthm}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newcommand{\msp}{\text{ }}
+
+\title{The M-N Theorem}
+\author{Ian Dardik}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+I begin with some preliminaries before introducing the M-N Theorem.
+
+
+\section{Preliminaries}
+Throughout this note we will implictly assume that $T=(I,\Delta)$ represents a transition system with one parameter $P$.  The parameter $P$ is a sort with identical elements (i.e. completely interchangable).  We will often use $\Phi$ and $\Delta$ to refer to formulas in Prenex Normal Form (PNF), where $\Phi$ is generally a property and $\Delta$ is the transition relation.  We will also refer to the matrices of these formulas as $\phi$ and $\delta$ respectively, i.e. $\phi$ and $\delta$ are propositional logic formulas parameterized by the variables that are quantified over in $\Phi$ and $\Delta$ respectively.
+
+\begin{definition}
+  Let $\phi$ and $\delta$ be the matries of two PNF formulas, where $\phi$ is parameterized over $m \in \mathbb{N}$ variables and $\delta$ is parameterized over $n \in \mathbb{N}$ variables.  A Finitely Instantiated Property (FIP) of $\phi \land \delta$ is a formula $(\phi \land \delta) [v_i \mapsto j]$, i.e. each free variable $v_i$ has been substituted for a concrete element $j \in P$.  
+\end{definition}
+
+\noindent \textbf{Example:}\\
+Let $\Phi = \forall p,q \in P, \phi(p,q)$ and $\Delta = \exists p \in P, \delta(p)$.  Then if $P= \{1,2,3\}$ is a finite instantiation of $T$, then $\phi(1,3) \land \delta(2)$ is a FIP as well as $\phi(1,1) \land \delta(1)$.
+
+\begin{definition}
+  Two FIPs $F_1 = \phi_1 \land \delta_1$ and $F_2 = \phi_2 \land \delta_2$ are equal iff $F_1$ is a permutation of $F_2$.
+\end{definition}
+
+\noindent \textbf{Example:}\\
+Let $P=\{1,2,3\}$, $F_1 = \phi_1(1,2)$, $F_2 = \phi_2(2,3)$ and $F_3 = \phi(2,2)$.  Then $F_1$ and $F_2$ are equal because $F_1 \msp (1 \msp 2 \msp 3) = F_2$ (using cycle notation).  However $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equal to both.
+
+
+\section{M-N Theorem}
+
+\begin{lemma}
+  Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then any FIP of $T(P)$ that appears when $|P| > m+n$ also appears when $|P| = m+n$.
+\end{lemma}
+\begin{proof}
+  Let $|P| = m + n + z$ where $z \in \mathbb{Z}_{>0}$.  Then, because $\phi$ and $\delta$ are parameterized by exactly $m+n$ variables, there must be at least $z$ unused variables (very similar to the Pigeonhole Principle).  Let $P = \{v_i\}_{i=1}^{i=m+n+z}$, let $u \leq m+n$ be the \textit{number} of variables that are used, and finally let $\{v_{i_k}\}_{k=1}^{k=u}$ be the \textit{set} of variables that are used.  Consider the permuation using the following cycle notation: $C = (v_{i_1} v_1)...(v_{i_u} v_u)$.  It is clear that $(\phi \land \delta) \msp C = (\phi \land \delta)$, but notice that $(\phi \land \delta) \msp C$ only uses variables $1 ... u$.  Since $u \leq m+n$, it must be the case that $(\phi \land \delta) \msp C$ is a FIP of $T$ when $|P| = m+n$.
+\end{proof}
+
+\begin{theorem}
+  Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then $\Phi$ is an inductive invariant for $T(P)$ iff it is an inductive invariant for the finite instantiation $T(m+n)$.
+\end{theorem}
+\begin{proof}
+  We will skip the case when the finite instantiation is less than $m+n$ and focus when it is larger for now.  
+
+  Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider the FIP when $|P|=k$: $\phi(1 ... m) \land \delta(1 ... n)$.  By Lemma 1, we know that this FIP exists in $T(m+n)$, and hence we have a cycle $R$ and a permutation $(\phi(1 ... m) \land \delta(1 ... n) \msp R)$ that only contains the variables $1 ... (m+n)$.  Thus $(\phi(1 ... m) \land \delta(1 ... n) \msp R) \rightarrow (\phi(1 ... m)' \msp R)$, which is equal to $\phi(1 ... m)'$ by definition.
+\end{proof}
+
+\end{document}
