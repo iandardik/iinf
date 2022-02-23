@@ -12,6 +12,7 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
 \newcommand{\msp}{\text{ }}
+\newcommand{\fips}{\text{FIPS}}
 
 \title{The M-N Theorem}
 \author{Ian Dardik}
@@ -31,28 +32,72 @@ Throughout this note we will consider a transition system $T=(I,\Delta)$ paramet
 
 Because $\Phi$ and $\Delta$ are in PNF, will also can refer directly to the matrices of these formulas as $\phi$ and $\delta$ respectively; i.e. $\phi$ and $\delta$ are propositional logic formulas parameterized by the variables that are quantified over in $\Phi$ and $\Delta$ respectively.
 
+Because each element of $P$ is interchangeable for another, we assume, without loss of generality, that $P = \{1,...,|P|\}$.  In other words, for two sorts $P$ and $Q$, $|P| < |Q| \leftrightarrow P \subset Q$.
+
+Another detail on the assumption that $P$'s elements are identical: more precisely, let $\phi \land \delta$ be a property parameterized by the variables in sort $P$, and let $g : P \to P$ be injective.  Then:
+$$\phi \land \delta \leftrightarrow (\phi \land \delta)[P \mapsto g(P)]$$
+
+
+\section{Finitely Instantiated Properties (FIPs)}
+In this section we introduce the FIP, a key tool for proving the M-N Theorem.  We prove two basic lemmas about FIPs that will come in handy later.
+
 \begin{definition}
   Let $\Phi$ and $\Delta$ be of two PNF formulas and let $\phi$ and $\delta$ be their respective matrices.  Assume that $\Phi$ quantifies over $m \in \mathbb{N}$ variables while $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then a Finitely Instantiated Property (FIP) of $\Phi \land \Delta$ is a formula $(\phi \land \delta) [v_i \mapsto j]$, where each free variable $v_i$ has been substituted for a concrete element $j \in P$.  
 \end{definition}
 
 \noindent \textbf{Example:}\\
-Let $\Phi = \forall p,q \in P, \phi(p,q)$ and $\Delta = \exists p \in P, \delta(p)$.  Then if $P= \{1,2,3\}$ is a finite instantiation of $T$, the formulas $\phi(1,3) \land \delta(2)$ and $\phi(1,1) \land \delta(1)$ are both FIPs of $\Phi \land \Delta$.
+Let $\Phi = \forall p,q \in P, \phi(p,q)$ and $\Delta = \exists p \in P, \delta(p)$.  Then if $|P|=3$ is a finite instantiation of $T$, the formulas $\phi(1,3) \land \delta(2)$ and $\phi(1,1) \land \delta(1)$ are both FIPs of $\Phi \land \Delta$.
 
 \begin{definition}
   Two FIPs $F_1 = \phi_1 \land \delta_1$ and $F_2 = \phi_2 \land \delta_2$ are equivalent iff $F_1$ is a permutation of $F_2$.
 \end{definition}
 
 \noindent \textbf{Example:}\\
-Let $P=\{1,2,3\}$, $F_1 = \phi_1(1,2) \land \delta(1)$, $F_2 = \phi_2(2,3) \land \delta(2)$ and $F_3 = \phi(2,2) \land \delta(2)$.  Then $F_1 \equiv F_2$ because $F_1 \msp (1 \msp 2 \msp 3) = F_2$ (using cycle notation).  However $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equivalent to both.\\
+Let $|P|=3$, $F_1 = \phi_1(1,2) \land \delta(1)$, $F_2 = \phi_2(2,3) \land \delta(2)$ and $F_3 = \phi(2,2) \land \delta(2)$.  Then $F_1 \equiv F_2$ because $F_1 \msp (1 \msp 2 \msp 3) = F_2$ (using cycle notation).  However $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equivalent to both.\\
 
-The notion of equivalency is important because it partitions a FIP into distinct classes of action types.  In the example above, $F_1$ and $F_2$ describe the same class of property and action because each element of $P$ is interchangeable for one another.  This leads us to the following lemma that is rather intuitive:
+The notion of equivalency is important because it partitions a formula $\Phi \land \Delta$ into distinct classes of FIPs.  In the example above, $F_1$ and $F_2$ describe the same class of property and action because each element of $P$ is interchangeable for one another.  This leads us to the following lemma that is rather intuitive:
 
 \begin{lemma}
-  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ be FIPs for $\Phi_1\land\Delta_1$ and $\Phi_2\land\Delta_2$ respectively.  Suppose that $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$, i.e. there exists a cycle $C$ such that $(\phi_1\land\delta_1) \msp C = \phi_2\land\delta_2$.  Then
-  $$((\phi_1 \land \delta_1) \msp C \rightarrow \phi_1') \leftrightarrow (\phi_2 \land \delta_2 \rightarrow \phi_2')$$
+  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs for $\Phi\land\Delta$.  Suppose that $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$.  Then:
+  $$(\phi_1 \land \delta_1 \rightarrow \phi_1') \leftrightarrow (\phi_2 \land \delta_2 \rightarrow \phi_2')$$
 \end{lemma}
 \begin{proof}
-  This result follows immediately from the fact that each element of $P$ is interchangeable for one another.
+  Because $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$, there exists a cycle $C$ such that $(\phi_1\land\delta_1) \msp C = \phi_2\land\delta_2$.  However $C$ is an injective map, and hence:
+  $$\phi_1\land\delta_1 \leftrightarrow \phi_1\land\delta_1[P \mapsto C(P)] = \phi_2\land\delta_2$$
+
+  TODO: what about $\phi'$'s?
+
+  %$\phi_1\land\delta_1[P \mapsto C(P)] = \phi_2\land\delta_2$.  Hence:
+  %Since each element of $P$ is interchangeable for one another, we can transform $\phi_1\land\delta_1$ by the mapping implied by $C$ to create an transform $(\phi_2 \land \delta_2 \rightarrow \phi_2')$ into $((\phi_1 \land \delta_1) \msp C \rightarrow \phi_1' \msp C)$ to see that the two formulas are equivalent.
+\end{proof}
+
+We next introduce the $\fips$ operator:
+\begin{definition}
+  Let $\Phi$ and $\Delta$ be PNF properties with respective matrices $\phi$ and $\delta$.  Suppose that $\Phi$ quantifies over $m \in \mathbb{N}$ variables while $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then:
+  $$\fips(\Phi \land \Delta, |P|) := \{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}$$
+\end{definition}
+
+The $\fips$ operator simply contains every possible FIP for a given formula $\Phi \land \Delta$.  Next, we prove this intuitive result:
+
+\begin{lemma}
+  $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \leftrightarrow |P| \leq |Q|$
+\end{lemma}
+\begin{proof}
+  Recall that this note we assume $|P| \leq |Q| \leftrightarrow P \subseteq Q$.  We begin by showing that $|P| \leq |Q| \rightarrow \fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$:
+  \begin{align*}
+    \fips(\Phi \land \Delta, |P|) = &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}\\
+    \subseteq &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q\}\\
+    = &\fips(\Phi \land \Delta, |Q|)\\
+  \end{align*}
+
+  Where the subset step follows from the fact that $P \subseteq Q$.  Next we show that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \rightarrow |P| \leq |Q|$.  Suppose that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$.  Then we know that 
+  \begin{align*}
+    &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}\\
+    \subseteq &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q\}\\
+  \end{align*}
+
+  Which implies that $P \subseteq Q$, which in turn implies that $|P| \leq |Q|$.
+
 \end{proof}
 
 
@@ -63,10 +108,10 @@ We will build intuition by proving the M-N Theorem for small examples.  Coming s
 \section{M-N Theorem}
 
 \begin{lemma}
-  Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then any FIP of $\Delta \land \Phi$ that appears when $|P| > m+n$ also appears when $|P| = m+n$.
+  Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then every FIP of $\Delta \land \Phi$ that appears when $|P| > m+n$ has an equivalent FIP that appears when $|P| = m+n$.
 \end{lemma}
 \begin{proof}
-  Let $|P| = m + n + z$ where $z \in \mathbb{Z}_{>0}$.  Then, because $\phi$ and $\delta$ are parameterized by exactly $m+n$ variables, there must be at least $z$ unused variables (very similar to the Pigeonhole Principle).  Let $P = \{v_i\}_{i=1}^{m+n+z}$ where each $v_i$ is a variable, let $u \leq m+n$ be the \textit{number} of variables that are used in $\phi \land \delta$, and finally let $\{v_{i_k}\}_{k=1}^{u}$ be the \textit{set} of variables that are used.  Consider the permuation using the following cycle notation: $C = (v_{i_1} v_1)...(v_{i_u} v_u)$.  It is clear that $(\phi \land \delta) \msp C \equiv (\phi \land \delta)$, but notice that $(\phi \land \delta) \msp C$ only uses variables $v_1 ... v_u$.  Since $u \leq m+n$, it must be the case that $(\phi \land \delta) \msp C$ is a FIP of $\Phi \land \Delta$ when $|P| = m+n$.
+  Let $|P| = m + n + z$ where $z \in \mathbb{Z}_{>0}$.  Then, because $\phi$ and $\delta$ are parameterized by exactly $m+n$ variables, there must be at least $z$ unused variables.  Let $P = \{v_i\}_{i=1}^{m+n+z}$ where each $v_i$ is a variable, let $u \leq m+n$ be the \textit{number} of variables that are used in $\phi \land \delta$, and finally let $\{v_{i_k}\}_{k=1}^{u}$ be the \textit{set} of variables that are used.  Consider the permuation using the following cycle notation: $C = (v_{i_1} v_1)...(v_{i_u} v_u)$.  Notice that $(\phi \land \delta) \msp C$ only uses variables $v_1 ... v_u$.  Since $u \leq m+n$, it must be the case that $(\phi \land \delta) \msp C$ is a FIP of $\Phi \land \Delta$ when $|P| = m+n$.
 \end{proof}
 
 \begin{theorem}
@@ -77,7 +122,7 @@ We will build intuition by proving the M-N Theorem for small examples.  Coming s
 
   We will skip the case when the finite instantiation is less than $m+n$ and focus when it is larger for now.
 
-  Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider the FIP when $|P|=k$: $\phi(1 ... m) \land \delta(1 ... n)$.  By Lemma 2, we know that this FIP exists in $T(m+n)$, and hence we have a cycle $R$ and a permutation $(\phi(1 ... m) \land \delta(1 ... n) \msp R)$ that only contains the variables $v_1 ... v_{m+n}$.  By Lemma 1, $(\phi(1 ... m) \land \delta(1 ... n) \msp R) \rightarrow (\phi(1 ... m)' \msp R)$, which is equivalent to $\phi(1 ... m)'$ by definition.
+  Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP when $|P|=k$: $\phi(1,...,m) \land \delta(1,...,n)$.  By Lemma 4, we know that an equivalent FIP exists in $T(m+n)$, and hence we have a cycle $R$ and a permutation $(\phi(1,...,m) \land \delta(1,...,n) \msp R)$ that \textit{at most} contains the variables $v_1 ... v_{m+n}$.  By Lemma 3, $(\phi(1,...,m) \land \delta(1,...,n) \msp R) \rightarrow (\phi(1,...,m)' \msp R)$, which is equivalent to $\phi(1,...,m)'$ by definition.
 \end{proof}
 
 \end{document}
