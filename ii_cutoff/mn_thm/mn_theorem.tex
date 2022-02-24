@@ -9,6 +9,7 @@
 \usepackage{amsthm}
 
 \newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
 \newcommand{\msp}{\text{ }}
@@ -34,41 +35,47 @@ Because $\Phi$ and $\Delta$ are in PNF, will also can refer directly to the matr
 
 Because each element of $P$ is interchangeable for another, we assume, without loss of generality, that $P = \{1,...,|P|\}$.  In other words, for two sorts $P$ and $Q$, $|P| < |Q| \leftrightarrow P \subset Q$.
 
-Another detail on the assumption that $P$'s elements are identical: more precisely, let $\phi \land \delta$ be a property parameterized by the variables in sort $P$, and let $g : P \to P$ be injective.  Then:
-$$\phi \land \delta \leftrightarrow (\phi \land \delta)[P \mapsto g(P)]$$
+Another detail on the assumption that $P$'s elements are identical: more precisely, let $\alpha$ be a FOL formula parameterized by the variables in sort $P$ (possibly with primes), and let $g : P \to P$ be injective.  Then:
+$$\alpha \leftrightarrow \alpha[P \mapsto g(P)]$$
+%$$\phi \land \delta \leftrightarrow (\phi \land \delta)[P \mapsto g(P)]$$
 
 
 \section{Finitely Instantiated Properties (FIPs)}
 In this section we introduce the FIP, a key tool for proving the M-N Theorem.  We prove two basic lemmas about FIPs that will come in handy later.
 
 \begin{definition}
-  Let $\Phi$ and $\Delta$ be of two PNF formulas and let $\phi$ and $\delta$ be their respective matrices.  Assume that $\Phi$ quantifies over $m \in \mathbb{N}$ variables while $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then a Finitely Instantiated Property (FIP) of $\Phi \land \Delta$ is a formula $(\phi \land \delta) [v_i \mapsto j]$, where each free variable $v_i$ has been substituted for a concrete element $j \in P$.  
+  Let $\Phi$ and $\Delta$ be of two PNF formulas and let $\phi$ and $\delta$ be their respective matrices.  Assume that $\Phi$ quantifies over $m \in \mathbb{N}$ variables while $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then a Finitely Instantiated Property (FIP) of $[\Phi\land\Delta](|P|)$ is a formula $(\phi \land \delta) [v_i \mapsto j]$, where each free variable $v_i$ has been substituted for a concrete element $j \in P$.  
 \end{definition}
 
-\noindent \textbf{Example:}\\
-Let $\Phi = \forall p,q \in P, \phi(p,q)$ and $\Delta = \exists p \in P, \delta(p)$.  Then if $|P|=3$ is a finite instantiation of $T$, the formulas $\phi(1,3) \land \delta(2)$ and $\phi(1,1) \land \delta(1)$ are both FIPs of $\Phi \land \Delta$.
+\noindent \textbf{Remark 1:}\\
+We will often refer to $\phi\land\delta$ without the substitution syntax for brevity.  In these cases, we will explicitly refer to $\phi\land\delta$ as a FIP, and not as a matrix.\\
+
+\noindent \textbf{Example 1:}\\
+Let $\Phi = \forall p,q \in P, \phi(p,q)$ and $\Delta = \exists p \in P, \delta(p)$.  Then $\phi(1,3)\land\delta(2)$ and $\phi(1,1)\land\delta(1)$ are both FIPs of $[\Phi\land\Delta](3)$ (i.e. for the case when $|P|=3$).
 
 \begin{definition}
-  Two FIPs $F_1 = \phi_1 \land \delta_1$ and $F_2 = \phi_2 \land \delta_2$ are equivalent iff $F_1$ is a permutation of $F_2$.
+  Two FIPs $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ are equivalent iff $\phi_1\land\delta_1$ is a permutation of $\phi_2\land\delta_2$.
 \end{definition}
 
-\noindent \textbf{Example:}\\
-Let $|P|=3$, $F_1 = \phi_1(1,2) \land \delta(1)$, $F_2 = \phi_2(2,3) \land \delta(2)$ and $F_3 = \phi(2,2) \land \delta(2)$.  Then $F_1 \equiv F_2$ because $F_1 \msp (1 \msp 2 \msp 3) = F_2$ (using cycle notation).  However $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equivalent to both.\\
+\noindent \textbf{Remark 2:}\\
+Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs for $\Phi\land\Delta$.  If $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$ then $\phi_1 \equiv \phi_2$.  This is because we syntactically separate the $\phi_i$'s and $\delta_i$'s to correspond to $\Phi$ and $\Delta$ respectively.\\
 
-The notion of equivalency is important because it partitions a formula $\Phi \land \Delta$ into distinct classes of FIPs.  In the example above, $F_1$ and $F_2$ describe the same class of property and action because each element of $P$ is interchangeable for one another.  This leads us to the following lemma that is rather intuitive:
+\noindent \textbf{Remark 3:}\\
+If $\phi_1 \equiv \phi_2$, then it must be the case that $\phi_1' \equiv \phi_2'$ because priming is simply a syntactic transformation.\\
+TODO: we should probably include a proof for this.\\
+
+\noindent \textbf{Example 2:}\\
+Let $F_1 = \phi_1(1,2) \land \delta(1)$, $F_2 = \phi_2(2,3) \land \delta(2)$ and $F_3 = \phi(2,2) \land \delta(2)$ be FIPs of $[\Phi\land\Delta](3)$.  Then $F_1 \equiv F_2$ because $F_1 \msp (1 \msp 2 \msp 3) = F_2$ (using cycle notation).  However $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equivalent to either.\\
+
+The notion of equivalency is important because it partitions a formula $\Phi \land \Delta$ into distinct classes of FIPs.  In the example above, $F_1$ and $F_2$ describe the same class of properties/actions because each element of $P$ is interchangeable for one another.  This leads us to the following lemma that is rather intuitive:
 
 \begin{lemma}
   Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs for $\Phi\land\Delta$.  Suppose that $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$.  Then:
-  $$(\phi_1 \land \delta_1 \rightarrow \phi_1') \leftrightarrow (\phi_2 \land \delta_2 \rightarrow \phi_2')$$
+  $$(\phi_1 \land \delta_1) \leftrightarrow (\phi_2 \land \delta_2)$$
 \end{lemma}
 \begin{proof}
   Because $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$, there exists a cycle $C$ such that $(\phi_1\land\delta_1) \msp C = \phi_2\land\delta_2$.  However $C$ is an injective map, and hence:
-  $$\phi_1\land\delta_1 \leftrightarrow \phi_1\land\delta_1[P \mapsto C(P)] = \phi_2\land\delta_2$$
-
-  TODO: what about $\phi'$'s?
-
-  %$\phi_1\land\delta_1[P \mapsto C(P)] = \phi_2\land\delta_2$.  Hence:
-  %Since each element of $P$ is interchangeable for one another, we can transform $\phi_1\land\delta_1$ by the mapping implied by $C$ to create an transform $(\phi_2 \land \delta_2 \rightarrow \phi_2')$ into $((\phi_1 \land \delta_1) \msp C \rightarrow \phi_1' \msp C)$ to see that the two formulas are equivalent.
+  $$\phi_1\land\delta_1 \leftrightarrow (\phi_1\land\delta_1)[P \mapsto C(P)] = \phi_2\land\delta_2$$
 \end{proof}
 
 We next introduce the $\fips$ operator:
@@ -120,9 +127,9 @@ We will build intuition by proving the M-N Theorem for small examples.  Coming s
 \begin{proof}
   It is clear that if $\Phi$ is an inductive invariant, then it must be an inductive invariant for $T(m+n)$.  We prove the opposite direction in the remainder of the proof.
 
-  We will skip the case when the finite instantiation is less than $m+n$ and focus when it is larger for now.
+  In the case when the finite instantiation is less than $m+n$, the theorem follows by Lemma 2.  We will focus on the case when the finite instantiation is larger than $m+n$ for the remainder of the proof.
 
-  Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP when $|P|=k$: $\phi(1,...,m) \land \delta(1,...,n)$.  By Lemma 4, we know that an equivalent FIP exists in $T(m+n)$, and hence we have a cycle $R$ and a permutation $(\phi(1,...,m) \land \delta(1,...,n) \msp R)$ that \textit{at most} contains the variables $v_1 ... v_{m+n}$.  By Lemma 3, $(\phi(1,...,m) \land \delta(1,...,n) \msp R) \rightarrow (\phi(1,...,m)' \msp R)$, which is equivalent to $\phi(1,...,m)'$ by definition.
+  Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $\Phi(k) \land \Delta(k)$.  By Lemma 3, there exists a FIP $\phi_2\land\delta_2$ of $\Phi(m+n) \land \Delta(m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  Now $\phi_2\land\delta_2$ holds by Lemma 1, which implies $\phi_2'$.  By Remark 2, $\phi \equiv \phi_2$, and by Remark 3, $\phi' \equiv \phi_2'$.  Finally, by Lemma 1, we can conclude that $\phi'$ holds.
 \end{proof}
 
 \end{document}
