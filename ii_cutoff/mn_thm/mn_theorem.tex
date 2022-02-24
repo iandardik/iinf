@@ -8,10 +8,16 @@
 \usepackage{hyperref}
 \usepackage{amsthm}
 
+\theoremstyle{definition}
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
+
+\theoremstyle{remark}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
 \newcommand{\msp}{\text{ }}
 \newcommand{\fips}{\text{FIPS}}
 
@@ -43,33 +49,62 @@ $$\alpha \leftrightarrow \alpha[P \mapsto g(P)]$$
 \section{Finitely Instantiated Properties (FIPs)}
 In this section we introduce the FIP, a key tool for proving the M-N Theorem.  We prove two basic lemmas about FIPs that will come in handy later.
 
-\begin{definition}
-  Let $\Phi$ and $\Delta$ be of two PNF formulas and let $\phi$ and $\delta$ be their respective matrices.  Assume that $\Phi$ quantifies over $m \in \mathbb{N}$ variables while $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then a Finitely Instantiated Property (FIP) of $[\Phi\land\Delta](|P|)$ is a formula $(\phi \land \delta) [v_i \mapsto j]$, where each free variable $v_i$ has been substituted for a concrete element $j \in P$.  
+\subsection{FIP Basics}
+
+\begin{definition}[FIP]
+  Let $\Phi$ and $\Delta$ be of two PNF formulas and let $\phi$ and $\delta$ be their respective matrices.  Assume that $\Phi$ quantifies over $m \in \mathbb{N}$ variables while $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then a Finitely Instantiated Property (FIP) of $[\Phi\land\Delta](|P|)$ is a formula $(\phi \land \delta) [v_i \mapsto e_i]$, where each free variable $v_i$ has been substituted for a concrete element $e_i \in P$.  
 \end{definition}
 
-\noindent \textbf{Remark 1:}\\
-We will often refer to $\phi\land\delta$ without the substitution syntax for brevity.  In these cases, we will explicitly refer to $\phi\land\delta$ as a FIP, and not as a matrix.\\
+\begin{example}
+  Let $\Phi = \forall p,q \in P, \phi(p,q)$ and $\Delta = \exists p \in P, \delta(p)$.  Then $\phi(1,3)\land\delta(2)$ and $\phi(1,1)\land\delta(1)$ are both FIPs of $[\Phi\land\Delta](3)$ (i.e. for the case when $|P|=3$).
+\end{example}
 
-\noindent \textbf{Example 1:}\\
-Let $\Phi = \forall p,q \in P, \phi(p,q)$ and $\Delta = \exists p \in P, \delta(p)$.  Then $\phi(1,3)\land\delta(2)$ and $\phi(1,1)\land\delta(1)$ are both FIPs of $[\Phi\land\Delta](3)$ (i.e. for the case when $|P|=3$).
+\begin{remark}
+  We will often refer to $\phi\land\delta$ without the substitution syntax for brevity.  In these cases, we will explicitly refer to $\phi\land\delta$ as a FIP, and not as a matrix.
+\end{remark}
 
-\begin{definition}
-  Two FIPs $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ are equivalent iff $\phi_1\land\delta_1$ is a permutation of $\phi_2\land\delta_2$.
+\begin{definition}[Equivalent]
+  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ be FIPs, then $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$ iff $\phi_1\land\delta_1$ is a permutation of $\phi_2\land\delta_2$.  In this case, $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ are said to be \textit{equivalent}.
 \end{definition}
 
-\noindent \textbf{Remark 2:}\\
-Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs for $\Phi\land\Delta$.  If $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$ then $\phi_1 \equiv \phi_2$.  This is because we syntactically separate the $\phi_i$'s and $\delta_i$'s to correspond to $\Phi$ and $\Delta$ respectively.\\
+\begin{example}
+  Let $F_1 = \phi_1(1,2) \land \delta(1)$, $F_2 = \phi_2(2,3) \land \delta(2)$ and $F_3 = \phi(2,2) \land \delta(2)$ be FIPs of $[\Phi\land\Delta](3)$.  Then $F_1 \equiv F_2$ because $F_1 \msp (1 \msp 2 \msp 3) = F_2$ (using cycle notation).  However $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equivalent to either.
+\end{example}
 
-\noindent \textbf{Remark 3:}\\
-If $\phi_1 \equiv \phi_2$, then it must be the case that $\phi_1' \equiv \phi_2'$ because priming is simply a syntactic transformation.\\
-TODO: we should probably include a proof for this.\\
+\begin{remark}
+  \label{rmk:fip-eq-comm}
+  FIP equivalency is commutative because permutations are commutative.
+\end{remark}
 
-\noindent \textbf{Example 2:}\\
-Let $F_1 = \phi_1(1,2) \land \delta(1)$, $F_2 = \phi_2(2,3) \land \delta(2)$ and $F_3 = \phi(2,2) \land \delta(2)$ be FIPs of $[\Phi\land\Delta](3)$.  Then $F_1 \equiv F_2$ because $F_1 \msp (1 \msp 2 \msp 3) = F_2$ (using cycle notation).  However $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equivalent to either.\\
+\begin{remark}
+  \label{rmk:fip-syntax}
+  We specifically write a FIP of $[\Phi\land\Delta](|P|)$ as ``$\phi\land\delta$" to show the syntactic correspondence of $\phi$ to $\Phi$ and $\delta$ to $\Delta$.  In other words, it is always the case that $\phi = \text{RemoveMatrix}(\Phi)[v_i \mapsto e_i]$ and $\delta = \text{RemoveMatrix}(\Delta)[v_i \mapsto e_i]$.
+\end{remark}
+
+\begin{lemma}
+  \label{lem:and-decomp}
+  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs of $[\Phi\land\Delta](|P|)$.  Then:
+  $$((\phi_1\land\delta_1) \equiv (\phi_2\land\delta_2)) \rightarrow ((\phi_1 \equiv \phi_2) \land (\delta_1 \equiv \delta_2))$$
+\end{lemma}
+\begin{proof}
+  Suppose $(\phi_1\land\delta_1) \equiv (\phi_2\land\delta_2)$.  Then there exists a cycle $C$ such that $(\phi_1\land\delta_1) \msp C = (\phi_2\land\delta_2)$, and equivalently $(\phi_1 \msp C) \land (\delta_1 \msp C) = (\phi_2\land\delta_2)$.  From Remark \ref{rmk:fip-syntax}, we see that $\phi_1$ and $\phi_2$ are identical up to a finite instantiation, and hence $\phi_1 \msp C = \phi_2$; a similar argument shows that $\delta_1 \msp C = \delta_2$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:prime-bijec}
+  Let $\phi_1$ and $\phi_2$ be quantifier-free properties parameterized by the sort $P$.  Then:
+  $$(\phi_1 \equiv \phi_2) \leftrightarrow (\phi_1' \equiv \phi_2')$$
+\end{lemma}
+\begin{proof}
+  Suppose that $\phi_1 \equiv \phi_2$.  Then there exists a cycle $C$ such that $\phi_1 \msp C = \phi_2$.  Notice that the prime operator only affects state variables, and not parameters or their finite instantiations.  Hence the prime operator does not affect the application of the cycle $C$ and we have:
+  $$\phi_2' = (\phi_1 \msp C)' = (\phi_1') \msp C$$
+  Showing that $\phi_1' \equiv \phi_2'$ by definition.  We omit the proof in the other direction since it is nearly identical.
+\end{proof}
 
 The notion of equivalency is important because it partitions a formula $\Phi \land \Delta$ into distinct classes of FIPs.  In the example above, $F_1$ and $F_2$ describe the same class of properties/actions because each element of $P$ is interchangeable for one another.  This leads us to the following lemma that is rather intuitive:
 
 \begin{lemma}
+  \label{lem:eqiv-bijec}
   Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs for $\Phi\land\Delta$.  Suppose that $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$.  Then:
   $$(\phi_1 \land \delta_1) \leftrightarrow (\phi_2 \land \delta_2)$$
 \end{lemma}
@@ -78,7 +113,9 @@ The notion of equivalency is important because it partitions a formula $\Phi \la
   $$\phi_1\land\delta_1 \leftrightarrow (\phi_1\land\delta_1)[P \mapsto C(P)] = \phi_2\land\delta_2$$
 \end{proof}
 
-We next introduce the $\fips$ operator:
+\subsection{The $\fips$ Operator}
+
+In this section we introduce the $\fips$ operator:
 \begin{definition}
   Let $\Phi$ and $\Delta$ be PNF properties with respective matrices $\phi$ and $\delta$.  Suppose that $\Phi$ quantifies over $m \in \mathbb{N}$ variables while $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then:
   $$\fips(\Phi \land \Delta, |P|) := \{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}$$
@@ -87,6 +124,7 @@ We next introduce the $\fips$ operator:
 The $\fips$ operator simply contains every possible FIP for a given formula $\Phi \land \Delta$.  Next, we prove this intuitive result:
 
 \begin{lemma}
+  \label{lem:fips-subset}
   $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \leftrightarrow |P| \leq |Q|$
 \end{lemma}
 \begin{proof}
@@ -114,22 +152,23 @@ We will build intuition by proving the M-N Theorem for small examples.  Coming s
 
 \section{M-N Theorem}
 
-\begin{lemma}
-  Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then every FIP of $\Delta \land \Phi$ that appears when $|P| > m+n$ has an equivalent FIP that appears when $|P| = m+n$.
+\begin{lemma}[FIP Saturation]
+  \label{lem:fip-sat}
+  Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then every FIP of $[\Delta \land \Phi](k)$, for $k > m+n$, has an equivalent FIP in $[\Delta \land \Phi](m+n)$.
 \end{lemma}
 \begin{proof}
-  Let $|P| = m + n + z$ where $z \in \mathbb{Z}_{>0}$.  Then, because $\phi$ and $\delta$ are parameterized by exactly $m+n$ variables, there must be at least $z$ unused variables.  Let $P = \{v_i\}_{i=1}^{m+n+z}$ where each $v_i$ is a variable, let $u \leq m+n$ be the \textit{number} of variables that are used in $\phi \land \delta$, and finally let $\{v_{i_k}\}_{k=1}^{u}$ be the \textit{set} of variables that are used.  Consider the permuation using the following cycle notation: $C = (v_{i_1} v_1)...(v_{i_u} v_u)$.  Notice that $(\phi \land \delta) \msp C$ only uses variables $v_1 ... v_u$.  Since $u \leq m+n$, it must be the case that $(\phi \land \delta) \msp C$ is a FIP of $\Phi \land \Delta$ when $|P| = m+n$.
+  Let $k = |P| = m + n + z$ where $z \in \mathbb{Z}_{>0}$ (recall that $P = \{1,...,k\}$).  Let $\phi\land\delta$ be an arbitrary FIP of $[\Phi\land\Delta](k)$.  Then, because $[\Phi\land\Delta](k)$ quantifies over exactly $m+n$ variables, there must be at least $z$ elements in $P$ that do not appear in $\phi\land\delta$.  Let $u \leq m+n$ be the \textit{number} of elements of $P$ that are used in $\phi \land \delta$, and let $\{e_i\}_{i=1}^{u}$ be the \textit{subset} of elements that are used.  Consider the permuation using the following cycle notation: $C = (e_1 \msp 1)...(e_u \msp u)$.  Notice that $(\phi \land \delta) \msp C$ only uses elements $1 ... u$.  Since $u \leq m+n$, it must be the case that $(\phi \land \delta) \msp C$ is a FIP of $[\Phi \land \Delta](m+n)$.
 \end{proof}
 
-\begin{theorem}
+\begin{theorem}[M-N]
   Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then $\Phi$ is an inductive invariant for $T(P)$ iff it is an inductive invariant for the finite instantiation $T(m+n)$.
 \end{theorem}
 \begin{proof}
   It is clear that if $\Phi$ is an inductive invariant, then it must be an inductive invariant for $T(m+n)$.  We prove the opposite direction in the remainder of the proof.
 
-  In the case when the finite instantiation is less than $m+n$, the theorem follows by Lemma 2.  We will focus on the case when the finite instantiation is larger than $m+n$ for the remainder of the proof.
+  In the case when the finite instantiation is less than $m+n$, the theorem follows by Lemma \ref{lem:fips-subset}.  We will focus on the case when the finite instantiation is larger than $m+n$ for the remainder of the proof.
 
-  Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $\Phi(k) \land \Delta(k)$.  By Lemma 3, there exists a FIP $\phi_2\land\delta_2$ of $\Phi(m+n) \land \Delta(m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  Now $\phi_2\land\delta_2$ holds by Lemma 1, which implies $\phi_2'$.  By Remark 2, $\phi \equiv \phi_2$, and by Remark 3, $\phi' \equiv \phi_2'$.  Finally, by Lemma 1, we can conclude that $\phi'$ holds.
+  Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fip-sat}, there exists a FIP $\phi_2\land\delta_2$ of $[\Phi\land\Delta](m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  Now $\phi_2\land\delta_2$ holds by Lemma \ref{lem:eqiv-bijec}, which implies $\phi_2'$.  By Lemma \ref{lem:and-decomp}, $\phi \equiv \phi_2$, and by Lemma \ref{lem:prime-bijec}, $\phi' \equiv \phi_2'$.  Finally, by Lemma \ref{lem:eqiv-bijec}, we can conclude that $\phi'$ holds.
 \end{proof}
 
 \end{document}
