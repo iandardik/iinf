@@ -54,9 +54,18 @@ Because each element of $P$ is interchangeable for another, we assume, without l
 
 \begin{assumption}
   \label{asmp:perm}
-  Another detail on the assumption that $P$'s elements are identical: more precisely, let $\alpha$ be a FOL formula parameterized by the variables in sort $P$ (possibly with primes), and let $g : P \to P$ be injective.  Then:
-  $$\alpha \leftrightarrow \alpha[P \mapsto g(P)]$$
-  %$$\phi \land \delta \leftrightarrow (\phi \land \delta)[P \mapsto g(P)]$$
+  Another detail on the assumption that $P$'s elements are identical: more precisely, let $\phi$ be the matrix of a PNF property we care about (possibly with primes), let $\delta$ be the matrix of the transition relation, and let $g : P \to P$ be injective.  Then:
+  $$\phi \land \delta \leftrightarrow (\phi \land \delta)[P \mapsto g(P)]$$
+
+  TODO: this needs to be introduced after the FIPs section because $\phi\land\delta$ should be a FIP (not matrices).
+
+  %Another detail on the assumption that $P$'s elements are identical: more precisely, let $\alpha$ be a FOL formula parameterized by the variables in sort $P$ (possibly with primes), and let $g : P \to P$ be injective.  Then:
+  %$$\alpha \leftrightarrow \alpha[P \mapsto g(P)]$$
+\end{assumption}
+
+\begin{assumption}
+  \label{asmp:monot-card}
+  Let $P$ be a sort, then $|P| \leq |Q| \leftrightarrow P \subseteq Q$.  
 \end{assumption}
 
 
@@ -95,6 +104,8 @@ In this section we introduce the FIP, a key tool for proving the M-N Theorem.  W
   We specifically write a FIP of $[\Phi\land\Delta](|P|)$ as ``$\phi\land\delta$" to show the syntactic correspondence of $\phi$ to $\Phi$ and $\delta$ to $\Delta$.  In other words, it is always the case that $\phi = \text{RemoveMatrix}(\Phi)[v_i \mapsto e_i]$ and $\delta = \text{RemoveMatrix}(\Delta)[v_i \mapsto e_i]$.
 \end{remark}
 
+The notion of equivalency is important because it partitions a formula $\Phi \land \Delta$ into distinct classes of FIPs.  In the example above, $F_1$ and $F_2$ describe the same class of properties/actions because each element of $P$ is interchangeable for one another.  We now present several basic lemmas about FIPs.
+
 \begin{lemma}
   \label{lem:and-decomp}
   Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs of $[\Phi\land\Delta](|P|)$.  Then:
@@ -110,12 +121,10 @@ In this section we introduce the FIP, a key tool for proving the M-N Theorem.  W
   $$(\phi_1 \equiv \phi_2) \leftrightarrow (\phi_1' \equiv \phi_2')$$
 \end{lemma}
 \begin{proof}
-  Suppose that $\phi_1 \equiv \phi_2$.  Then there exists a cycle $C$ such that $\phi_1 \msp C = \phi_2$.  Notice that the prime operator only affects state variables, and not parameters or their finite instantiations.  Hence the prime operator does not affect the application of the cycle $C$ and we have:
+  Suppose that $\phi_1 \equiv \phi_2$.  Then there exists a cycle $C$ such that $\phi_1 \msp C = \phi_2$.  Notice that the prime operator only affects state variables, and not parameters or their elements.  Thus it is the case that $(\phi_1 \msp C)' = (\phi_1') \msp C$.  We now see:
   $$\phi_2' = (\phi_1 \msp C)' = (\phi_1') \msp C$$
   Showing that $\phi_1' \equiv \phi_2'$ by definition.  We omit the proof in the other direction since it is nearly identical.
 \end{proof}
-
-The notion of equivalency is important because it partitions a formula $\Phi \land \Delta$ into distinct classes of FIPs.  In the example above, $F_1$ and $F_2$ describe the same class of properties/actions because each element of $P$ is interchangeable for one another.  This leads us to the following lemma that is rather intuitive:
 
 \begin{lemma}
   \label{lem:eqiv-bijec}
@@ -142,14 +151,16 @@ The $\fips$ operator simply contains every possible FIP for a given formula $\Ph
   $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \leftrightarrow |P| \leq |Q|$
 \end{lemma}
 \begin{proof}
-  Recall that this note we assume $|P| \leq |Q| \leftrightarrow P \subseteq Q$.  We begin by showing that $|P| \leq |Q| \rightarrow \fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$:
+  We begin by showing that $|P| \leq |Q| \rightarrow \fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$.  Suppose $|P| \leq |Q|$, and then it follows that $P \subseteq Q$ by Assumption \ref{asmp:monot-card}.  Then:
   \begin{align*}
     \fips(\Phi \land \Delta, |P|) = &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}\\
+    \subseteq &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\} \msp \cup\\
+              &\msp \{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q \setminus P\}\\
     \subseteq &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q\}\\
     = &\fips(\Phi \land \Delta, |Q|)\\
   \end{align*}
 
-  Where the subset step follows from the fact that $P \subseteq Q$.  Next we show that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \rightarrow |P| \leq |Q|$.  Suppose that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$.  Then we know that 
+  Next we show that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \rightarrow |P| \leq |Q|$.  Suppose that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$.  Then we know that 
   \begin{align*}
     &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}\\
     \subseteq &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q\}\\
@@ -184,5 +195,8 @@ We will build intuition by proving the M-N Theorem for small examples.  Coming s
 
   Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fip-sat}, there exists a FIP $\phi_2\land\delta_2$ of $[\Phi\land\Delta](m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  Now $\phi_2\land\delta_2$ holds by Lemma \ref{lem:eqiv-bijec}, which implies $\phi_2'$.  By Lemma \ref{lem:and-decomp}, $\phi \equiv \phi_2$, and by Lemma \ref{lem:prime-bijec}, $\phi' \equiv \phi_2'$.  Finally, by Lemma \ref{lem:eqiv-bijec}, we can conclude that $\phi'$ holds.
 \end{proof}
+
+
+\section{Case Studies}
 
 \end{document}
