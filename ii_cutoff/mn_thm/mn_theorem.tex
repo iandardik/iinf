@@ -9,6 +9,7 @@
 \usepackage{amsthm}
 
 \theoremstyle{definition}
+\newtheorem{assumption}{Assumption}
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 \newtheorem{theorem}{Theorem}
@@ -30,6 +31,16 @@
 
 \maketitle
 
+\noindent TODOS
+\begin{enumerate}
+  \item Check cycle / cycle notation to make sure I'm saying it correctly.
+  \item Make sure the proof for the M-N theorem on the last few lines is clearer.
+  \item The proofs / language for the first 3 lemmas needs to be cleaned up.
+  \item Pin down Assumption 1.
+  \item Clean up preliminaries.
+  \item Write the intuition section.
+\end{enumerate}
+
 \section{Introduction}
 I begin with some preliminaries before introducing the M-N Theorem.
 
@@ -41,9 +52,12 @@ Because $\Phi$ and $\Delta$ are in PNF, will also can refer directly to the matr
 
 Because each element of $P$ is interchangeable for another, we assume, without loss of generality, that $P = \{1,...,|P|\}$.  In other words, for two sorts $P$ and $Q$, $|P| < |Q| \leftrightarrow P \subset Q$.
 
-Another detail on the assumption that $P$'s elements are identical: more precisely, let $\alpha$ be a FOL formula parameterized by the variables in sort $P$ (possibly with primes), and let $g : P \to P$ be injective.  Then:
-$$\alpha \leftrightarrow \alpha[P \mapsto g(P)]$$
-%$$\phi \land \delta \leftrightarrow (\phi \land \delta)[P \mapsto g(P)]$$
+\begin{assumption}
+  \label{asmp:perm}
+  Another detail on the assumption that $P$'s elements are identical: more precisely, let $\alpha$ be a FOL formula parameterized by the variables in sort $P$ (possibly with primes), and let $g : P \to P$ be injective.  Then:
+  $$\alpha \leftrightarrow \alpha[P \mapsto g(P)]$$
+  %$$\phi \land \delta \leftrightarrow (\phi \land \delta)[P \mapsto g(P)]$$
+\end{assumption}
 
 
 \section{Finitely Instantiated Properties (FIPs)}
@@ -109,7 +123,7 @@ The notion of equivalency is important because it partitions a formula $\Phi \la
   $$(\phi_1 \land \delta_1) \leftrightarrow (\phi_2 \land \delta_2)$$
 \end{lemma}
 \begin{proof}
-  Because $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$, there exists a cycle $C$ such that $(\phi_1\land\delta_1) \msp C = \phi_2\land\delta_2$.  However $C$ is an injective map, and hence:
+  Because $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$, there exists a cycle $C$ such that $(\phi_1\land\delta_1) \msp C = \phi_2\land\delta_2$.  However $C$ is an injective map, and hence by Assumption \ref{asmp:perm}:
   $$\phi_1\land\delta_1 \leftrightarrow (\phi_1\land\delta_1)[P \mapsto C(P)] = \phi_2\land\delta_2$$
 \end{proof}
 
