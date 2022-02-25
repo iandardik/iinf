@@ -7,6 +7,8 @@
 \usepackage{amsfonts}
 \usepackage{hyperref}
 \usepackage{amsthm}
+\usepackage{url}
+\usepackage{hyperref}
 
 \theoremstyle{definition}
 \newtheorem{assumption}{Assumption}
@@ -35,7 +37,7 @@
 \section{Introduction}
 In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ parameterized by a single sort $P$ of identical elements.  We assume that a candidate inductive invariant $\Phi$ (which implies our key safety property) is given, and that both $\Delta$ and $\Phi$ are in Prenex Normal Form (PNF).  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instantiation.  We also will consider the prime (') symbol to be an operator that can be recursively applied to a formula, only affecting (sticking to) state variables.
 
-In this note, we will build several lemmas that lead to an interesting result: $\Phi(P)$ is an inductive invariant for $T(P)$ iff $\Phi(m+n)$ is an inductive invariant for $T(m+n)$, where $m$ is the number of variables that $\Phi$ quantifies over and $n$ is the number of variables that $\Delta$ quantifies over.
+In this note, we will build several lemmas that lead to an interesting result: $\Phi(P)$ is an inductive invariant for $T(P)$ iff $\Phi(m+n)$ is an inductive invariant for $T(m+n)$, where $m$ is the number of variables that $\Phi$ quantifies over and $n$ is the number of variables that $\Delta$ quantifies over.  This result is useful for the verification problem laid out above because it reduces the burden to model checking the single finite instance $T(m+n)$.
 
 
 \section{Finitely Instantiated Properties (FIPs)}
@@ -75,8 +77,12 @@ Now that we have formally defined FIPs, we can describe our requirement that ``t
     and
   \end{center}
   $$\phi\land\delta \leftrightarrow (\phi\land\delta)[P \mapsto g(P)]$$
-  Note that $(\phi\land\delta)[P \mapsto g(P)]$ is said to be a \textit{permutation} of $\phi\land\delta$.
 \end{assumption}
+
+\begin{remark}
+  In the context of Assumption \ref{asmp:perm}, $(\phi\land\delta)[P \mapsto g(P)]$ is said to be a \textit{permutation} of $\phi\land\delta$, and:
+  $$(\phi\land\delta)[P \mapsto g(P)] = g(\phi\land\delta)$$
+\end{remark}
 
 \begin{example}
   Let $\Phi = \forall p \in P, M_{\Phi}(p)$ and $\Delta = \exists p,q \in P, M_{\Delta}(p,q)$.  Consider $M_{\Phi}(2) \land M_{\Delta}(1,3)$ and $M_{\Phi}(3) \land M_{\Delta}(1,2)$ which are both FIPs of $[\Phi\land\Delta](3)$.  Let $g$ be the permutation:
@@ -182,7 +188,7 @@ The notion of equivalency is important because it partitions a formula $\Phi \la
   $$\phi_1\land\delta_1 \leftrightarrow (\phi_1\land\delta_1)[P \mapsto g(P)] = \phi_2\land\delta_2$$
 \end{proof}
 
-\subsection{The \fips Operator}
+\subsection{The FIPS Operator}
 
 In this section we introduce the $\fips$ operator:
 \begin{definition}
@@ -234,12 +240,11 @@ We will build intuition by proving the M-N Theorem for small examples.  Coming s
   Suppose that $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then $\Phi(P)$ is an inductive invariant for $T(P)$ iff it is an inductive invariant for the finite instantiation $T(m+n)$.
 \end{theorem}
 \begin{proof}
-  It is clear that if $\Phi(P)$ is an inductive invariant, then it must be an inductive invariant for $T(m+n)$.  We prove the opposite direction in the remainder of the proof.\\
+  It is clear that if $\Phi(P)$ is an inductive invariant, then it must be an inductive invariant for $T(m+n)$.  We prove the opposite direction in the remainder of the proof.
 
-  %In the case when the finite instantiation is less than $m+n$, the theorem follows by Lemma \ref{lem:fips-subset}.  We will focus on the case when the finite instantiation is larger than $m+n$ for the remainder of the proof.
-  TODO revisit case when the finite instantiation is less than $m+n$.\\
+  First, consider the case when the finite instantiation is less than or equal to $m+n$.  Suppose that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$.  Let $k \leq m+n$, then we must show that $[\Phi\land\Delta](k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fips-subset}, $\phi\land\delta$ is also a FIP of $[\Phi\land\Delta](m+n)$, and therefore it follows that $\phi'$ holds.
 
-  Suppose that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $[\Phi\land\Delta](k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fip-sat}, there exists a FIP $\phi_2\land\delta_2$ of $[\Phi\land\Delta](m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  By Lemma \ref{lem:fip-eqiv-bijec}, we see that $\phi_2\land\delta_2$ holds because $\phi\land\delta$ holds.  However, because $\phi_2\land\delta_2$ holds, and we know that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$, it follows that $\phi_2'$ holds.  Now Lemma \ref{lem:and-decomp} implies that $\phi \equiv \phi_2$, and Lemma \ref{lem:prime-bijec} implies that $\phi' \equiv \phi_2'$, so we have $\phi_2'$ and $\phi' \equiv \phi_2'$.  Thus by Lemma \ref{lem:phi-eqiv-bijec} and Lemma \ref{lem:fip-eq-comm}, we can conclude that $\phi'$ holds.
+  We will now focus on the case when the finite instantiation is larger than $m+n$.  Suppose that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $[\Phi\land\Delta](k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fip-sat}, there exists a FIP $\phi_2\land\delta_2$ of $[\Phi\land\Delta](m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  By Lemma \ref{lem:fip-eqiv-bijec}, we see that $\phi_2\land\delta_2$ holds because $\phi\land\delta$ holds.  However, because $\phi_2\land\delta_2$ holds, and we know that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$, it follows that $\phi_2'$ holds.  Now Lemma \ref{lem:and-decomp} implies that $\phi \equiv \phi_2$, and Lemma \ref{lem:prime-bijec} implies that $\phi' \equiv \phi_2'$, so we have $\phi_2'$ and $\phi' \equiv \phi_2'$.  Thus by Lemma \ref{lem:phi-eqiv-bijec} and Lemma \ref{lem:fip-eq-comm}, we can conclude that $\phi'$ holds.
 \end{proof}
 
 
@@ -262,9 +267,11 @@ However, by the M-N Theorem, we must show that $\Phi$ is an inductive invariant 
                       /\ pc[3] = "a3"         /\ pc[3] = "a4"
                       /\ a3(3,2)
 \end{verbatim}
-In this case, we can see the counter example by analyzing the following two FIPs from $T(4)$:
-$$M_{\Phi}(3,2) \land M_{\Delta}(3,2) \text{ and } M_{\Phi}(1,2) \land M_{\Delta}(3,2)$$
-These two FIPs are true, and they are precisely how we achieve the counterexample.  However these two FIPs can only be described by a minimum of three elements in $P$, which is why we do not detect the counter example when $|P|=2$.
+This example uses states to describe the counterexample, but we can also describe it using the FIP $M_{\Phi}(1,2) \land M_{\Delta}(3,2)$ from $[\Phi\land\Delta](4)$.  When this FIP is true, both $M_{\Phi}(1,2)$ and $M_{\Phi}(1,3)$ fail to hold in the next state, showing that $M_{\Phi}(1,2)$--and hence $\Phi$--is not inductive.
+
+This example shows how a FIP describes a specific relationship between $\Phi$ and $\Delta$; in this case the specific relationship leads to a counterexample.  It is important to note that it is only possible to describe this particular counterexample using a FIP with a minimum of three elements in $P$, which is precisely why we do not detect the counter example in Peterson's Protocol when $|P|=2$.
+
+It is also worthwhile to note that we could derive the same counterexample using an equivalent FIP, say $M_{\Phi}(3,2) \land M_{\Delta}(1,2)$.  This shows how FIP equivalency partitions a formula $\Phi\land\Delta$ into classes of specific relationships that a transition system can exhibit.
 
 
 \bibliographystyle{plain}
