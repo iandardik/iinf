@@ -14,15 +14,16 @@
 \newtheorem{corollary}{Corollary}
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
 
 \theoremstyle{remark}
-\newtheorem{example}{Example}
 \newtheorem{remark}{Remark}
 
 \newcommand{\msp}{\text{ }}
 \newcommand{\fips}{\text{FIPS}}
+\newcommand{\perm}{\genfrac{}{}{0pt}{}}
 
-\title{The M-N Theorem}
+\title{A Cutoff Rule For Parameterized Distributed Protocols in Prenex Normal Form}
 \author{Ian Dardik}
 \date{\today}
 
@@ -42,69 +43,108 @@
 \end{enumerate}
 
 \section{Introduction}
-I begin with some preliminaries before introducing the M-N Theorem.
+In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ parameterized by a single sort $P$ of identical elements.  We assume that a candidate inductive invariant $\Phi$ (which implies our key safety property) is given, and that both $\Delta$ and $\Phi$ are in Prenex Normal Form (PNF).  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instantiation.  We also will consider the prime (') symbol to be an operator that can be recursively applied to a formula, only affecting (sticking to) state variables.
 
-
-\section{Preliminaries}
-Throughout this note we will consider a transition system $T=(I,\Delta)$ parameterized by a single sort $P$ with identical elements (i.e. each element is interchangeable for another).  $\Delta$ is the transition relation for $T$ and we stipulate that it is in Prenex Normal Form (PNF).  $\Phi$ is an inductive invariant candidate that is also in PNF, and our goal is to determine whether or not $\Phi$ is an inductive invariant for $T$.
-
-Because $\Phi$ and $\Delta$ are in PNF, will also can refer directly to the matrices of these formulas as $\phi$ and $\delta$ respectively; i.e. $\phi$ and $\delta$ are propositional logic formulas parameterized by the variables that are quantified over in $\Phi$ and $\Delta$ respectively.
-
-Because each element of $P$ is interchangeable for another, we assume, without loss of generality, that $P = \{1,...,|P|\}$.  In other words, for two sorts $P$ and $Q$, $|P| < |Q| \leftrightarrow P \subset Q$.
-
-\begin{assumption}
-  \label{asmp:perm}
-  Another detail on the assumption that $P$'s elements are identical: more precisely, let $\phi$ be the matrix of a PNF property we care about (possibly with primes), let $\delta$ be the matrix of the transition relation, and let $g : P \to P$ be injective.  Then:
-  $$\phi \land \delta \leftrightarrow (\phi \land \delta)[P \mapsto g(P)]$$
-
-  TODO: this needs to be introduced after the FIPs section because $\phi\land\delta$ should be a FIP (not matrices).
-
-  %Another detail on the assumption that $P$'s elements are identical: more precisely, let $\alpha$ be a FOL formula parameterized by the variables in sort $P$ (possibly with primes), and let $g : P \to P$ be injective.  Then:
-  %$$\alpha \leftrightarrow \alpha[P \mapsto g(P)]$$
-\end{assumption}
-
-\begin{assumption}
-  \label{asmp:monot-card}
-  Let $P$ be a sort, then $|P| \leq |Q| \leftrightarrow P \subseteq Q$.  
-\end{assumption}
+In this note, we will build several lemmas that lead to an interesting result: $\Phi(P)$ is an inductive invariant for $T(P)$ iff $\Phi(m+n)$ is an inductive invariant for $T(m+n)$, where $m$ is the number of variables that $\Phi$ quantifies over and $n$ is the number of variables that $\Delta$ quantifies over.
 
 
 \section{Finitely Instantiated Properties (FIPs)}
-In this section we introduce the FIP, a key tool for proving the M-N Theorem.  We prove two basic lemmas about FIPs that will come in handy later.
+In this section we introduce the FIP, a key tool for proving the M-N Theorem.
 
 \subsection{FIP Basics}
 
 \begin{definition}[FIP]
-  Let $\Phi$ and $\Delta$ be of two PNF formulas and let $\phi$ and $\delta$ be their respective matrices.  Assume that $\Phi$ quantifies over $m \in \mathbb{N}$ variables while $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then a Finitely Instantiated Property (FIP) of $[\Phi\land\Delta](|P|)$ is a formula $(\phi \land \delta) [v_i \mapsto e_i]$, where each free variable $v_i$ has been substituted for a concrete element $e_i \in P$.  
+  Let $M_{\Phi}$ and $M_{\Delta}$ be the respective matrices of $\Phi$ and $\Delta$.  A Finitely Instantiated Property (FIP) of $[\Phi\land\Delta](|P|)$ is a formula $(M_{\Phi} \land M_{\Delta})[v_i \mapsto e_i]$, where each free variable $v_i$ has been substituted for a concrete element $e_i \in P$.  
 \end{definition}
 
 \begin{example}
-  Let $\Phi = \forall p,q \in P, \phi(p,q)$ and $\Delta = \exists p \in P, \delta(p)$.  Then $\phi(1,3)\land\delta(2)$ and $\phi(1,1)\land\delta(1)$ are both FIPs of $[\Phi\land\Delta](3)$ (i.e. for the case when $|P|=3$).
+  Let $\Phi = \forall p,q \in P, M_{\Phi}(p,q)$ and $\Delta = \exists p \in P, M_{\Delta}(p)$.  Then $M_{\Phi}(1,3) \land M_{\Delta}(2)$ and $M_{\Phi}(1,1) \land M_{\Delta}(1)$ are both FIPs of $[\Phi\land\Delta](3)$ (i.e. for the case when $P=\{1,2,3\}$).  
+  \qed
 \end{example}
-
-\begin{remark}
-  We will often refer to $\phi\land\delta$ without the substitution syntax for brevity.  In these cases, we will explicitly refer to $\phi\land\delta$ as a FIP, and not as a matrix.
-\end{remark}
-
-\begin{definition}[Equivalent]
-  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ be FIPs, then $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$ iff $\phi_1\land\delta_1$ is a permutation of $\phi_2\land\delta_2$.  In this case, $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ are said to be \textit{equivalent}.
-\end{definition}
-
-\begin{example}
-  Let $F_1 = \phi_1(1,2) \land \delta(1)$, $F_2 = \phi_2(2,3) \land \delta(2)$ and $F_3 = \phi(2,2) \land \delta(2)$ be FIPs of $[\Phi\land\Delta](3)$.  Then $F_1 \equiv F_2$ because $F_1 \msp (1 \msp 2 \msp 3) = F_2$ (using cycle notation).  However $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equivalent to either.
-\end{example}
-
-\begin{remark}
-  \label{rmk:fip-eq-comm}
-  FIP equivalency is commutative because permutations are commutative.
-\end{remark}
 
 \begin{remark}
   \label{rmk:fip-syntax}
-  We specifically write a FIP of $[\Phi\land\Delta](|P|)$ as ``$\phi\land\delta$" to show the syntactic correspondence of $\phi$ to $\Phi$ and $\delta$ to $\Delta$.  In other words, it is always the case that $\phi = \text{RemoveMatrix}(\Phi)[v_i \mapsto e_i]$ and $\delta = \text{RemoveMatrix}(\Delta)[v_i \mapsto e_i]$.
+  We will often write a FIPs of $[\Phi\land\Delta](|P|)$ in the abstract as $\phi\land\delta$.  We specifically choose ``$\phi\land\delta$" to show the syntactic correspondence of $\phi$ to $\Phi$ and $\delta$ to $\Delta$.  In other words, if $M_{\Phi}$ is the matrix of $\Phi$ and $M_{\Delta}$ is the matrix of $\Delta$, then it is always the case that $\phi = M_{\Phi}[v_i \mapsto e_i]$ and $\delta = M_{\Delta}[v_i \mapsto e_i]$.
 \end{remark}
 
+\begin{example}
+  Let $\phi\land\delta = M_{\Phi}(1,3) \land M_{\Delta}(2)$ be a FIP of $[\Phi\land\Delta](3)$.  By Remark \ref{rmk:fip-syntax}, $\phi = M_{\Phi}(1,3)$ and $\delta = M_{\Delta}(2)$.
+  \qed
+\end{example}
+
+
+\subsection{Protocol Assumptions}
+
+Now that we have formally defined FIPs, we can describe our requirement that ``the elements of sort $P$ are identical" in precise terms.
+
+\begin{assumption}[Sort Elements Are Identical]
+  \label{asmp:perm}
+  Let $\phi\land\delta$ be an arbitrary FIP of $[\Phi\land\Delta](|P|)$ and $g : P \to P$ be a bijective function.  Then we assume:
+  $$\phi\land\delta \leftrightarrow (\phi\land\delta)[P \mapsto g(P)]$$
+  $(\phi\land\delta)[P \mapsto g(P)]$ is said to be a \textit{permutation} of $\phi\land\delta$.
+\end{assumption}
+
+\begin{example}
+  Let $\Phi = \forall p \in P, M_{\Phi}(p)$ and $\Delta = \exists p,q \in P, M_{\Delta}(p,q)$.  Consider $M_{\Phi}(2) \land M_{\Delta}(1,3)$ and $M_{\Phi}(3) \land M_{\Delta}(1,2)$ which are both FIPs of $[\Phi\land\Delta](3)$.  Let $g$ be the permutation:
+  $$g = \left(\perm{1 \msp 2 \msp 3}{1 \msp 3 \msp 2}\right)$$
+  Then these two FIPs are permutations of each other because
+  $$g(M_{\Phi}(2) \land M_{\Delta}(1,3)) = M_{\Phi}(3) \land M_{\Delta}(1,2)$$
+  \begin{center}
+    and
+  \end{center}
+  $$M_{\Phi}(2) \land M_{\Delta}(1,3) = g(M_{\Phi}(3) \land M_{\Delta}(1,2))$$
+  \qed
+\end{example}
+
+\noindent Because each sort element is identical, we can make the following assumption without loss of generality:
+
+\begin{assumption}
+  \label{asmp:sort}
+  For any sort $P$, $P = \{1,...,|P|\}$.  
+\end{assumption}
+
+\noindent This leads to the trivial result:
+
+\begin{lemma}
+  \label{lem:monot-card}
+  Let $P$ and $Q$ be sorts, then $|P| \leq |Q| \leftrightarrow P \subseteq Q$.  
+\end{lemma}
+\begin{proof}
+  Suppose $|P| \leq |Q|$.  Then by Assumption \ref{asmp:sort}:
+  $$P = \{1,...,|P|\} \subseteq \{1,...,|Q|\} = Q$$
+  Now suppose that $P \subseteq Q$.  Then by Assumption \ref{asmp:sort}:
+  $$\{1,...,|P|\} = P \subseteq Q = \{1,...,|Q|\}$$
+  Hence it follows that $|P| \leq |Q|$.
+\end{proof}
+
+
+\subsection{FIP Equivalency}
+
+In this section we introduce the notion of \textit{equivalency} for FIPs and prove some useful lemmas.
+
+\begin{definition}[Equivalent]
+  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ be FIPs, then $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$ iff $\phi_2\land\delta_2$ is a permutation of $\phi_1\land\delta_1$.  In this case, $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ are said to be \textit{equivalent}.
+\end{definition}
+
+\begin{example}
+  Let $F_1 = M_{\Phi}(1,2) \land M_{\Delta}(1)$, $F_2 = M_{\Phi}(2,3) \land M_{\Delta}(2)$ and $F_3 = M_{\Phi}(2,2) \land M_{\Delta}(2)$ be FIPs of $[\Phi\land\Delta](3)$.  Let $g = (1 \msp 2 \msp 3)$ be a permutation (using cycle notation) on $P$.  Then $F_1 \equiv F_2$ because $g(F_1) = F_2$, however, $F_3$ is a permutation of neither $F_1$ nor $F_2$ and hence is not equivalent to either.
+  \qed
+\end{example}
+
 The notion of equivalency is important because it partitions a formula $\Phi \land \Delta$ into distinct classes of FIPs.  In the example above, $F_1$ and $F_2$ describe the same class of properties/actions because each element of $P$ is interchangeable for one another.  We now present several basic lemmas about FIPs.
+
+\begin{lemma}[Equivalency Is Commutative]
+  \label{lem:fip-eq-comm}
+  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ be FIPs for $[\Phi\land\Delta](|P|)$, then
+  $$(\phi_1\land\delta_1 \equiv \phi_2\land\delta_2) \leftrightarrow (\phi_2\land\delta_2 \equiv \phi_1\land\delta_1)$$
+\end{lemma}
+\begin{proof}
+  Suppose that $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$.  Then there exists a permutation $g$ such that $g(\phi_1\land\delta_1) = \phi_2\land\delta_2$.  Permutations are bijective and hence are invertible.  Then
+  $$\phi_1\land\delta_1 = g^{-1}(g(\phi_1\land\delta_1)) = g^{-1}(\phi_2\land\delta_2)$$
+  But $g^{-1}$ is a permutation itself, and hence $\phi_1\land\delta_1$ is a permutation of $\phi_2\land\delta_2$.
+
+  We omit the proof in the other direction because the argument is nearly identical.
+\end{proof}
 
 \begin{lemma}
   \label{lem:and-decomp}
@@ -112,7 +152,9 @@ The notion of equivalency is important because it partitions a formula $\Phi \la
   $$((\phi_1\land\delta_1) \equiv (\phi_2\land\delta_2)) \rightarrow ((\phi_1 \equiv \phi_2) \land (\delta_1 \equiv \delta_2))$$
 \end{lemma}
 \begin{proof}
-  Suppose $(\phi_1\land\delta_1) \equiv (\phi_2\land\delta_2)$.  Then there exists a cycle $C$ such that $(\phi_1\land\delta_1) \msp C = (\phi_2\land\delta_2)$, and equivalently $(\phi_1 \msp C) \land (\delta_1 \msp C) = (\phi_2\land\delta_2)$.  From Remark \ref{rmk:fip-syntax}, we see that $\phi_1$ and $\phi_2$ are identical up to a finite instantiation, and hence $\phi_1 \msp C = \phi_2$; a similar argument shows that $\delta_1 \msp C = \delta_2$.
+  Suppose $(\phi_1\land\delta_1) \equiv (\phi_2\land\delta_2)$.  Then there exists a permutation $g$ such that $g(\phi_1\land\delta_1) = \phi_2\land\delta_2$.  But:
+  $$g(\phi_1) \land g(\delta_1) = g(\phi_1\land\delta_1) = \phi_2\land\delta_2$$
+  From Remark \ref{rmk:fip-syntax}, we see that $\phi_1$ and $\phi_2$ are identical up to a finite instantiation, and hence $g(\phi_1) = \phi_2$; a similar argument shows that $g(\delta_1) = \delta_2$.
 \end{proof}
 
 \begin{lemma}
@@ -121,22 +163,22 @@ The notion of equivalency is important because it partitions a formula $\Phi \la
   $$(\phi_1 \equiv \phi_2) \leftrightarrow (\phi_1' \equiv \phi_2')$$
 \end{lemma}
 \begin{proof}
-  Suppose that $\phi_1 \equiv \phi_2$.  Then there exists a cycle $C$ such that $\phi_1 \msp C = \phi_2$.  Notice that the prime operator only affects state variables, and not parameters or their elements.  Thus it is the case that $(\phi_1 \msp C)' = (\phi_1') \msp C$.  We now see:
-  $$\phi_2' = (\phi_1 \msp C)' = (\phi_1') \msp C$$
+  Suppose that $\phi_1 \equiv \phi_2$.  Then there exists a permutation $g$ such that $g(\phi_1) = \phi_2$.  Recall that the prime operator only affects state variables, and not $P$ or its elements; on the other hand, $g$ can only affect the elements of $P$.  Thus it is the case that $g(\phi_1)' = g(\phi_1')$.  We now see:
+  $$\phi_2' = g(\phi_1)' = g(\phi_1')$$
   Showing that $\phi_1' \equiv \phi_2'$ by definition.  We omit the proof in the other direction since it is nearly identical.
 \end{proof}
 
 \begin{lemma}
   \label{lem:eqiv-bijec}
-  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs for $\Phi\land\Delta$.  Suppose that $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$.  Then:
+  Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs for $[\Phi\land\Delta](|P|)$.  Suppose that $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$.  Then:
   $$(\phi_1 \land \delta_1) \leftrightarrow (\phi_2 \land \delta_2)$$
 \end{lemma}
 \begin{proof}
-  Because $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$, there exists a cycle $C$ such that $(\phi_1\land\delta_1) \msp C = \phi_2\land\delta_2$.  However $C$ is an injective map, and hence by Assumption \ref{asmp:perm}:
-  $$\phi_1\land\delta_1 \leftrightarrow (\phi_1\land\delta_1)[P \mapsto C(P)] = \phi_2\land\delta_2$$
+  Because $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$, there exists a permutation $g$ such that $g(\phi_1\land\delta_1) = \phi_2\land\delta_2$.  However $g$ is bijective, and hence by Assumption \ref{asmp:perm}:
+  $$\phi_1\land\delta_1 \leftrightarrow (\phi_1\land\delta_1)[P \mapsto g(P)] = \phi_2\land\delta_2$$
 \end{proof}
 
-\subsection{The $\fips$ Operator}
+\subsection{The \fips Operator}
 
 In this section we introduce the $\fips$ operator:
 \begin{definition}
@@ -144,30 +186,27 @@ In this section we introduce the $\fips$ operator:
   $$\fips(\Phi \land \Delta, |P|) := \{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}$$
 \end{definition}
 
-The $\fips$ operator simply contains every possible FIP for a given formula $\Phi \land \Delta$.  Next, we prove this intuitive result:
+The $\fips$ operator simply contains every possible FIP for a given formula $[\Phi\land\Delta](|P|)$.  Next, we prove an intuitive result:
 
 \begin{lemma}
   \label{lem:fips-subset}
   $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \leftrightarrow |P| \leq |Q|$
 \end{lemma}
 \begin{proof}
-  We begin by showing that $|P| \leq |Q| \rightarrow \fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$.  Suppose $|P| \leq |Q|$, and then it follows that $P \subseteq Q$ by Assumption \ref{asmp:monot-card}.  Then:
+  We begin by showing that $|P| \leq |Q| \rightarrow \fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$.  Suppose $|P| \leq |Q|$, and then it follows that $P \subseteq Q$ by Lemma \ref{lem:monot-card}.  Then:
   \begin{align*}
     \fips(\Phi \land \Delta, |P|) = &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}\\
     \subseteq &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\} \msp \cup\\
               &\msp \{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q \setminus P\}\\
-    \subseteq &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q\}\\
+    = &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q\}\\
     = &\fips(\Phi \land \Delta, |Q|)\\
   \end{align*}
-
-  Next we show that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \rightarrow |P| \leq |Q|$.  Suppose that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$.  Then we know that 
+  Next we show that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|) \rightarrow |P| \leq |Q|$.  Suppose that $\fips(\Phi \land \Delta, |P|) \subseteq \fips(\Phi \land \Delta, |Q|)$, then:
   \begin{align*}
     &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in P\}\\
     \subseteq &\{\phi(v_1,...,v_m) \land \delta(w_1,...,w_n) | v_1,...,v_m,w_1,...,w_n \in Q\}\\
   \end{align*}
-
-  Which implies that $P \subseteq Q$, which in turn implies that $|P| \leq |Q|$.
-
+  Which implies that $P \subseteq Q$, which in turn implies that $|P| \leq |Q|$ by Lemma \ref{lem:monot-card}.
 \end{proof}
 
 
@@ -179,24 +218,30 @@ We will build intuition by proving the M-N Theorem for small examples.  Coming s
 
 \begin{lemma}[FIP Saturation]
   \label{lem:fip-sat}
-  Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then every FIP of $[\Delta \land \Phi](k)$, for $k > m+n$, has an equivalent FIP in $[\Delta \land \Phi](m+n)$.
+  Suppose that $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then every FIP of $[\Delta \land \Phi](k)$, for $k > m+n$, has an equivalent FIP in $[\Delta \land \Phi](m+n)$.
 \end{lemma}
 \begin{proof}
-  Let $k = |P| = m + n + z$ where $z \in \mathbb{Z}_{>0}$ (recall that $P = \{1,...,k\}$).  Let $\phi\land\delta$ be an arbitrary FIP of $[\Phi\land\Delta](k)$.  Then, because $[\Phi\land\Delta](k)$ quantifies over exactly $m+n$ variables, there must be at least $z$ elements in $P$ that do not appear in $\phi\land\delta$.  Let $u \leq m+n$ be the \textit{number} of elements of $P$ that are used in $\phi \land \delta$, and let $\{e_i\}_{i=1}^{u}$ be the \textit{subset} of elements that are used.  Consider the permuation using the following cycle notation: $C = (e_1 \msp 1)...(e_u \msp u)$.  Notice that $(\phi \land \delta) \msp C$ only uses elements $1 ... u$.  Since $u \leq m+n$, it must be the case that $(\phi \land \delta) \msp C$ is a FIP of $[\Phi \land \Delta](m+n)$.
+  Let $k = |P| = m + n + z$ where $z \in \mathbb{Z}_{>0}$, and then $P = \{1,...,k\}$ by Assumption \ref{asmp:sort}.  Let $\phi\land\delta$ be an arbitrary FIP of $[\Phi\land\Delta](k)$.  Then, because $[\Phi\land\Delta](k)$ quantifies over exactly $m+n$ variables, there must be at least $z$ elements in $P$ that do not appear in $\phi\land\delta$.  Let $u \leq m+n$ be the \textit{number} of elements of $P$ that are used in $\phi \land \delta$, and let $\{e_1,...,e_u\} \subseteq P$ be the \textit{set} of elements that are used.  Consider the following permutation:
+  $$g = \left(\perm{e_1 \msp ... \msp e_u}{1 \msp ... \msp u}\right)$$
+  Notice that $g(\phi\land\delta)$ contains only the elements $1 ... u$.  Since $u \leq m+n$, it must be the case that $g(\phi\land\delta)$ is a FIP of $[\Phi \land \Delta](m+n)$.
 \end{proof}
 
 \begin{theorem}[M-N]
-  Let $\Phi$ and $\Delta$ be formulas in PNF, where $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then $\Phi$ is an inductive invariant for $T(P)$ iff it is an inductive invariant for the finite instantiation $T(m+n)$.
+  Suppose that $\Phi$ quantifies over $m \in \mathbb{N}$ variables and $\Delta$ quantifies over $n \in \mathbb{N}$ variables.  Then $\Phi(P)$ is an inductive invariant for $T(P)$ iff it is an inductive invariant for the finite instantiation $T(m+n)$.
 \end{theorem}
 \begin{proof}
-  It is clear that if $\Phi$ is an inductive invariant, then it must be an inductive invariant for $T(m+n)$.  We prove the opposite direction in the remainder of the proof.
+  It is clear that if $\Phi(P)$ is an inductive invariant, then it must be an inductive invariant for $T(m+n)$.  We prove the opposite direction in the remainder of the proof.\\
 
-  In the case when the finite instantiation is less than $m+n$, the theorem follows by Lemma \ref{lem:fips-subset}.  We will focus on the case when the finite instantiation is larger than $m+n$ for the remainder of the proof.
+  %In the case when the finite instantiation is less than $m+n$, the theorem follows by Lemma \ref{lem:fips-subset}.  We will focus on the case when the finite instantiation is larger than $m+n$ for the remainder of the proof.
+  TODO revisit case when the finite instantiation is less than $m+n$.\\
 
-  Suppose that $\Phi(m+n) \land \Delta(m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $\Phi(k) \land \Delta(k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fip-sat}, there exists a FIP $\phi_2\land\delta_2$ of $[\Phi\land\Delta](m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  Now $\phi_2\land\delta_2$ holds by Lemma \ref{lem:eqiv-bijec}, which implies $\phi_2'$.  By Lemma \ref{lem:and-decomp}, $\phi \equiv \phi_2$, and by Lemma \ref{lem:prime-bijec}, $\phi' \equiv \phi_2'$.  Finally, by Lemma \ref{lem:eqiv-bijec}, we can conclude that $\phi'$ holds.
+  Suppose that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $[\Phi\land\Delta](k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fip-sat}, there exists a FIP $\phi_2\land\delta_2$ of $[\Phi\land\Delta](m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  By Lemma \ref{lem:eqiv-bijec}, we see that $\phi_2\land\delta_2$ holds because $\phi\land\delta$ holds.  However, because $\phi_2\land\delta_2$ holds, and we know that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$, it follows that $\phi_2'$ holds.  Now Lemma \ref{lem:and-decomp} implies that $\phi \equiv \phi_2$, and Lemma \ref{lem:prime-bijec} implies that $\phi' \equiv \phi_2'$, so finally, by Lemma \ref{lem:eqiv-bijec}, we can conclude that $\phi'$ holds.
 \end{proof}
 
 
 \section{Case Studies}
+
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}
