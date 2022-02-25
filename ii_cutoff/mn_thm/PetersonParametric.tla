@@ -46,6 +46,7 @@ a5(p) == /\ pc[p] = "a5"
          /\ pc' = [pc EXCEPT ![p] = "a1"]
          /\ turn' = turn
 
+\* Delta
 \* in PNF
 Next == 
     \E p,q \in ProcSet :
@@ -63,7 +64,8 @@ Mutex == \A p,q \in ProcSet : (p # q) => ~(pc[p] = "cs" /\ pc[q] = "cs")
 
 Symmetry == Permutations(ProcSet)
 
-Req == \A p,q \in ProcSet :
+\* in PNF
+Phi == \A p,q \in ProcSet :
            /\ pc[p] \in {"a3","a4","cs"} => flag[p]
            \* if p is in cs while q is in a4, then it must be p's turn
            /\ (p#q /\ pc[p] = "cs" /\ pc[q] = "a4") => turn = p
@@ -75,9 +77,8 @@ TypeOK ==
     /\ pc \in [ProcSet -> {"a1","a2","a3","a4","cs","a5"}]
     /\ flag \in [ProcSet -> {TRUE,FALSE}]
 
-\* in PNF
 IInv == /\ TypeOK
-        /\ Req
+        /\ Phi
         
 Initiation == Init => IInv
 
