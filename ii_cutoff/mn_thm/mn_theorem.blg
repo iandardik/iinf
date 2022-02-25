@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: mn_theorem.aux
 The style file: plain.bst
 Database file #1: refs.bib
-You've used 1 entry,
+You've used 2 entries,
             2118 wiz_defined-function locations,
-            504 strings with 4172 characters,
-and the built_in function-call counts, 485 in all, are:
-= -- 52
-> -- 13
+            508 strings with 4262 characters,
+and the built_in function-call counts, 636 in all, are:
+= -- 65
+> -- 14
 < -- 1
-+ -- 5
++ -- 6
 - -- 4
-* -- 27
-:= -- 73
-add.period$ -- 4
-call.type$ -- 1
-change.case$ -- 5
+* -- 32
+:= -- 88
+add.period$ -- 5
+call.type$ -- 2
+change.case$ -- 9
 chr.to.int$ -- 0
-cite$ -- 1
-duplicate$ -- 23
-empty$ -- 42
+cite$ -- 2
+duplicate$ -- 30
+empty$ -- 65
 format.name$ -- 4
-if$ -- 112
+if$ -- 150
 int.to.chr$ -- 0
-int.to.str$ -- 1
+int.to.str$ -- 2
 missing$ -- 1
-newline$ -- 8
+newline$ -- 11
 num.names$ -- 2
-pop$ -- 8
+pop$ -- 16
 preamble$ -- 1
-purify$ -- 4
+purify$ -- 7
 quote$ -- 0
-skip$ -- 19
+skip$ -- 28
 stack$ -- 0
-substring$ -- 37
-swap$ -- 11
+substring$ -- 42
+swap$ -- 12
 text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 4
+type$ -- 8
 warning$ -- 0
 while$ -- 5
-width$ -- 2
-write$ -- 14
+width$ -- 3
+write$ -- 20

@@ -7,4 +7,7 @@ Aman Goel and Karem Sakallah.
 \newblock In {\em NASA Formal Methods Symposium}, pages 131--150. Springer,
   2021.
 
+\bibitem{ian-peterson}
+{Parametric Peterson's Mutex Protocol}, 2022.
+
 \end{thebibliography}

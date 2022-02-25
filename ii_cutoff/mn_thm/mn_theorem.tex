@@ -32,16 +32,6 @@
 
 \maketitle
 
-\noindent TODOS
-\begin{enumerate}
-  \item Check cycle / cycle notation to make sure I'm saying it correctly.
-  \item Make sure the proof for the M-N theorem on the last few lines is clearer.
-  \item The proofs / language for the first 3 lemmas needs to be cleaned up.
-  \item Pin down Assumption 1.
-  \item Clean up preliminaries.
-  \item Write the intuition section.
-\end{enumerate}
-
 \section{Introduction}
 In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ parameterized by a single sort $P$ of identical elements.  We assume that a candidate inductive invariant $\Phi$ (which implies our key safety property) is given, and that both $\Delta$ and $\Phi$ are in Prenex Normal Form (PNF).  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instantiation.  We also will consider the prime (') symbol to be an operator that can be recursively applied to a formula, only affecting (sticking to) state variables.
 
@@ -80,8 +70,12 @@ Now that we have formally defined FIPs, we can describe our requirement that ``t
 \begin{assumption}[Sort Elements Are Identical]
   \label{asmp:perm}
   Let $\phi\land\delta$ be an arbitrary FIP of $[\Phi\land\Delta](|P|)$ and $g : P \to P$ be a bijective function.  Then we assume:
+  $$\phi \leftrightarrow \phi[P \mapsto g(P)]$$
+  \begin{center}
+    and
+  \end{center}
   $$\phi\land\delta \leftrightarrow (\phi\land\delta)[P \mapsto g(P)]$$
-  $(\phi\land\delta)[P \mapsto g(P)]$ is said to be a \textit{permutation} of $\phi\land\delta$.
+  Note that $(\phi\land\delta)[P \mapsto g(P)]$ is said to be a \textit{permutation} of $\phi\land\delta$.
 \end{assumption}
 
 \begin{example}
@@ -169,7 +163,17 @@ The notion of equivalency is important because it partitions a formula $\Phi \la
 \end{proof}
 
 \begin{lemma}
-  \label{lem:eqiv-bijec}
+  \label{lem:phi-eqiv-bijec}
+  Let $\phi_1$ and $\phi_2$ be quantifier-free properties parameterized by the sort $P$.  Suppose that $\phi_1 \equiv \phi_2$.  Then:
+  $$\phi_1 \leftrightarrow \phi_2$$
+\end{lemma}
+\begin{proof}
+  Because $\phi_1 \equiv \phi_2$, there exists a permutation $g$ such that $g(\phi_1) = \phi_2$.  However $g$ is bijective, and hence by Assumption \ref{asmp:perm}:
+  $$\phi_1 \leftrightarrow (\phi_1)[P \mapsto g(P)] = \phi_2$$
+\end{proof}
+
+\begin{lemma}
+  \label{lem:fip-eqiv-bijec}
   Let $\phi_1\land\delta_1$ and $\phi_2\land\delta_2$ both be FIPs for $[\Phi\land\Delta](|P|)$.  Suppose that $\phi_1\land\delta_1 \equiv \phi_2\land\delta_2$.  Then:
   $$(\phi_1 \land \delta_1) \leftrightarrow (\phi_2 \land \delta_2)$$
 \end{lemma}
@@ -235,11 +239,33 @@ We will build intuition by proving the M-N Theorem for small examples.  Coming s
   %In the case when the finite instantiation is less than $m+n$, the theorem follows by Lemma \ref{lem:fips-subset}.  We will focus on the case when the finite instantiation is larger than $m+n$ for the remainder of the proof.
   TODO revisit case when the finite instantiation is less than $m+n$.\\
 
-  Suppose that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $[\Phi\land\Delta](k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fip-sat}, there exists a FIP $\phi_2\land\delta_2$ of $[\Phi\land\Delta](m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  By Lemma \ref{lem:eqiv-bijec}, we see that $\phi_2\land\delta_2$ holds because $\phi\land\delta$ holds.  However, because $\phi_2\land\delta_2$ holds, and we know that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$, it follows that $\phi_2'$ holds.  Now Lemma \ref{lem:and-decomp} implies that $\phi \equiv \phi_2$, and Lemma \ref{lem:prime-bijec} implies that $\phi' \equiv \phi_2'$, so finally, by Lemma \ref{lem:eqiv-bijec}, we can conclude that $\phi'$ holds.
+  Suppose that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$.  Let $k > m+n$, then we must show that $[\Phi\land\Delta](k) \rightarrow \Phi(k)'$.  Consider an arbitrary FIP $\phi\land\delta$ of $[\Phi\land\Delta](k)$.  By Lemma \ref{lem:fip-sat}, there exists a FIP $\phi_2\land\delta_2$ of $[\Phi\land\Delta](m+n)$ such that $\phi_2\land\delta_2 \equiv \phi\land\delta$.  By Lemma \ref{lem:fip-eqiv-bijec}, we see that $\phi_2\land\delta_2$ holds because $\phi\land\delta$ holds.  However, because $\phi_2\land\delta_2$ holds, and we know that $[\Phi\land\Delta](m+n) \rightarrow \Phi(m+n)'$, it follows that $\phi_2'$ holds.  Now Lemma \ref{lem:and-decomp} implies that $\phi \equiv \phi_2$, and Lemma \ref{lem:prime-bijec} implies that $\phi' \equiv \phi_2'$, so we have $\phi_2'$ and $\phi' \equiv \phi_2'$.  Thus by Lemma \ref{lem:phi-eqiv-bijec} and Lemma \ref{lem:fip-eq-comm}, we can conclude that $\phi'$ holds.
 \end{proof}
 
 
 \section{Case Studies}
+In this section we visit several (more coming soon) distributed protocols that are parameterized by a single sort and adhere to the property of Assumption \ref{asmp:perm}.
+
+\subsection{Peterson's Mutex Protocol}
+Peterson's Mutex Protocol can be encoded with a transition function $\Delta$ in PNF that quantifies over two variables.  A sample inductive invariant candidate is given in \cite{ian-peterson} that quantifies of two variables and works for $|P|=2$:
+\begin{verbatim}
+    Phi == \A p,q \in ProcSet :
+       /\ pc[p] \in {"a3","a4","cs"} => flag[p]
+       /\ (p#q /\ pc[p] = "cs" /\ pc[q] = "a4") => turn = p
+       /\ (p # q) => ~(pc[p] = "cs" /\ pc[q] = "cs")
+\end{verbatim}
+However, by the M-N Theorem, we must show that $\Phi$ is an inductive invariant for the case when $|P|=4$.  In fact, we easily see that $\Phi$ fails to be inductive in the case:
+\begin{verbatim}
+                      /\ turn = 1             /\ turn = 2
+                      /\ pc[1] = "cs"         /\ pc[1] = "cs"
+                      /\ pc[2] = "a4"   ->    /\ pc[2] = "a4"
+                      /\ pc[3] = "a3"         /\ pc[3] = "a4"
+                      /\ a3(3,2)
+\end{verbatim}
+In this case, we can see the counter example by analyzing the following two FIPs from $T(4)$:
+$$M_{\Phi}(3,2) \land M_{\Delta}(3,2) \text{ and } M_{\Phi}(1,2) \land M_{\Delta}(3,2)$$
+These two FIPs are true, and they are precisely how we achieve the counterexample.  However these two FIPs can only be described by a minimum of three elements in $P$, which is why we do not detect the counter example when $|P|=2$.
+
 
 \bibliographystyle{plain}
 \bibliography{refs}
