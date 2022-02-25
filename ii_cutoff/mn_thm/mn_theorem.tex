@@ -37,7 +37,7 @@
 \section{Introduction}
 In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ parameterized by a single sort $P$ of identical elements.  We assume that a candidate inductive invariant $\Phi$ (which implies our key safety property) is given, and that both $\Delta$ and $\Phi$ are in Prenex Normal Form (PNF).  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instantiation.  We also will consider the prime (') symbol to be an operator that can be recursively applied to a formula, only affecting (sticking to) state variables.
 
-In this note, we will build several lemmas that lead to an interesting result: $\Phi(P)$ is an inductive invariant for $T(P)$ iff $\Phi(m+n)$ is an inductive invariant for $T(m+n)$, where $m$ is the number of variables that $\Phi$ quantifies over and $n$ is the number of variables that $\Delta$ quantifies over.  This result is useful for the verification problem laid out above because it reduces the burden to model checking the single finite instance $T(m+n)$.
+In this note, we will build several lemmas that lead to an interesting result: $\Phi(P)$ is an inductive invariant for $T(P)$ iff $\Phi(m+n)$ is an inductive invariant for $T(m+n)$, where $m$ is the number of variables that $\Phi$ quantifies over and $n$ is the number of variables that $\Delta$ quantifies over.  This result is useful for the verification problem laid out above because it reduces the burden to model checking the single finite instance $T(m+n)$.  Essentially, $m+n$ is a cutoff instance size for proving that our inductive invariant holds.
 
 
 \section{Finitely Instantiated Properties (FIPs)}
@@ -220,11 +220,9 @@ The $\fips$ operator simply contains every possible FIP for a given formula $[\P
 \end{proof}
 
 
-\section{Intuition}
-We will build intuition by proving the M-N Theorem for small examples.  Coming soon.
-
-
 \section{M-N Theorem}
+
+In this section we present the M-N Theorem.  First, we prove a key lemma that shows that FIPs saturate when $|P|$ grows large enough.
 
 \begin{lemma}[FIP Saturation]
   \label{lem:fip-sat}
