@@ -54,8 +54,8 @@ This section contains the list of assumptions for the transition system we work 
 
 \begin{assumption}[$P$ Has Identical Elements]
   \label{asmp:ident}
-  Let $f$ be a ground formula and let $g : P \to P$ be a permutation (bijective function).  Then we assume:
-  $$f \leftrightarrow g(f)$$
+  Let $f$ be a ground formula and let $\pi : P \to P$ be a bijective function, i.e. a permutation on $P$.  Then we assume:
+  $$f \leftrightarrow \pi(f)$$
 \end{assumption}
 
 \subsection{Definitions}
@@ -97,21 +97,21 @@ This section contains the list of assumptions for the transition system we work 
 % technically we need to assume that s is a dijunction of one or more state.  The proof is identical, but things may be more akward to state.
 \begin{lemma}
   \label{lem:state-sat-perm}
-  Let $s$ be a state, $f$ be a ground formula, and $g$ be a permutation.  Then:
-  $$(s \models f) \leftrightarrow (g(s) \models g(f))$$
+  Let $s$ be a state, $f$ be a ground formula, and $\pi$ be a permutation.  Then:
+  $$(s \models f) \leftrightarrow (\pi(s) \models \pi(f))$$
 \end{lemma}
 \begin{proof}
-  Suppose that $s \models f$, which is syntactic sugar for $s \rightarrow f$ because $s$ and $f$ are both formulas.  By Assumption \ref{asmp:ident}, $s \leftrightarrow g(s)$ and $f \leftrightarrow g(f)$, and the result follows immediately.
+  Suppose that $s \models f$, which is syntactic sugar for $s \rightarrow f$ because $s$ and $f$ are both formulas.  By Assumption \ref{asmp:ident}, $s \leftrightarrow \pi(s)$ and $f \leftrightarrow \pi(f)$, and the result follows immediately.
 
-  Now suppose that $g(s) \models g(f)$.  $g$ is a bijection--and hence invertible--thus $g^{-1}$ is a permutation as well.  By Assumption \ref{asmp:ident}, $g(s) \leftrightarrow g^{-1}(g(s)) = s$ and $g(f) \leftrightarrow g^{-1}(g(f)) = f$.  The result follows immediately.
+  Now suppose that $\pi(s) \models \pi(f)$.  $\pi$ is a bijection--and hence invertible--thus $\pi^{-1}$ is a permutation as well.  By Assumption \ref{asmp:ident}, $\pi(s) \leftrightarrow \pi^{-1}(\pi(s)) = s$ and $\pi(f) \leftrightarrow \pi^{-1}(\pi(f)) = f$.  The result follows immediately.
 \end{proof}
 
 \begin{lemma}
   \label{lem:state-perm}
-  Let $k \in \mathbb{N}$ and $s$ be a state such that $s \models \Phi(k)$.  If $g$ is a permutation then it is also the case that $g(s) \models \Phi(k)$.
+  Let $k \in \mathbb{N}$ and $s$ be a state such that $s \models \Phi(k)$.  If $\pi$ is a permutation then it is also the case that $\pi(s) \models \Phi(k)$.
 \end{lemma}
 \begin{proof}
-  Suppose that $s \models \Phi(k)$.  Then by Remark \ref{rmk:pnf-ground}, $\forall f \in \gr(\Phi,k), s \models f$.  But Assumption \ref{asmp:ident} shows that $s \leftrightarrow g(s)$ and hence $\forall f \in \gr(\Phi,k), g(s) \models f$ which gives us our result by Remark \ref{rmk:pnf-ground}.
+  Suppose that $s \models \Phi(k)$.  Then by Remark \ref{rmk:pnf-ground}, $\forall f \in \gr(\Phi,k), s \models f$.  But Assumption \ref{asmp:ident} shows that $s \leftrightarrow \pi(s)$ and hence $\forall f \in \gr(\Phi,k), \pi(s) \models f$ which gives us our result by Remark \ref{rmk:pnf-ground}.
 \end{proof}
 
 
@@ -123,7 +123,7 @@ This section contains the list of assumptions for the transition system we work 
 \begin{proof}
   Let $k>m+n$ be given and assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $s \in \states(k)$ such that $s \models \Phi(k)$, and let $\delta$ be an arbitrary transition such that $\delta \models \Delta(k)$.  Finally, let $f' \in \gr(\Phi',k)$ be arbitrary, then, by Remark \ref{rmk:pnf-ground}, it suffices to show that $(s \land \delta) \models f'$.
 
-  Let $g$ be a permutation such that $g(\delta) \models \Delta(m+n)$ and $g(f') \in \gr(\Phi',m+n)$, i.e. $g(f') \models \Phi'(m+n)$.  We know that we can find such a $g$ because $\delta$ will contain at most $n$ distinct elements of $P$ and $f'$ will contain at most $m$ distinct elements of $P$.  Now by Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $g(s) \models \Phi(m+n)$ by Lemma \ref{lem:state-perm}.  Thus $g(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $g(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  In particular, $g(s \land \delta) \models g(f')$ by Remark \ref{rmk:pnf-ground}, and therefore $s \land \delta \models f'$ by Lemma \ref{lem:state-sat-perm}.
+  Let $\pi$ be a permutation such that $\pi(\delta) \models \Delta(m+n)$ and $\pi(f') \in \gr(\Phi',m+n)$, i.e. $\pi(f') \models \Phi'(m+n)$.  We know that we can find such a $\pi$ because $\delta$ will contain at most $n$ distinct elements of $P$ and $f'$ will contain at most $m$ distinct elements of $P$.  Now by Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $\pi(s) \models \Phi(m+n)$ by Lemma \ref{lem:state-perm}.  Thus $\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  In particular, $\pi(s \land \delta) \models \pi(f')$ by Remark \ref{rmk:pnf-ground}, and therefore $s \land \delta \models f'$ by Lemma \ref{lem:state-sat-perm}.
 \end{proof}
 
 
