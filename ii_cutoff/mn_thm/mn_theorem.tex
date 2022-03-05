@@ -27,7 +27,7 @@
 \newcommand{\fips}{\text{FIPS}}
 \newcommand{\perm}{\genfrac{}{}{0pt}{}}
 
-\title{A Cutoff Rule For Parameterized Distributed Protocols in Prenex Normal Form}
+\title{A Cutoff Rule For A Special Class Of Parameterized Distributed Protocols}
 \author{Ian Dardik}
 \date{\today}
 
@@ -54,14 +54,15 @@ This section contains the list of assumptions for the transition system we work 
 
 \begin{assumption}[$P$ Has Identical Elements]
   \label{asmp:ident}
-  Let $s$ be a state, $f$ be a grounded formula, and $g$ be a permutation.  Then we assume that:
-  $$(s \models f) \leftrightarrow (g(s) \models g(f))$$
+  Let $f$ be a ground formula and let $g : P \to P$ be a permutation (bijective function).  Then we assume:
+  $$f \leftrightarrow g(f)$$
 \end{assumption}
 
 \subsection{Definitions}
 \begin{definition}[States]
   Let $k \in \mathbb{N}$, then:
   $$\states(k) := \{\text{all states when } |P|=k\}$$
+  In this note we consider a state $s$ to be a formula: a conjunction of constraints that describe a single state in the transition system.
 \end{definition}
 
 \begin{definition}[Ground Formulas]
@@ -75,6 +76,43 @@ This section contains the list of assumptions for the transition system we work 
 \begin{example}
   $\gr((\forall p,q, p \neq q),3) := \{(1 \neq 2),(1 \neq 3),(2 \neq 1),(2 \neq 3),(3 \neq 1),(3 \neq 2)\}$
 \end{example}
+\begin{remark}
+  \label{rmk:pnf-ground}
+  Notice that for any state $s \in \states(k)$ and quantified formula $F$:
+  $$(s \models F(k)) \leftrightarrow (\forall f \in \gr(F,k), s \models f)$$
+\end{remark}
+
+
+
+\section{Helper Lemmas}
+
+\begin{lemma}
+  \label{lem:lt-sat}
+  Let $k \in \mathbb{N}$, and $s \in \states(k)$ such that $s \models \Phi(k)$.  Then for $j \leq k$, it is also the case that $s \models \Phi(j)$.
+\end{lemma}
+\begin{proof}
+  Let $j \leq k$ be given.  We will begin by observing that $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ due to the fact that $\Phi$ is a universally quantified PNF formula.  The result then follows immediately from Remark \ref{rmk:pnf-ground}.
+\end{proof}
+
+% technically we need to assume that s is a dijunction of one or more state.  The proof is identical, but things may be more akward to state.
+\begin{lemma}
+  \label{lem:state-sat-perm}
+  Let $s$ be a state, $f$ be a ground formula, and $g$ be a permutation.  Then:
+  $$(s \models f) \leftrightarrow (g(s) \models g(f))$$
+\end{lemma}
+\begin{proof}
+  Suppose that $s \models f$, which is syntactic sugar for $s \rightarrow f$ because $s$ and $f$ are both formulas.  By Assumption \ref{asmp:ident}, $s \leftrightarrow g(s)$ and $f \leftrightarrow g(f)$, and the result follows immediately.
+
+  Now suppose that $g(s) \models g(f)$.  $g$ is a bijection--and hence invertible--thus $g^{-1}$ is a permutation as well.  By Assumption \ref{asmp:ident}, $g(s) \leftrightarrow g^{-1}(g(s)) = s$ and $g(f) \leftrightarrow g^{-1}(g(f)) = f$.  The result follows immediately.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:state-perm}
+  Let $k \in \mathbb{N}$ and $s$ be a state such that $s \models \Phi(k)$.  If $g$ is a permutation then it is also the case that $g(s) \models \Phi(k)$.
+\end{lemma}
+\begin{proof}
+  Suppose that $s \models \Phi(k)$.  Then by Remark \ref{rmk:pnf-ground}, $\forall f \in \gr(\Phi,k), s \models f$.  But Assumption \ref{asmp:ident} shows that $s \leftrightarrow g(s)$ and hence $\forall f \in \gr(\Phi,k), g(s) \models f$ which gives us our result by Remark \ref{rmk:pnf-ground}.
+\end{proof}
 
 
 
@@ -85,7 +123,7 @@ This section contains the list of assumptions for the transition system we work 
 \begin{proof}
   Let $k>m+n$ be given and assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $s \in \states(k)$ such that $s \models \Phi(k)$, and let $\delta$ be the next transition, i.e. $\delta \models \Delta(k)$.  Finally, let $f' \in \gr(\Phi',k)$ be arbitrary, then we must show that $(s \land \delta) \models f'$.
 
-  Next, let $g$ be a permutation such that $g(\delta) \models \Delta(m+n)$ and $g(f') \in \gr(\Phi',m+n)$, i.e. $g(f') \models \Phi'(m+n)$.  We know that we can find such a $g$ because $\delta$ will contain at most $n$ distinct elements of $P$ and $f'$ will contain at most $m$ distinct elements of $P$.  Notice that $\gr(\Phi,m+n) \subset \gr(\Phi,k)$ so $s \models \Phi(m+n)$, and furthermore $g(s) \models \Phi(m+n)$.  Thus $g(s \land \delta) \models \Phi'(m+n)$, and in particular, $g(s \land \delta) \models g(f')$.  Therefore $s \land \delta \models f'$ by Assumption \ref{asmp:ident}.
+  Next, let $g$ be a permutation such that $g(\delta) \models \Delta(m+n)$ and $g(f') \in \gr(\Phi',m+n)$, i.e. $g(f') \models \Phi'(m+n)$.  We know that we can find such a $g$ because $\delta$ will contain at most $n$ distinct elements of $P$ and $f'$ will contain at most $m$ distinct elements of $P$.  Now by Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $g(s) \models \Phi(m+n)$ by Lemma \ref{lem:state-perm}.  Thus $g(s \land \delta) \models \Phi'(m+n)$, and in particular, $g(s \land \delta) \models g(f')$.  Therefore $s \land \delta \models f'$ by Lemma \ref{lem:state-sat-perm}.
 \end{proof}
 
 
