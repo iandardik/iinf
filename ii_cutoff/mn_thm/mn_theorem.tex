@@ -37,17 +37,19 @@
 \maketitle
 
 \section{Introduction}
-In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ parameterized by a single sort $P$ of identical elements.  We assume that a candidate inductive invariant $\Phi$ (which implies our key safety property) is given.  $\Phi$ universally quantifies over one or more variables, $\Delta$ (the transition relation) exitentially quantifies over one or more variables, and and both $\Phi$ and $\Delta$ are in Prenex Normal Form (PNF).  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instantiation.  We also will consider the prime (') symbol to be an operator that can be recursively applied to a formula, only affecting (sticking to) state variables.
+In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ where $I$ is the initial constraint, $\Delta$ is the transition relation, and the system is parameterized by a single sort $P$ of identical elements (We make the notion of ``identical" precise in Assumption \ref{asmp:ident} below).  We assume that we are given a candidate inductive invariant $\Phi$ which implies our key safety property.  $\Phi$ is restricted to be in Prenex Normal Form (PNF) with only universal quantifiers, while $\Delta$ is restricted to be in PNF with only existential quantifiers.  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instantiation.
 
-In this note, we will build several lemmas that lead to an interesting result: $\Phi(P)$ is an inductive invariant for $T(P)$ iff $\Phi(m+n)$ is an inductive invariant for $T(m+n)$, where $m$ is the number of variables that $\Phi$ quantifies over and $n$ is the number of variables that $\Delta$ quantifies over.  This result is useful for the verification problem laid out above because it reduces the burden to model checking the single finite instance $T(m+n)$.  Essentially, $m+n$ is a cutoff instance size for proving that our inductive invariant holds.
+In this note, we will build several lemmas that lead to an interesting result: let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over, then if $\Phi(m+n)$ is an inductive invariant, $\Phi(k)$ is also an inductive invariant for all $k>m+n$.  We will refer to this as the M-N Theorem in this note.  This result is useful because it reduces the vefification problem on $T$ to model checking a finite number of instances $T(1),T(2),....,T(m+n)$.  Essentially, $m+n$ is a cutoff instance size for proving that our inductive invariant holds.
+
+Note: I think it is likely that if $\Phi(m+n)$ is an inductive invariant, then it is \textit{also} the case for $\Phi(k)$ for all $k<m+n$, but I left this out of this note for the time being to focus on the $k>m+n$ case.
 
 
 
 \section{Preliminaries}
-In this section we cover several preliminary items that we use to prove the MN Theorem.
+In this section we cover several preliminary items that we use to prove the M-N Theorem.
 
 \subsection{Without Loss Of Generality}
-We will assume that the parameter $P = \{1,...,|P|\}$.  This assumption comes without loss of generality because each member of $P$ is assumed to be identical.  We make the notion of ``identical" precise in Assumption \ref{asmp:ident}.
+We will assume that the parameter $P = \{1,2,...,|P|\}$.  This assumption comes without loss of generality because each member of $P$ is assumed to be identical.
 
 \subsection{Assumptions}
 This section contains the list of assumptions for the transition system we work with.  In other words, these assumptions are the requirements for the M-N Theorem to hold.
@@ -62,25 +64,30 @@ This section contains the list of assumptions for the transition system we work 
 \begin{definition}[States]
   Let $k \in \mathbb{N}$, then:
   $$\states(k) := \{\text{all states when } |P|=k\}$$
-  In this note we consider a state $s$ to be a formula: a conjunction of constraints that describe a single state in the transition system.
+  In this note we consider a state $s$ to be a formula: a disjunction of cubes that describe one or more states in the transition system.  Intuitively a single state ought to be a single cube, but we will implicitly refer to ``a state" as potentially multiple states throughout this note.
 \end{definition}
 
 \begin{definition}[Ground Formulas]
   Let $F$ be a quantified formula and $k \in \mathbb{N}$.
   $$\gr(F,k) := \{f | (f \text{ is a ground formula of } F(k)) \land (f \models F(k))\}$$
+  ``$f \models F(k)$" is used here as syntactic sugar for ``$f \rightarrow F(k)$".  Essentially, $\gr(F,k)$ will contain all ground formulas of $F(k)$ that are necessarily \textit{weaker}.  Thus if $\gr(F,k)$ contains any elements (formulas) that are false, we can conclude that $F(k)$ is false.  Likewise, if $F(k)$ is valid, then we can be sure that each element (formula) of $\gr(F,k)$ is valid as well.
 \end{definition}
 
 \begin{example}
-  $\gr((\forall p,q, p=q),2) := \{(1=1),(2=2)\}$
+  $\gr([\forall p,q, p=q],2) := \{(1=1),(1=2),(2=1),(2=2)\}$\\
+  Note: we sometimes use square braces to wrap formulas when it looks better than parentheses.\\
+  Notice that $\gr([\forall p,q, p=q],2)$ contains elements that are false.  This indicates that $[\forall p,q, p=q](2)$ is a false statement.
 \end{example}
 \begin{example}
-  $\gr((\forall p,q, p \neq q),3) := \{(1 \neq 2),(1 \neq 3),(2 \neq 1),(2 \neq 3),(3 \neq 1),(3 \neq 2)\}$
+  $\gr((\forall p,q, p \neq q \rightarrow \text{sv[p]} \neq \text{sv[q]}),3) := \{(1 \neq 1 \rightarrow \text{sv[1]} \neq \text{sv[1]}),(1 \neq 2 \rightarrow \text{sv[1]} \neq \text{sv[2]}),...\}$
+  Where $\text{sv}$ is some state variable.
 \end{example}
 \begin{remark}
   \label{rmk:pnf-ground}
   Notice that for any state $s \in \states(k)$ and quantified formula $F$:
   $$(s \models F(k)) \leftrightarrow (\forall f \in \gr(F,k), s \models f)$$
 \end{remark}
+TODO: this remark needs to be proved.
 
 
 
@@ -91,10 +98,11 @@ This section contains the list of assumptions for the transition system we work 
   Let $k \in \mathbb{N}$, and $s \in \states(k)$ such that $s \models \Phi(k)$.  Then for $j \leq k$, it is also the case that $s \models \Phi(j)$.
 \end{lemma}
 \begin{proof}
-  Let $j \leq k$ be given.  We will begin by observing that $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ due to the fact that $\Phi$ is a universally quantified PNF formula.  The result then follows immediately from Remark \ref{rmk:pnf-ground}.
+  Let $j \leq k$ be given.  We will begin by observing that $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ due to the fact that $\Phi$ is a universally quantified PNF formula.  The result then follows immediately from Remark \ref{rmk:pnf-ground}.  
+  %Side note: the observation $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ also shows that $\Phi(k) \rightarrow \Phi(j)$ by the Curry-Howard Isomorphishm.
 \end{proof}
 
-% technically we need to assume that s is a dijunction of one or more state.  The proof is identical, but things may be more akward to state.
+% TODO technically we need to assume that s is a dijunction of one or more state.  The proof is identical, but things may be more akward to state.
 \begin{lemma}
   \label{lem:state-sat-perm}
   Let $s$ be a state, $f$ be a ground formula, and $\pi$ be a permutation.  Then:
@@ -116,7 +124,7 @@ This section contains the list of assumptions for the transition system we work 
 
 
 
-\section{MN}
+\section{The M-N Theorem}
 \begin{theorem}[M-N]
   Suppose that $\Phi$ is in PNF with only universal quantifiers, while $\Delta$ is in PNF with only existential quantifiers.  Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  If $\Phi(m+n)$ is an inductive invariant, then $\Phi(k)$ is also an inductive invariant for any $k>m+n$.
 \end{theorem}
@@ -129,7 +137,7 @@ This section contains the list of assumptions for the transition system we work 
 
 
 \section{Case Studies}
-In this section we visit several (more coming soon) distributed protocols that are parameterized by a single sort and adhere to the property of Assumption \ref{asmp:ident}.
+In this section we visit several (more coming soon) distributed protocols that are parameterized by a single sort and satisfy Assumption \ref{asmp:ident}.
 
 \subsection{Peterson's Mutex Protocol}
 Peterson's Mutex Protocol can be encoded with a transition function $\Delta$ in PNF that quantifies over two variables.  A sample inductive invariant candidate is given in \cite{ian-peterson} that quantifies of two variables and works for $|P|=2$:
@@ -139,7 +147,7 @@ Peterson's Mutex Protocol can be encoded with a transition function $\Delta$ in 
        /\ (p#q /\ pc[p] = "cs" /\ pc[q] = "a4") => turn = p
        /\ (p # q) => ~(pc[p] = "cs" /\ pc[q] = "cs")
 \end{verbatim}
-However, by the M-N Theorem, we must show that $\Phi$ is an inductive invariant for the case when $|P|=4$.  In fact, we easily see that $\Phi$ fails to be inductive in the case:
+However, by the M-N Theorem, we must show that $\Phi$ is an inductive invariant for the cases when $|P|=1,...,4$.  In fact, we easily see that $\Phi$ fails to be inductive in the case:
 \begin{verbatim}
                       /\ turn = 1             /\ turn = 2
                       /\ pc[1] = "cs"         /\ pc[1] = "cs"
@@ -147,11 +155,6 @@ However, by the M-N Theorem, we must show that $\Phi$ is an inductive invariant 
                       /\ pc[3] = "a3"         /\ pc[3] = "a4"
                       /\ a3(3,2)
 \end{verbatim}
-This example uses states to describe the counterexample, but we can also describe it using the FIP $M_{\Phi}(1,2) \land M_{\Delta}(3,2)$ from $[\Phi\land\Delta](4)$.  When this FIP is true, both $M_{\Phi}(1,2)$ and $M_{\Phi}(1,3)$ fail to hold in the next state, showing that $M_{\Phi}(1,2)$--and hence $\Phi$--is not inductive.
-
-This example shows how a FIP describes a specific relationship between $\Phi$ and $\Delta$; in this case the specific relationship leads to a counterexample.  It is important to note that it is only possible to describe this particular counterexample using a FIP with a minimum of three elements in $P$, which is precisely why we do not detect the counter example in Peterson's Protocol when $|P|=2$.
-
-It is also worthwhile to note that we could derive the same counterexample using an equivalent FIP, say $M_{\Phi}(3,2) \land M_{\Delta}(1,2)$.  This shows how FIP equivalency partitions a formula $\Phi\land\Delta$ into classes of specific relationships that a transition system can exhibit.
 
 
 \bibliographystyle{plain}
