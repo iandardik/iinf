@@ -22,6 +22,7 @@
 \newtheorem{remark}{Remark}
 
 \newcommand{\msp}{\text{ }}
+\newcommand{\st}{\text{ }|\text{ }}
 \newcommand{\states}{\text{States}}
 \newcommand{\gr}{\text{Gr}}
 \newcommand{\fips}{\text{FIPS}}
@@ -63,46 +64,56 @@ This section contains the list of assumptions for the transition system we work 
 \subsection{Definitions}
 \begin{definition}[States]
   Let $k \in \mathbb{N}$, then:
-  $$\states(k) := \{\text{all states when } |P|=k\}$$
-  In this note we consider a state $s$ to be a formula: a disjunction of cubes that describe one or more states in the transition system.  Intuitively a single state ought to be a single cube, but we will implicitly refer to ``a state" as potentially multiple states throughout this note.
+  $$\states(k) := \{s \st s \text{ is a state of } T(k)\}$$
+  In this note we consider a state $s \in \states(k)$ to be a quantifier-free formula: a conjunction of constraints that describe a single state in $T(k)$.
 \end{definition}
+
+\begin{definition}[Satisfaction]
+  Let $f$ and $g$ be formulas in First Order Logic.  Then we say $f \models g$ iff $f \rightarrow g$.  Alternatively, $f$ satisfies $g$ iff $f$ is stronger than $g$.
+\end{definition}
+\begin{example}
+  Consider the transition system $T(P)$ with two state variables, $x \in (P \to \mathbb{N})$ and $y \in \mathbb{Z}$.  Let $|P|=2$, then $P=\{1,2\}$.  Let $s := (x[1]=6 \land x[2]=0 \land y=-22)$ be a state in the transition system.  Let $F := \forall p,q \in P, x[p] \neq x[q]$ and $f := (x[1] \neq x[2])$.  Then $f$ is a ground formula of $F(2)$, $F(2) \models f$, $s \models F(2)$, and $s \models f$.
+\end{example}
 
 \begin{definition}[Ground Formulas]
   Let $F$ be a quantified formula and $k \in \mathbb{N}$.
-  $$\gr(F,k) := \{f | (f \text{ is a ground formula of } F(k)) \land (f \models F(k))\}$$
-  ``$f \models F(k)$" is used here as syntactic sugar for ``$f \rightarrow F(k)$".  Essentially, $\gr(F,k)$ will contain all ground formulas of $F(k)$ that are necessarily \textit{weaker}.  Thus if $\gr(F,k)$ contains any elements (formulas) that are false, we can conclude that $F(k)$ is false.  Likewise, if $F(k)$ is valid, then we can be sure that each element (formula) of $\gr(F,k)$ is valid as well.
+  $$\gr(F,k) := \{f \st (f \text{ is a ground formula of } F(k)) \land (F(k) \models f)\}$$
 \end{definition}
 
 \begin{example}
-  $\gr([\forall p,q, p=q],2) := \{(1=1),(1=2),(2=1),(2=2)\}$\\
+  $\gr([\forall p,q \in P, p=q],2) = \{(1=1),(1=2),(2=1),(2=2)\}$\\
   Note: we sometimes use square braces to wrap formulas when it looks better than parentheses.\\
-  Notice that $\gr([\forall p,q, p=q],2)$ contains elements that are false.  This indicates that $[\forall p,q, p=q](2)$ is a false statement.
+  Notice that $\gr([\forall p,q \in P, p=q],2)$ contains elements that are false.  This indicates that the statement $[\forall p,q \in P, p=q](2)$ is not valid.
 \end{example}
 \begin{example}
-  $\gr((\forall p,q, p \neq q \rightarrow \text{sv[p]} \neq \text{sv[q]}),3) := \{(1 \neq 1 \rightarrow \text{sv[1]} \neq \text{sv[1]}),(1 \neq 2 \rightarrow \text{sv[1]} \neq \text{sv[2]}),...\}$
-  Where $\text{sv}$ is some state variable.
+  Let $\text{sv}$ be a state variable, then:
+  $$\gr((\forall p,q \in P, p \neq q \rightarrow \text{sv[p]} \neq \text{sv[q]}),3) = \{(1 \neq 1 \rightarrow \text{sv[1]} \neq \text{sv[1]}),(1 \neq 2 \rightarrow \text{sv[1]} \neq \text{sv[2]}),...\}$$
 \end{example}
-\begin{remark}
-  \label{rmk:pnf-ground}
-  Notice that for any state $s \in \states(k)$ and quantified formula $F$:
-  $$(s \models F(k)) \leftrightarrow (\forall f \in \gr(F,k), s \models f)$$
-\end{remark}
-TODO: this remark needs to be proved.
 
 
 
 \section{Helper Lemmas}
 
 \begin{lemma}
+  \label{lem:pnf-ground}
+  Let $k \in \mathbb{N}$, $s \in \states(k)$, and $F$ be a universally quantified formula.  Then:
+  $$(s \models F(k)) \leftrightarrow (\forall f \in \gr(F,k), s \models f)$$
+\end{lemma}
+\begin{proof}
+  Suppose that $s \models F(k)$.  For an arbitrary formula $f \in \gr(F,k)$, $F(k) \models f$ and hence we see that $s \rightarrow F(k) \land F(k) \rightarrow f$.  It follows that $s \models f$.
+
+  Now suppose that $\forall f \in \gr(F,k), s \models f$.  Suppose, for the sake of contradiction, that $s \not\models F(k)$.  Then it must be the case that $s \land \neg F(k)$.  We know that $F$ is unversally quantified, so let $F(k) := \forall \hat{x}, \phi(\hat{x})$ where $\hat{x}$ is the vector of variables that we quantify over.  Then it must be the case that $\exists \hat{x}, \neg \phi(\hat{x})$, but $\phi(\hat{x}) \in \gr(F,k)$.  However this contradicts our original assumption, and hence the result is proved.
+\end{proof}
+
+\begin{lemma}
   \label{lem:lt-sat}
   Let $k \in \mathbb{N}$, and $s \in \states(k)$ such that $s \models \Phi(k)$.  Then for $j \leq k$, it is also the case that $s \models \Phi(j)$.
 \end{lemma}
 \begin{proof}
-  Let $j \leq k$ be given.  We will begin by observing that $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ due to the fact that $\Phi$ is a universally quantified PNF formula.  The result then follows immediately from Remark \ref{rmk:pnf-ground}.  
+  Let $j \leq k$ be given.  We will begin by observing that $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ due to the fact that $\Phi$ is a universally quantified PNF formula.  The result then follows immediately from Lemma \ref{lem:pnf-ground}.  
   %Side note: the observation $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ also shows that $\Phi(k) \rightarrow \Phi(j)$ by the Curry-Howard Isomorphishm.
 \end{proof}
 
-% TODO technically we need to assume that s is a dijunction of one or more state.  The proof is identical, but things may be more akward to state.
 \begin{lemma}
   \label{lem:state-sat-perm}
   Let $s$ be a state, $f$ be a ground formula, and $\pi$ be a permutation.  Then:
@@ -119,7 +130,7 @@ TODO: this remark needs to be proved.
   Let $k \in \mathbb{N}$ and $s$ be a state such that $s \models \Phi(k)$.  If $\pi$ is a permutation then it is also the case that $\pi(s) \models \Phi(k)$.
 \end{lemma}
 \begin{proof}
-  Suppose that $s \models \Phi(k)$.  Then by Remark \ref{rmk:pnf-ground}, $\forall f \in \gr(\Phi,k), s \models f$.  But Assumption \ref{asmp:ident} shows that $s \leftrightarrow \pi(s)$ and hence $\forall f \in \gr(\Phi,k), \pi(s) \models f$ which gives us our result by Remark \ref{rmk:pnf-ground}.
+  Suppose that $s \models \Phi(k)$.  Then by Lemma \ref{lem:pnf-ground}, $\forall f \in \gr(\Phi,k), s \models f$.  But Assumption \ref{asmp:ident} shows that $s \leftrightarrow \pi(s)$ and hence $\forall f \in \gr(\Phi,k), \pi(s) \models f$ which gives us our result by Lemma \ref{lem:pnf-ground}.
 \end{proof}
 
 
@@ -129,9 +140,9 @@ TODO: this remark needs to be proved.
   Suppose that $\Phi$ is in PNF with only universal quantifiers, while $\Delta$ is in PNF with only existential quantifiers.  Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  If $\Phi(m+n)$ is an inductive invariant, then $\Phi(k)$ is also an inductive invariant for any $k>m+n$.
 \end{theorem}
 \begin{proof}
-  Let $k>m+n$ be given and assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $s \in \states(k)$ such that $s \models \Phi(k)$, and let $\delta$ be an arbitrary transition such that $\delta \models \Delta(k)$.  Finally, let $f' \in \gr(\Phi',k)$ be arbitrary, then, by Remark \ref{rmk:pnf-ground}, it suffices to show that $(s \land \delta) \models f'$.
+  Let $k>m+n$ be given and assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $s \in \states(k)$ such that $s \models \Phi(k)$, and let $\delta$ be a single arbitrary transition such that $\delta \models \Delta(k)$.  Finally, let $f' \in \gr(\Phi',k)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground}, it suffices to show that $(s \land \delta) \models f'$.
 
-  Let $\pi$ be a permutation such that $\pi(\delta) \models \Delta(m+n)$ and $\pi(f') \in \gr(\Phi',m+n)$, i.e. $\pi(f') \models \Phi'(m+n)$.  We know that we can find such a $\pi$ because $\delta$ will contain at most $n$ distinct elements of $P$ and $f'$ will contain at most $m$ distinct elements of $P$.  Now by Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $\pi(s) \models \Phi(m+n)$ by Lemma \ref{lem:state-perm}.  Thus $\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  In particular, $\pi(s \land \delta) \models \pi(f')$ by Remark \ref{rmk:pnf-ground}, and therefore $s \land \delta \models f'$ by Lemma \ref{lem:state-sat-perm}.
+  Let $\pi$ be a permutation such that $\pi(\delta) \models \Delta(m+n)$ and $\pi(f') \in \gr(\Phi',m+n)$, i.e. $\pi(f') \models \Phi'(m+n)$.  We know that we can find such a $\pi$ because $\delta$ will contain at most $n$ distinct elements of $P$ and $f'$ will contain at most $m$ distinct elements of $P$.  Now by Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $\pi(s) \models \Phi(m+n)$ by Lemma \ref{lem:state-perm}.  Thus $\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  In particular, $\pi(s \land \delta) \models \pi(f')$ by Lemma \ref{lem:pnf-ground}, and therefore $s \land \delta \models f'$ by Lemma \ref{lem:state-sat-perm}.
 \end{proof}
 
 
