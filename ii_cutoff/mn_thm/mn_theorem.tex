@@ -110,7 +110,7 @@ This section contains the list of assumptions for the transition system we work 
   Let $k \in \mathbb{N}$, and $s \in \states(k)$ such that $s \models \Phi(k)$.  Then for $j \leq k$, it is also the case that $s \models \Phi(j)$.
 \end{lemma}
 \begin{proof}
-  Let $j \leq k$ be given.  We will begin by observing that $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ due to the fact that $\Phi$ is a universally quantified PNF formula.  The result then follows immediately from Lemma \ref{lem:pnf-ground}.  
+  Let $k$ and $j \leq k$ be given and suppose that $s \models \Phi(k)$.  By Lemma \ref{lem:pnf-ground}, $\forall f \in \gr(F,k), s \models \Phi(k)$.  Now observe that $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ due to the fact that $\Phi$ is a universally quantified PNF formula.  Thus it is also the case that $\forall f \in \gr(F,j), s \models \Phi(j)$, and then the result follows from Lemma \ref{lem:pnf-ground}.
   %Side note: the observation $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ also shows that $\Phi(k) \rightarrow \Phi(j)$ by the Curry-Howard Isomorphishm.
 \end{proof}
 
@@ -120,7 +120,7 @@ This section contains the list of assumptions for the transition system we work 
   $$(s \models f) \leftrightarrow (\pi(s) \models \pi(f))$$
 \end{lemma}
 \begin{proof}
-  Suppose that $s \models f$, which is syntactic sugar for $s \rightarrow f$ because $s$ and $f$ are both formulas.  By Assumption \ref{asmp:ident}, $s \leftrightarrow \pi(s)$ and $f \leftrightarrow \pi(f)$, and the result follows immediately.
+  Suppose that $s \models f$, and hence $s \rightarrow f$.  By Assumption \ref{asmp:ident}, $s \leftrightarrow \pi(s)$ and $f \leftrightarrow \pi(f)$, and the result follows immediately.
 
   Now suppose that $\pi(s) \models \pi(f)$.  $\pi$ is a bijection--and hence invertible--thus $\pi^{-1}$ is a permutation as well.  By Assumption \ref{asmp:ident}, $\pi(s) \leftrightarrow \pi^{-1}(\pi(s)) = s$ and $\pi(f) \leftrightarrow \pi^{-1}(\pi(f)) = f$.  The result follows immediately.
 \end{proof}
@@ -142,7 +142,9 @@ This section contains the list of assumptions for the transition system we work 
 \begin{proof}
   Let $k>m+n$ be given and assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $s \in \states(k)$ such that $s \models \Phi(k)$, and let $\delta$ be a single arbitrary transition such that $\delta \models \Delta(k)$.  Finally, let $f' \in \gr(\Phi',k)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground}, it suffices to show that $(s \land \delta) \models f'$.
 
-  Let $\pi$ be a permutation such that $\pi(\delta) \models \Delta(m+n)$ and $\pi(f') \in \gr(\Phi',m+n)$, i.e. $\pi(f') \models \Phi'(m+n)$.  We know that we can find such a $\pi$ because $\delta$ will contain at most $n$ distinct elements of $P$ and $f'$ will contain at most $m$ distinct elements of $P$.  Now by Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $\pi(s) \models \Phi(m+n)$ by Lemma \ref{lem:state-perm}.  Thus $\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  In particular, $\pi(s \land \delta) \models \pi(f')$ by Lemma \ref{lem:pnf-ground}, and therefore $s \land \delta \models f'$ by Lemma \ref{lem:state-sat-perm}.
+  Next, we will construct a permutation $\pi$ as follows: let $x_1,...,x_j$ be the distinct elements of $P$ used in $\delta$ and $f'$.  We know that $j \leq m+n$ because $\Delta$ quantifies over $n$ variables while $\Phi$ quantifies over $m$ variables.  Let:
+  $$\pi := \left( \perm{x_1 \msp x_2 \msp ... \msp x_j}{1 \msp\msp 2 \msp\msp ... \msp\msp j} \right)$$
+  Notice that $\pi(\delta)$ and $\pi(s)$ now only contain the elements $1,...,j$ and, in particular, $\pi(\delta) \models \Delta(m+n)$ and $\pi(f') \in \gr(\Phi',m+n)$, i.e. $\pi(f') \models \Phi'(m+n)$.  By Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $\pi(s) \models \Phi(m+n)$ by Lemma \ref{lem:state-perm}.  Thus $\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  In particular, $\pi(s \land \delta) \models \pi(f')$ by Lemma \ref{lem:pnf-ground}, and therefore $s \land \delta \models f'$ by Lemma \ref{lem:state-sat-perm}.
 \end{proof}
 
 
