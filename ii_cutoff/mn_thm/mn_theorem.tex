@@ -75,7 +75,9 @@ In this note we adopt the convention of \cite{goel2021symmetry} where $T(P)$ is 
 \end{definition}
 
 \begin{example}
-  Consider the transition system $T(P)$ with two state variables, $x \in (P \to \mathbb{N})$ and $y \in \mathbb{Z}$.  Let $|P|=2$, then $P=\{1,2\}$.  Let $s := (x[1]=6 \land x[2]=0 \land y=-22)$ be a state in the transition system.  Let $F := \forall p,q \in P, x[p] \neq x[q]$ and $f := (x[1] \neq x[2])$.  Then $f$ is a ground formula of $F(2)$, $F(2) \models f$, $s \models F(2)$, and $s \models f$.
+  Consider the transition system $T(P)$ with two state variables, $x \in (P \to \mathbb{N})$ and $y \in \mathbb{Z}$.  Let $s := (x[1]=6 \land x[2]=0 \land y=-22)$ be a state in the transition system.  Let $F := \forall p,q \in P, x[p] \neq x[q]$ and $f := (x[1] \neq x[2])$.
+
+  Then $F(2) = \forall p,q \in \{1,2\}, x[p] \neq x[q]$.  Furthermore, $f$ is a ground formula of $F(2)$, $F(2) \models f$, $s \models F(2)$, and $s \models f$.
 \end{example}
 
 \begin{definition}[Gr]
