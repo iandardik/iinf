@@ -38,24 +38,27 @@
 \maketitle
 
 \section{Introduction}
-In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ where $I$ is the initial constraint, $\Delta$ is the transition relation, and the system is parameterized by a single sort $P$ of identical elements (We make the notion of ``identical" precise in Assumption \ref{asmp:ident} below).  We assume that we are given a candidate inductive invariant $\Phi$ which implies our key safety property.  $\Phi$ is restricted to be in Prenex Normal Form (PNF) with only universal quantifiers, while $\Delta$ is restricted to be in PNF with only existential quantifiers.  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instantiation.
+In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ where $I$ is the initial constraint, $\Delta$ is the transition relation, and the system is parameterized by a single sort $P$ of indistinguishable elements (We make the notion of ``indistinguishable" precise in Assumption \ref{asmp:ident} below).  We assume that we are given a candidate inductive invariant $\Phi$ which implies our key safety property.  $\Phi$ is restricted to be in Prenex Normal Form (PNF) with only universal quantifiers, while $\Delta$ is restricted to be in PNF with only existential quantifiers.
 
-In this note, we will build several lemmas that lead to an interesting result: let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over, then if $\Phi(m+n)$ is an inductive invariant, $\Phi(k)$ is also an inductive invariant for all $k>m+n$.  We will refer to this as the M-N Theorem in this note.  This result is useful because it reduces the vefification problem on $T$ to model checking a finite number of instances $T(1),T(2),....,T(m+n)$.  Essentially, $m+n$ is a cutoff instance size for proving that our inductive invariant holds.
+In this note, we will build several lemmas that lead to an interesting result: let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over, then if $\Phi$ is an inductive invariant when $|P|=m+n$, then $\Phi$ is also an inductive invariant when $|P|=k$ for all $k>m+n$.  We will refer to this as the M-N Theorem in this note.  This result is useful because it reduces the verification problem on $T$ to model checking a finite number of instances $|P|=1,|P|=2,...,|P|=m+n$.  Essentially, $m+n$ is a cutoff instance size for proving that our inductive invariant holds.
 
 Note: I think it is likely that if $\Phi(m+n)$ is an inductive invariant, then it is \textit{also} the case for $\Phi(k)$ for all $k<m+n$, but I left this out of this note for the time being to focus on the $k>m+n$ case.
 
 
 
 \section{Preliminaries}
-In this section we cover several preliminary items that we use to prove the M-N Theorem.
+In this section we introduce several assumptions, definitions, and notation that we will use to prove the M-N Theorem.
 
-\subsection{Without Loss Of Generality}
-We will assume that the parameter $P = \{1,2,...,|P|\}$.  This assumption comes without loss of generality because each member of $P$ is assumed to be identical.  This assumption also implies that for any two finite sort instances $P$ and $Q$, $|P| \leq |Q| \leftrightarrow P \subseteq Q$.
+\subsection{Assumption On Sort \textit{P}}
+We will assume that the parameter $P = \{1,2,...,|P|\}$.  This assumption comes without loss of generality because each member of $P$ is assumed to be indistinguishable.  This assumption also implies that for any two finite sort instances $P$ and $Q$, $|P| \leq |Q| \leftrightarrow P \subseteq Q$.
+
+\subsection{Template And Finite Instance Notation}
+In this note we adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instance.  We can also refer to the template or a finite instance of a quantified formula $F$.  For example, suppose $F$ is in PNF and univerally quantifies over $j$ variables, i.e. $F := \forall x_1,...,x_j \in P, \phi(x_1,...,x_j)$, where $\phi$ is a non-quantified statement whose only free variables are $x_1,...,x_j$.  Then $F(k)$ refers to the formula $F$ when $|P|=k$, i.e. $F(k) = \forall x_1,...,x_j \in \{1,..,k\}, \phi(x_1,...,x_j)$.
 
 \subsection{Assumptions}
 This section contains the list of assumptions for the transition system we work with.  In other words, these assumptions are the requirements for the M-N Theorem to hold.
 
-\begin{assumption}[$P$ Has Identical Elements]
+\begin{assumption}[$P$ Has Indistinguishable Elements]
   \label{asmp:ident}
   Let $f$ be a ground formula and let $\pi : P \to P$ be a bijective function, i.e. a permutation on $P$.  Then we assume:
   $$f \leftrightarrow \pi(f)$$
