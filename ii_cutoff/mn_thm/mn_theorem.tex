@@ -38,7 +38,7 @@
 \maketitle
 
 \section{Introduction}
-In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ where $I$ is the initial constraint, $\Delta$ is the transition relation, and the system is parameterized by a single sort $P$ of indistinguishable elements (We make the notion of ``indistinguishable" precise in Assumption \ref{asmp:ident} below).  We assume that we are given a candidate inductive invariant $\Phi$ which implies our key safety property.  $\Phi$ is restricted to be in Prenex Normal Form (PNF) with only universal quantifiers, while $\Delta$ is restricted to be in PNF with only existential quantifiers.
+In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ where $I$ is the initial constraint, $\Delta$ is the transition relation, and the system is parameterized by a single sort $P$ of indistinguishable elements (We make the notion of ``indistinguishable" precise in Assumption \ref{asmp:indist} below).  We assume that we are given a candidate inductive invariant $\Phi$ which implies our key safety property.  $\Phi$ is restricted to be in Prenex Normal Form (PNF) with only universal quantifiers, while $\Delta$ is restricted to be in PNF with only existential quantifiers.
 
 In this note, we will build several lemmas that lead to an interesting result: let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over, then if $\Phi$ is an inductive invariant when $|P|=m+n$, then $\Phi$ is also an inductive invariant when $|P|=k$ for all $k>m+n$.  We will refer to this as the M-N Theorem in this note.  This result is useful because it reduces the verification problem on $T$ to model checking a finite number of instances $|P|=1,|P|=2,...,|P|=m+n$.  Essentially, $m+n$ is a cutoff instance size for proving that our inductive invariant holds.
 
@@ -55,31 +55,31 @@ We will assume that the parameter $P = \{1,2,...,|P|\}$.  This assumption comes 
 \subsection{Template And Finite Instance Notation}
 In this note we adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instance.  We can also refer to the template or a finite instance of a quantified formula $F$.  For example, suppose $F$ is in PNF and univerally quantifies over $j$ variables, i.e. $F := \forall x_1,...,x_j \in P, \phi(x_1,...,x_j)$, where $\phi$ is a non-quantified statement whose only free variables are $x_1,...,x_j$.  Then $F(k)$ refers to the formula $F$ when $|P|=k$, i.e. $F(k) = \forall x_1,...,x_j \in \{1,..,k\}, \phi(x_1,...,x_j)$.
 
-\subsection{Assumptions}
-This section contains the list of assumptions for the transition system we work with.  In other words, these assumptions are the requirements for the M-N Theorem to hold.
-
-\begin{assumption}[$P$ Has Indistinguishable Elements]
-  \label{asmp:ident}
-  Let $f$ be a ground formula and let $\pi : P \to P$ be a bijective function, i.e. a permutation on $P$.  Then we assume:
-  $$f \leftrightarrow \pi(f)$$
-\end{assumption}
-
-\subsection{Definitions}
+\subsection{States And Ground Formulas}
 \begin{definition}[States]
   Let $k \in \mathbb{N}$, then:
   $$\states(k) := \{s \st s \text{ is a state of } T(k)\}$$
-  In this note we consider a state $s \in \states(k)$ to be a quantifier-free formula: a conjunction of constraints that describe a single state in $T(k)$.
+  In this note we consider a ``state" $s \in \states(k)$ to be a formula.  More specifically, $s$ is a non-quantified conjunction of constraints that describe a single state in $T(k)$.
 \end{definition}
 
 \begin{definition}[Satisfaction]
   Let $f$ and $g$ be formulas in First Order Logic.  Then we say $f \models g$ iff $f \rightarrow g$.  Alternatively, $f$ satisfies $g$ iff $f$ is stronger than $g$.
 \end{definition}
+
+\begin{definition}[Ground Formula]
+  A \textit{ground formula} is a non-quantified FOL sentence (has no free variables).
+\end{definition}
+
+\begin{definition}[Ground Formula \textit{of F(k)}]
+  Let $F$ be a quantified formula and $k \in \mathbb{N}$.  We say that $f$ is a ground formula \textit{of} $F(k)$ iff $f$ is a ground formula that is identical in structure to $F$ without quantifiers, and with all free variables replaced by members of $P$ when $|P|=k$.
+\end{definition}
+
 \begin{example}
   Consider the transition system $T(P)$ with two state variables, $x \in (P \to \mathbb{N})$ and $y \in \mathbb{Z}$.  Let $|P|=2$, then $P=\{1,2\}$.  Let $s := (x[1]=6 \land x[2]=0 \land y=-22)$ be a state in the transition system.  Let $F := \forall p,q \in P, x[p] \neq x[q]$ and $f := (x[1] \neq x[2])$.  Then $f$ is a ground formula of $F(2)$, $F(2) \models f$, $s \models F(2)$, and $s \models f$.
 \end{example}
 
-\begin{definition}[Ground Formulas]
-  Let $F$ be a quantified formula and $k \in \mathbb{N}$.
+\begin{definition}[Gr]
+  Let $F$ be a quantified formula and $k \in \mathbb{N}$.  Then:
   $$\gr(F,k) := \{f \st (f \text{ is a ground formula of } F(k)) \land (F(k) \models f)\}$$
 \end{definition}
 
@@ -93,13 +93,25 @@ This section contains the list of assumptions for the transition system we work 
   $$\gr((\forall p,q \in P, p \neq q \rightarrow \text{sv[p]} \neq \text{sv[q]}),3) = \{(1 \neq 1 \rightarrow \text{sv[1]} \neq \text{sv[1]}),(1 \neq 2 \rightarrow \text{sv[1]} \neq \text{sv[2]}),...\}$$
 \end{example}
 
+\subsection{Permutation Transformations}
+Coming soon.
+%Let $f$ be a ground formula and let $\pi : P \to P$ be a bijective function, i.e. a permutation on $P$.  Then we assume:
+%$$f \leftrightarrow \pi(f)$$
+
+\subsection{Assumptions}
+This section contains the list of assumptions for the transition system we work with.  In other words, these assumptions are the requirements for the M-N Theorem to hold.
+\begin{assumption}[$P$ Has Indistinguishable Elements]
+  \label{asmp:indist}
+  Let $j,k \in \mathbb{N}$ such that $j \geq k$ and $F$ be a quantified sentence in FOL.  Let $s \in \states(j)$ such that $s \models F(k)$.  If $\pi$ is a permutation then it is also the case that $\pi(s) \models F(k)$.
+\end{assumption}
+
 
 
 \section{Helper Lemmas}
 
 \begin{lemma}
   \label{lem:pnf-ground}
-  Let $k \in \mathbb{N}$, $s \in \states(k)$, and $F$ be a universally quantified formula.  Then:
+  Let $j,k \in \mathbb{N}$ such that $j \geq k$, $s \in \states(j)$, and $F$ be a universally quantified formula.  Then:
   $$(s \models F(k)) \leftrightarrow (\forall f \in \gr(F,k), s \models f)$$
 \end{lemma}
 \begin{proof}
@@ -117,25 +129,6 @@ This section contains the list of assumptions for the transition system we work 
   %Side note: the observation $\gr(\Phi,j) \subseteq \gr(\Phi,k)$ also shows that $\Phi(k) \rightarrow \Phi(j)$ by the Curry-Howard Isomorphishm.
 \end{proof}
 
-\begin{lemma}
-  \label{lem:state-sat-perm}
-  Let $s$ be a state, $f$ be a ground formula, and $\pi$ be a permutation.  Then:
-  $$(s \models f) \leftrightarrow (\pi(s) \models \pi(f))$$
-\end{lemma}
-\begin{proof}
-  Suppose that $s \models f$, and hence $s \rightarrow f$.  By Assumption \ref{asmp:ident}, $s \leftrightarrow \pi(s)$ and $f \leftrightarrow \pi(f)$, and the result follows immediately.
-
-  Now suppose that $\pi(s) \models \pi(f)$.  $\pi$ is a bijection--and hence invertible--thus $\pi^{-1}$ is a permutation as well.  By Assumption \ref{asmp:ident}, $\pi(s) \leftrightarrow \pi^{-1}(\pi(s)) = s$ and $\pi(f) \leftrightarrow \pi^{-1}(\pi(f)) = f$.  The result follows immediately.
-\end{proof}
-
-\begin{lemma}
-  \label{lem:state-perm}
-  Let $k \in \mathbb{N}$ and $s$ be a state such that $s \models \Phi(k)$.  If $\pi$ is a permutation then it is also the case that $\pi(s) \models \Phi(k)$.
-\end{lemma}
-\begin{proof}
-  Suppose that $s \models \Phi(k)$.  Then by Lemma \ref{lem:pnf-ground}, $\forall f \in \gr(\Phi,k), s \models f$.  But Assumption \ref{asmp:ident} shows that $s \leftrightarrow \pi(s)$ and hence $\forall f \in \gr(\Phi,k), \pi(s) \models f$ which gives us our result by Lemma \ref{lem:pnf-ground}.
-\end{proof}
-
 
 
 \section{The M-N Theorem}
@@ -147,13 +140,15 @@ This section contains the list of assumptions for the transition system we work 
 
   Next, we will construct a permutation $\pi$ as follows: let $x_1,...,x_j$ be the distinct elements of $P$ used in $\delta$ and $f'$.  We know that $j \leq m+n$ because $\Delta$ quantifies over $n$ variables while $\Phi$ quantifies over $m$ variables.  Let:
   $$\pi := \left( \perm{x_1 \msp x_2 \msp ... \msp x_j}{1 \msp\msp 2 \msp\msp ... \msp\msp j} \right)$$
-  Notice that the formulas $\pi(\delta)$ and $\pi(s)$ now only contain the elements $1,...,j$ and, in particular, $\pi(\delta) \models \Delta(m+n)$ and $\pi(f') \in \gr(\Phi',m+n)$, i.e. $\pi(f') \models \Phi'(m+n)$.  By Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $\pi(s) \models \Phi(m+n)$ by Lemma \ref{lem:state-perm}.  Thus $\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  In particular, $\pi(s \land \delta) \models \pi(f')$ by Lemma \ref{lem:pnf-ground}, and therefore $s \land \delta \models f'$ by Lemma \ref{lem:state-sat-perm}.
+  Notice that the formulas $\pi(\delta)$ and $\pi(s)$ now only contain the elements $1,...,j$ and, in particular, $\pi(\delta) \models \Delta(m+n)$ and $\pi(f') \in \gr(\Phi',m+n)$, i.e. $\pi(f') \models \Phi'(m+n)$.  By Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $\pi(s) \models \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Thus $\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  By Assumption \ref{asmp:indist} we also see that $(s \land \delta) \models \Phi'(m+n)$, and in particular, by Lemma \ref{lem:pnf-ground}, $(s \land \delta) \models f'$.
+
+  %In particular, $\pi(s \land \delta) \models \pi(f')$ by Lemma \ref{lem:pnf-ground}, and therefore $s \land \delta \models f'$ by Corollary \ref{cor:state-sat-perm}.
 \end{proof}
 
 
 
 \section{Case Studies}
-In this section we visit several (more coming soon) distributed protocols that are parameterized by a single sort and satisfy Assumption \ref{asmp:ident}.
+In this section we visit several (more coming soon) distributed protocols that are parameterized by a single sort and satisfy Assumption \ref{asmp:indist}.
 
 \subsection{Peterson's Mutex Protocol}
 Peterson's Mutex Protocol can be encoded with a transition relation $\Delta$ in PNF that quantifies over two variables.  A sample inductive invariant candidate is given in \cite{ian-peterson} that quantifies of two variables and works for $|P|=2$:
