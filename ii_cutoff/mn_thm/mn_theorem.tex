@@ -94,15 +94,23 @@ In this note we adopt the convention of \cite{goel2021symmetry} where $T(P)$ is 
 \end{example}
 
 \subsection{Permutation Transformations}
-Coming soon.
-%Let $f$ be a ground formula and let $\pi : P \to P$ be a bijective function, i.e. a permutation on $P$.  Then we assume:
-%$$f \leftrightarrow \pi(f)$$
+
+\begin{definition}[Permutation Transformation]
+  Let $\pi : P \to P$ be a permutation on $P$, and let $G$ be the set of all possible ground formulas.  Then $M_\pi : G \to G$ is the \textit{permutation transformation} on $\pi$, a syntactic transformation that replaces each element from $P$ in a ground formula with its permuted value.
+\end{definition}
+
+\begin{example}
+  Let $\pi$ be the following permutation:
+  $$\pi := \left( \perm{1 \msp 2 \msp 3}{2 \msp 3 \msp 1} \right)$$
+  Let $\text{sv}$ be a state variable, then:
+  $$M_\pi(3 \neq 1 \rightarrow \text{sv[3]} \neq \text{sv[1]}) = (1 \neq 2 \rightarrow \text{sv[1]} \neq \text{sv[2]})$$
+\end{example}
 
 \subsection{Assumptions}
 This section contains the list of assumptions for the transition system we work with.  In other words, these assumptions are the requirements for the M-N Theorem to hold.
 \begin{assumption}[$P$ Has Indistinguishable Elements]
   \label{asmp:indist}
-  Let $j,k \in \mathbb{N}$ such that $j \geq k$ and $F$ be a quantified sentence in FOL.  Let $s \in \states(j)$ such that $s \models F(k)$.  If $\pi$ is a permutation then it is also the case that $\pi(s) \models F(k)$.
+  Let $j,k \in \mathbb{N}$ such that $j \geq k$ and $F$ be a quantified sentence in FOL.  Let $s \in \states(j)$ such that $s \models F(k)$.  If $\pi$ is a permutation then it is also the case that $M_\pi(s) \models F(k)$.
 \end{assumption}
 
 
@@ -140,9 +148,7 @@ This section contains the list of assumptions for the transition system we work 
 
   Next, we will construct a permutation $\pi$ as follows: let $x_1,...,x_j$ be the distinct elements of $P$ used in $\delta$ and $f'$.  We know that $j \leq m+n$ because $\Delta$ quantifies over $n$ variables while $\Phi$ quantifies over $m$ variables.  Let:
   $$\pi := \left( \perm{x_1 \msp x_2 \msp ... \msp x_j}{1 \msp\msp 2 \msp\msp ... \msp\msp j} \right)$$
-  Notice that the formulas $\pi(\delta)$ and $\pi(s)$ now only contain the elements $1,...,j$ and, in particular, $\pi(\delta) \models \Delta(m+n)$ and $\pi(f') \in \gr(\Phi',m+n)$, i.e. $\pi(f') \models \Phi'(m+n)$.  By Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $\pi(s) \models \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Thus $\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  By Assumption \ref{asmp:indist} we also see that $(s \land \delta) \models \Phi'(m+n)$, and in particular, by Lemma \ref{lem:pnf-ground}, $(s \land \delta) \models f'$.
-
-  %In particular, $\pi(s \land \delta) \models \pi(f')$ by Lemma \ref{lem:pnf-ground}, and therefore $s \land \delta \models f'$ by Corollary \ref{cor:state-sat-perm}.
+  Notice that the formulas $M_\pi(\delta)$ and $M_\pi(s)$ now only contain the elements $1,...,j$ and, in particular, $M_\pi(\delta) \models \Delta(m+n)$ and $M_\pi(f') \in \gr(\Phi',m+n)$, i.e. $M_\pi(f') \models \Phi'(m+n)$.  By Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $M_\pi(s) \models \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Thus $M_\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $M_\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  By Assumption \ref{asmp:indist}--noting the fact that $\pi^{-1}$ is also a permutation of $P$--we also see that $(s \land \delta) \models \Phi'(m+n)$, and in particular, by Lemma \ref{lem:pnf-ground}, $(s \land \delta) \models f'$.
 \end{proof}
 
 
