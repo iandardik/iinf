@@ -50,7 +50,10 @@ Note: I think it is likely that if $\Phi(m+n)$ is an inductive invariant, then i
 In this section we introduce several assumptions, definitions, and notation that we will use to prove the M-N Theorem.
 
 \subsection{Assumption On Sort \textit{P}}
-We will assume that the parameter $P = \{1,2,...,|P|\}$.  This assumption comes without loss of generality because each member of $P$ is assumed to be indistinguishable.  This assumption also implies that for any two finite sort instances $P$ and $Q$, $|P| \leq |Q| \leftrightarrow P \subseteq Q$.
+We will assume that when $(|P|=k) \leftrightarrow (P = \{1,2,...,k\})$.  This assumption comes without loss of generality because each member of $P$ is assumed to be indistinguishable.
+
+\subsection{Restriction Of Logic}
+We require that our logic can only refer to the elements of $P$ via quantification.  In particular, the logic does not have access to the cardinality of $P$ (i.e. $|P|$), and cannot refer to any of the elements of $P$ using a global or free variable.
 
 \subsection{Template And Finite Instance Notation}
 In this note we adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$, and $T(|P|)$ is a finite instance.  We can also refer to the template or a finite instance of a quantified formula $F$.  For example, suppose $F$ is in PNF and univerally quantifies over $j$ variables, i.e. $F := \forall x_1,...,x_j \in P, \phi(x_1,...,x_j)$, where $\phi$ is a non-quantified statement whose only free variables are $x_1,...,x_j$.  Then $F(k)$ refers to the formula $F$ when $|P|=k$, i.e. $F(k) = \forall x_1,...,x_j \in \{1,..,k\}, \phi(x_1,...,x_j)$.
@@ -63,7 +66,7 @@ In this note we adopt the convention of \cite{goel2021symmetry} where $T(P)$ is 
 \end{definition}
 
 \begin{definition}[Satisfaction]
-  Let $f$ and $g$ be formulas in First Order Logic.  Then we say $f \models g$ iff $f \rightarrow g$.  Alternatively, $f$ satisfies $g$ iff $f$ is stronger than $g$.
+  Let $f$ and $g$ be formulas in First Order Logic (FOL).  Then we say $f \models g$ iff $f \rightarrow g$.  Alternatively, $f$ satisfies $g$ iff $f$ is stronger than $g$.
 \end{definition}
 
 \begin{definition}[Ground Formula]
@@ -112,7 +115,7 @@ In this note we adopt the convention of \cite{goel2021symmetry} where $T(P)$ is 
 This section contains the list of assumptions for the transition system we work with.  In other words, these assumptions are the requirements for the M-N Theorem to hold.
 \begin{assumption}[$P$ Has Indistinguishable Elements]
   \label{asmp:indist}
-  Let $j,k \in \mathbb{N}$ such that $j \geq k$ and $F$ be a quantified sentence in FOL.  Let $s \in \states(j)$ such that $s \models F(k)$.  If $\pi$ is a permutation then it is also the case that $M_\pi(s) \models F(k)$.
+  Let $j,k \in \mathbb{N}$ such that $j \geq k$ and $F$ be a quantified sentence in PNF.  Let $s \in \states(j)$ such that $s \models F(k)$.  If $\pi$ is a permutation then it is also the case that $M_\pi(s) \models F(k)$.
 \end{assumption}
 
 
@@ -127,7 +130,7 @@ This section contains the list of assumptions for the transition system we work 
 \begin{proof}
   Suppose that $s \models F(k)$.  For an arbitrary formula $f \in \gr(F,k)$, $F(k) \models f$ and hence we see that $s \rightarrow F(k) \land F(k) \rightarrow f$.  It follows that $s \models f$.
 
-  Now suppose that $\forall f \in \gr(F,k), s \models f$.  Suppose, for the sake of contradiction, that $s \not\models F(k)$.  Then it must be the case that $s \land \neg F(k)$.  We know that $F$ is unversally quantified, so let $F(k) := \forall \hat{x}, \phi(\hat{x})$ where $\hat{x}$ is the vector of variables that we quantify over.  Then it must be the case that $\exists \hat{x}, \neg \phi(\hat{x})$, but $\phi(\hat{x}) \in \gr(F,k)$.  However this contradicts our original assumption, and hence the result is proved.
+  Now suppose that $\forall f \in \gr(F,k), s \models f$.  Suppose, for the sake of contradiction, that $s \not\models F(k)$.  Then it must be the case that $s \land \neg F(k)$.  We know that $F$ is unversally quantified, so let $F(k) := \forall x_1,...,x_m \in P, \phi(x_1,...,x_m)$ where $m \geq 1$.  Then, because $\neg F(k)$ holds, it must be the case that $\exists x_1,...,x_m \in P, \neg \phi(x_1,...,x_m)$.  However, $\phi(x_1,...,x_m) \in \gr(F,k)$ which, by our original assumption, implies $\neg s$.  Hence we have both $s$ and $\neg s$ and we have reached a contradiction.
 \end{proof}
 
 \begin{lemma}
@@ -146,11 +149,13 @@ This section contains the list of assumptions for the transition system we work 
   Suppose that $\Phi$ is in PNF with only universal quantifiers, while $\Delta$ is in PNF with only existential quantifiers.  Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  If $\Phi(m+n)$ is an inductive invariant, then $\Phi(k)$ is also an inductive invariant for any $k>m+n$.
 \end{theorem}
 \begin{proof}
-  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given and $s \in \states(k)$ such that $s \models \Phi(k)$.  Let $\delta$ be a single arbitrary transition such that $\delta \models \Delta(k)$.  Finally, let $f' \in \gr(\Phi',k)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground}, it suffices to show that $(s \land \delta) \models f'$.
+  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given and $s \in \states(k)$ such that $s \models \Phi(k)$.  Let $\delta$ be a single arbitrary transition such that $\delta \models \Delta(k)$.  Finally, let $f' \in \gr(\Phi',k)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground}, it suffices to show that $(s \land \delta) \models f'$.  Notice that $(s \land \delta)$ is the ``next" state (i.e. has primed variables), and is a single state because $\delta$ is a single transition, and is hence deterministic.
 
   Next, we will construct a permutation $\pi$ as follows: let $x_1,...,x_j$ be the distinct elements of $P$ used in $\delta$ and $f'$.  We know that $j \leq m+n$ because $\Delta$ quantifies over $n$ variables while $\Phi$ quantifies over $m$ variables.  Let:
   $$\pi := \left( \perm{x_1 \msp x_2 \msp ... \msp x_j}{1 \msp\msp 2 \msp\msp ... \msp\msp j} \right)$$
-  Notice that the formulas $M_\pi(\delta)$ and $M_\pi(s)$ now only contain the elements $1,...,j$ and, in particular, $M_\pi(\delta) \models \Delta(m+n)$ and $M_\pi(f') \in \gr(\Phi',m+n)$, i.e. $M_\pi(f') \models \Phi'(m+n)$.  By Lemma \ref{lem:lt-sat} we see that $s \models \Phi(m+n)$, and furthermore $M_\pi(s) \models \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Thus $M_\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$ which implies $M_\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  By Assumption \ref{asmp:indist}--noting the fact that $\pi^{-1}$ is also a permutation of $P$--we also see that $(s \land \delta) \models \Phi'(m+n)$, and in particular, by Lemma \ref{lem:pnf-ground}, $(s \land \delta) \models f'$.
+  Notice that the formulas $M_\pi(\delta)$ and $M_\pi(f')$ now only contain the elements $1,...,j$ and, in particular, $M_\pi(\delta) \models \Delta(m+n)$ and $M_\pi(f') \in \gr(\Phi',m+n)$, i.e. $M_\pi(f') \models \Phi'(m+n)$.  Now because $s \models \Phi(k)$, we see that $s \models \Phi(m+n)$ by Lemma \ref{lem:lt-sat}, and furthermore $M_\pi(s) \models \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Now:
+  $$M_\pi(s \land \delta) = M_\pi(s) \land M_\pi(\delta) \models [\Phi(m+n) \land \Delta(m+n)] = [\Phi\land\Delta](m+n)$$
+  Thus $M_\pi(s \land \delta) \models [\Phi\land\Delta](m+n)$, which in turn implies $M_\pi(s \land \delta) \models \Phi'(m+n)$ by our initial assumption.  By Assumption \ref{asmp:indist}--noting the fact that $\pi^{-1}$ is also a permutation of $P$--we also see that $(s \land \delta) \models \Phi'(m+n)$, and in particular, by Lemma \ref{lem:pnf-ground}, $(s \land \delta) \models f'$.
 \end{proof}
 
 
