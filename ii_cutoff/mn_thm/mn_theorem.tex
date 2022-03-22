@@ -25,7 +25,7 @@
 \newcommand{\st}{\text{ }|\text{ }}
 \newcommand{\states}{\text{States}}
 \newcommand{\gr}{\text{Gr}}
-\newcommand{\fips}{\text{FIPS}}
+\newcommand{\elems}{\text{Elems}}
 \newcommand{\perm}{\genfrac{}{}{0pt}{}}
 
 \title{A Cutoff Rule For A Special Class Of Parameterized Distributed Protocols}
@@ -40,10 +40,10 @@
 \section{Introduction}
 In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ where $I$ is the initial constraint, $\Delta$ is the transition relation, and the system is parameterized by a single sort $P$ of indistinguishable elements (We make the notion of ``indistinguishable" precise in Assumption \ref{asmp:indist} below).  
 
-To begin, we will introduce notation for the template and finite instances of a transition system.  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$ and $T(|P|)$ is a finite instance.  We can also refer to the template or a finite instance of a quantified formula $F$.  For example, suppose $F$ is in Prenex Normal Form (PNF) and univerally quantifies over $j$ variables, i.e. $F$ can be written as:
+To begin, we will introduce notation for the template and finite instances of a transition system.  We adopt the convention of \cite{goel2021symmetry} where $T(P)$ is the template of $T$ and $T(|P|)$ is a finite instance.  We can also refer to the template or a finite instance of a quantified formula $F$ and the sort $P$.  For example, suppose $F$ is in Prenex Normal Form (PNF) and univerally quantifies over $j$ variables, i.e. $F$ can be written as:
 $$F := \forall x_1,...,x_j \in P, \phi(x_1,...,x_j)$$
-where $\phi$ is a non-quantified statement whose only free variables are $x_1,...,x_j$.  Then $F(k)$ is identical to the formula $F$, except $P$ is replaced by a finite subset of $k$ elements from $P$; without loss of generality, we will let this finite set be $\{1,...,k\} \subseteq P$.  Thus we see:
-$$F(k) = \forall x_1,...,x_j \in \{1,..,k\}, \phi(x_1,...,x_j)$$
+where $\phi$ is a non-quantified statement whose only free variables are $x_1,...,x_j$.  Then $F(k)$ is identical to the formula $F$, except $P$ is replaced by $P(k) \subseteq P$, where $|P(k)|=k$.  Without loss of generality--because we assume each element of $P$ is indistinguishable--we will assume that $P(k)=\{1,...,k\}$.  Thus we see:
+$$F(k) = \forall x_1,...,x_j \in P(k), \phi(x_1,...,x_j)$$
 
 In this note, we are concerned with the specific scenario in which we are given a candidate inductive invariant $\Phi$, and the finite instances $\Phi(1),...,\Phi(k)$ have been proved to be inductive invariants for $T(1),...,T(k)$; we want to know whether $\Phi$ is an inductive invariant for $T$.  We are specifically concerned with the case in which $\Phi$ is restricted to PNF with only universal quantifiers, and $\Delta$ is restricted to PNF with only existential quantifiers.
 
@@ -81,18 +81,19 @@ In this section we introduce several assumptions, definitions, and notation that
 \end{definition}
 
 \begin{definition}[Ground Formula \textit{of F(k)}]
-  Let $F$ be a quantified formula and $k \in \mathbb{N}$.  We say that $f$ is a ground formula \textit{of} $F(k)$ iff $f$ is a ground formula that is identical in structure to $F$ without quantifiers, and with all free variables replaced by members of $\{1,...,k\}$.
+  Let $F$ be a quantified formula and $k \in \mathbb{N}$.  We say that $f$ is a ground formula \textit{of} $F(k)$ iff $f$ is a ground formula that is identical in structure to $F$ without quantifiers, and with all free variables replaced by members of $P(k)$.
 \end{definition}
 
 \begin{example}
   Consider the transition system $T$ with two state variables, $x \in (P \to \mathbb{N})$ and $y \in \mathbb{Z}$.  Let $s := (x[1]=6 \land x[2]=0 \land y=-22)$ be a state in the transition system.  Let $F := \forall p,q \in P, x[p] \neq x[q]$ and $f := (x[1] \neq x[2])$.
 
-  Then $F(2) = \forall p,q \in \{1,2\}, x[p] \neq x[q]$.  Furthermore, $f$ is a ground formula of $F(2)$, $F(2) \models f$, $s \models F(2)$, and $s \models f$.
+  Then $F(2) = \forall p,q \in P(2), x[p] \neq x[q]$.  Furthermore, $f$ is a ground formula of $F(2)$, $F(2) \models f$, $s \models F(2)$, and $s \models f$.
 \end{example}
 
 \begin{definition}[Gr]
   Let $F$ be a quantified formula and $k \in \mathbb{N}$.  Then:
-  $$\gr(F,k) := \{f \st (f \text{ is a ground formula of } F(k)) \land (F(k) \models f)\}$$
+  $$\gr(F,k) := \{f \st f \text{ is a ground formula of } F(k)\}$$
+  %$$\gr(F,k) := \{f \st (f \text{ is a ground formula of } F(k)) \land (F(k) \models f)\}$$
 \end{definition}
 
 \begin{example}
@@ -105,10 +106,15 @@ In this section we introduce several assumptions, definitions, and notation that
   $$\gr((\forall p,q \in P, p \neq q \rightarrow \text{sv[p]} \neq \text{sv[q]}),3) = \{(1 \neq 1 \rightarrow \text{sv[1]} \neq \text{sv[1]}),(1 \neq 2 \rightarrow \text{sv[1]} \neq \text{sv[2]}),...\}$$
 \end{example}
 
+\begin{definition}[elems]
+  Suppose that $F$ is a quantified formula, $k \in \mathbb{N}$, and $f \in \gr(F,k)$.  Then:
+  $$\elems(f) := \{e \st e \in P(k) \land e \text{ is present in } f\}$$
+\end{definition}
+
 \subsection{Permutation Transformations}
 
 \begin{definition}[Permutation Transformation]
-  Let $Q := \{1,...,k\}$ be a finite instance of the sort $P$, i.e. $\{1,...,k\} \subseteq P$.  Then let $\pi : Q \to Q$ be a permutation on $Q$, and let $G$ be the set of all possible ground formulas.  Then $M_\pi : G \to G$ is the \textit{permutation transformation} on $\pi$, a syntactic transformation that replaces each element from $Q$ in a ground formula with its permuted value.
+  Let $k \in \mathbb{N}$, $\pi : P(k) \to P(k)$ be a permutation on $P(k)$, and $G$ be the set of all possible formulas.  Then $M_\pi : G \to G$ is the \textit{permutation transformation} on $\pi$, a syntactic transformation that replaces each element from $P(k)$ in a formula with its permuted value.
 \end{definition}
 
 \begin{example}
@@ -123,7 +129,9 @@ We have loosely stipulated that $T$ must have ``indistinguishable" elements.  In
 
 \begin{assumption}[$P$ Has Indistinguishable Elements]
   \label{asmp:indist}
-  Let $j,k \in \mathbb{N}$ such that $j \geq k$ and $F$ be a quantified sentence in PNF.  Let $s \in \states(j)$ such that $s \models F(k)$.  If $\pi$ is a permutation then it is also the case that $M_\pi(s) \models F(k)$.
+  Let $f$ and $g$ be two formulas and let $k \in \mathbb{N}$ be given.  If $\pi : P(k) \to P(k)$ is a permutation on $P(k)$, then:
+  $$(f \models g) \leftrightarrow (M_\pi(f) \models M_\pi(g))$$
+  %Let $j,k \in \mathbb{N}$ such that $j \geq k$ and $F$ be a quantified sentence in PNF.  Let $s \in \states(j)$ such that $s \models F(k)$.  If $\pi$ is a permutation then it is also the case that $M_\pi(s) \models F(k)$.
 \end{assumption}
 
 
@@ -139,6 +147,33 @@ We have loosely stipulated that $T$ must have ``indistinguishable" elements.  In
   Suppose that $s \models F(k)$.  For an arbitrary formula $f \in \gr(F,k)$, $F(k) \models f$ and hence we see that $s \rightarrow F(k) \land F(k) \rightarrow f$.  It follows that $s \models f$.
 
   Now suppose that $\forall f \in \gr(F,k), s \models f$.  Suppose, for the sake of contradiction, that $s \not\models F(k)$.  Then it must be the case that $s \land \neg F(k)$.  We know that $F$ is unversally quantified, so let $F(k) := \forall x_1,...,x_m \in P, \phi(x_1,...,x_m)$ where $m \geq 1$.  Then, because $\neg F(k)$ holds, it must be the case that $\exists x_1,...,x_m \in P, \neg \phi(x_1,...,x_m)$.  However, $\phi(x_1,...,x_m) \in \gr(F,k)$ which, by our original assumption, implies $\neg s$.  Hence we have both $s$ and $\neg s$ and we have reached a contradiction.
+\end{proof}
+
+\begin{lemma}[Gr Members Sat]
+  \label{lem:gr-sat}
+  Let $F$ be a formula and $k \in \mathbb{N}$ be given.  Then:
+  $$\forall f \in \gr(F,k), F(k) \models f$$
+\end{lemma}
+\begin{proof}
+  I will need a better definition for $\gr$ to prove this one.  For now, proof by obviousness.
+\end{proof}
+
+\begin{lemma}[Gr Closed Under Permutation]
+  \label{lem:gr-closed}
+  Let $f$ be a formula, $F$ be a quantified formula, and $k \in \mathbb{N}$ be given.  Let $\pi : P(k) \to P(k)$ be a permutation, then:
+  $$(f \in \gr(F,k)) \leftrightarrow (M_\pi(f) \in \gr(F,k))$$
+\end{lemma}
+\begin{proof}
+  TODO
+\end{proof}
+
+\begin{lemma}[Minimum Gr]
+  \label{lem:min-gr}
+  Let $F$ be a formula, $f$ be a ground formula, and $k \in \mathbb{N}$ be given.  Suppose that $\elems(f) \subseteq P(j)$ where $j \leq k$, then:
+  $$f \in \gr(F,k) \rightarrow f \in \gr(F,j)$$
+\end{lemma}
+\begin{proof}
+  I will need a better definition for $\gr$ to prove this one.  For now, proof by obviousness.
 \end{proof}
 
 \begin{lemma}
@@ -160,23 +195,14 @@ In this section, we will establish initiation and consecution in two separate le
   Suppose that $\Phi(m)$ is an inductive invariant for $T(m)$, then $I(k) \rightarrow \Phi(k)$ for all $k>m$.
 \end{lemma}
 \begin{proof}
-  Because $\Phi(m)$ is an inductive invariant for $T(m)$, it is the case that $I(m) \rightarrow \Phi(m)$.  Now consider $I(k)$ where $k>m$.  Let $s \in \states(k)$ be arbitrary with the condition $s \models I(k)$, and now it suffices to prove that $s \models \Phi(k)$.  
+  Coming soon.
+  %Because $\Phi(m)$ is an inductive invariant for $T(m)$, it is the case that $I(m) \rightarrow \Phi(m)$.  Now consider $I(k)$ where $k>m$.  Let $s \in \states(k)$ be arbitrary with the condition $s \models I(k)$, and now it suffices to prove that $s \models \Phi(k)$.  
 
-  Next, we will construct a permutation as follows: let $x_1,...,x_j$ be the distinct elements of $\{1,...,k\}$ used in $\Phi(k)$.  We know that $j \leq m$ because $\Phi$ quantifies over $m$ variables.  Let:
-  $$\pi := \left( \perm{x_1 \msp x_2 \msp ... \msp x_j}{1 \msp\msp 2 \msp\msp ... \msp\msp j} \right)$$
-  Notice that $M_\pi(s)$ only contains the elements $1,...,j$.  
+  %Next, we will construct a permutation as follows: let $x_1,...,x_j$ be the distinct elements of $P(k)$ used in $\Phi(k)$.  We know that $j \leq m$ because $\Phi$ quantifies over $m$ variables.  Let:
+  %$$\pi := \left( \perm{x_1 \msp x_2 \msp ... \msp x_j}{1 \msp\msp 2 \msp\msp ... \msp\msp j} \right)$$
+  %Notice that $M_\pi(s)$ only contains the elements $1,...,j$.  
 
-  Next, by Lemma \ref{lem:lt-sat} (needs to be updated) and the fact that $s \models I(k)$, we know that $s \models I(m)$.  By Assumption \ref{asmp:indist}, we also know that $M_\pi(s) \models I(m)$.  Hence $M_\pi(s) \models \Phi(m)$.  By Assumption \ref{asmp:indist}--noting the fact that $\pi^{-1}$ is also a permutation of $\{1,...,k\}$--we also see that $s \models \Phi(m)$.  
-
-  The way to finish the proof is to show that this argument holds for $2,...,j+1$, $3,...,j+2$, .... until $k,...,j+k$ as well as each combination ($1,3,...,j+1$, etc.).  We will probably need a helper lemma that shows that it suffices to prove this.  We will also need to change the lemmas/theorems/wlog assumption so that $F(i)$ refers to the case where $|P|=i$, not necessarily that $P=\{1,...,i\}$.
-
-  %For the sake of contradiction, assume that $s \not\models \Phi(k)$.  Then, by Lemma \ref{lem:pnf-ground}, $\exists f \in \gr(F,k), s \not\models f$.
-
-  %It appears we need one more lemma to help us conclude that it is also the case that $s \models \Phi(k)$.
-
-  %Next, by Lemma \ref{lem:lt-sat} (needs to be updated) and the fact that $s \models I(k)$, we know that $s \models I(m)$.  By Assumption \ref{asmp:indist}, we also know that $M_\pi(s) \models I(m)$.  Hence $M_\pi(s) \models \Phi(m)$, and furthermore $\forall f \in \gr(I,m), M_\pi(s) \models f$ by Lemma \ref{lem:pnf-ground}.  Let $f \in \gr(I,m)$ be arbitrary, and we know that $M_\pi(s) \models f$.  By Assumption \ref{asmp:indist}--noting the fact that $\pi^{-1}$ is also a permutation of $\{1,...,k\}$--we also see that $s \models f$.  
-
-  %Next, by Lemma \ref{lem:lt-sat} (needs to be updated) and the fact that $s \models I(k)$, we know that $s \models I(m)$ and therefore that $s \models \Phi(m)$.  Because $s \models \Phi(m)$, it follows that $\forall f \in \gr(I,m), s \models f$ by Lemma \ref{lem:pnf-ground}.  Let $f \in \gr(I,m)$ be arbitrary, and we know that $s \models f$.  
+  %Next, by Lemma \ref{lem:lt-sat} (needs to be updated) and the fact that $s \models I(k)$, we know that $s \models I(m)$.  By Assumption \ref{asmp:indist}, we also know that $M_\pi(s) \models I(m)$.  Hence $M_\pi(s) \models \Phi(m)$.  By Assumption \ref{asmp:indist}--noting the fact that $\pi^{-1}$ is also a permutation of $P(k)$--we also see that $s \models \Phi(m)$.  
 \end{proof}
 
 \begin{lemma}[M-N Consecution]
@@ -185,11 +211,21 @@ In this section, we will establish initiation and consecution in two separate le
 \begin{proof}
   Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given and $s \in \states(k)$ such that $s \models \Phi(k)$.  Let $\delta \in \gr(\Delta,k)$, i.e. $\delta$ is a ground ``transition".  Let $t \in \states(k)$ such that $t' \models (s \land \delta)$, that is, $t'$ is an arbitrary ``next" state of $s$.  Finally, let $f' \in \gr(\Phi',k)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground} and the fact that $\Phi'$ is in PNF and universally quantified, it suffices to show that $t' \models f'$.
 
-  Next, we will construct a permutation $\pi$ as follows: let $x_1,...,x_j$ be the distinct elements of $\{1,...,k\}$ used in $\delta$ and $f'$.  We know that $j \leq m+n$ because $\Delta$ quantifies over $n$ variables while $\Phi$ quantifies over $m$ variables.  Let:
+  Next, we will construct a permutation $\pi$ as follows: let $x_1,...,x_j$ be the distinct elements of $P(k)$ used in $\delta$ and $f'$.  We know that $j \leq m+n$ because $\Delta$ quantifies over $n$ variables while $\Phi$ quantifies over $m$ variables.  Then:
   $$\pi := \left( \perm{x_1 \msp x_2 \msp ... \msp x_j}{1 \msp\msp 2 \msp\msp ... \msp\msp j} \right)$$
-  Notice that the formulas $M_\pi(\delta)$ and $M_\pi(f')$ now only contain the elements $1,...,j$.  In particular, $M_\pi(\delta) \in \gr(\Delta,m+n)$ and $M_\pi(f') \in \gr(\Phi',m+n)$ and hence $M_\pi(\delta) \models \Delta(m+n)$ and $M_\pi(f') \models \Phi'(m+n)$ (this whole sentence needs further explanation).  Now because $s \models \Phi(k)$, we see that $s \models \Phi(m+n)$ by Lemma \ref{lem:lt-sat}, and furthermore $M_\pi(s) \models \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Now:
+  And hence by construction, $\elems(M_\pi(\delta)) \subseteq P(j)$ and $\elems(M_\pi(f')) \subseteq P(j)$.  First, we immediately see that $M_\pi(\delta) \in \gr(\Delta,k)$ and $M_\pi(f') \in \gr(\Phi',k)$ by Lemma \ref{lem:gr-closed}.  Next, we further notice:
+  $$\elems(M_\pi(\delta)) \subseteq P(j) \subseteq P(m+n)$$
+  \begin{center}
+    and
+  \end{center}
+  $$\elems(M_\pi(f')) \subseteq P(j) \subseteq P(m+n)$$
+  And thus by Lemma \ref{lem:min-gr}, we see that $M_\pi(\delta) \in \gr(\Delta,m+n)$ and $M_\pi(f') \in \gr(\Phi',m+n)$.
+
+  Now because $s \models \Phi(k)$, we see that $s \models \Phi(m+n)$ by Lemma \ref{lem:lt-sat}, and furthermore $M_\pi(s) \models M_\pi(\Phi(m+n)) = \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Now:
   $$M_\pi(t') \models M_\pi(s \land \delta) = M_\pi(s) \land M_\pi(\delta) \models [\Phi(m+n) \land \Delta(m+n)] = [\Phi\land\Delta](m+n)$$
-  Thus $M_\pi(t') \models [\Phi\land\Delta](m+n)$, which in turn implies $M_\pi(t') \models \Phi'(m+n)$ by our initial assumption.  In particular, by Lemma \ref{lem:pnf-ground} and the fact that $M_\pi(f') \in \gr(\Phi',m+n)$, it is the case that $M_\pi(t') \models M_\pi(f')$ .
+  Thus $M_\pi(t') \models [\Phi\land\Delta](m+n)$, which in turn implies $M_\pi(t') \models \Phi'(m+n)$ by our initial assumption.  In particular, by Lemma \ref{lem:gr-sat} and the fact that $M_\pi(f') \in \gr(\Phi',m+n)$, we see:
+  $$M_\pi(t') \models \Phi'(m+n) \land \Phi'(m+n) \models M_\pi(f')$$
+  And thus it is the case that $M_\pi(t') \models M_\pi(f')$.  Finally, by Assumption \ref{asmp:indist}, it follows that $t' \models f'$.
 \end{proof}
 
 Next we present the M-N Theorem:
@@ -197,6 +233,9 @@ Next we present the M-N Theorem:
 \begin{theorem}[M-N]
   Suppose that $\Phi$ is in PNF with only universal quantifiers, while $\Delta$ is in PNF with only existential quantifiers.  Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  If $\Phi(m+n)$ is an inductive invariant, then $\Phi(k)$ is also an inductive invariant for any $k>m+n$.
 \end{theorem}
+\begin{proof}
+  This follows immediately from the previous two lemmas.
+\end{proof}
 
 
 
