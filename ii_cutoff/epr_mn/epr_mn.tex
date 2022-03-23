@@ -1,0 +1,63 @@
+\documentclass[12pt]{article}
+\usepackage{anysize}
+\marginsize{1.2cm}{1.4cm}{.4cm}{1cm}
+
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{url}
+\usepackage{hyperref}
+
+\theoremstyle{definition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\msp}{\text{ }}
+\newcommand{\st}{\text{ }|\text{ }}
+\newcommand{\states}{\text{States}}
+\newcommand{\gr}{\text{Gr}}
+\newcommand{\elems}{\text{Elems}}
+\newcommand{\perm}{\genfrac{}{}{0pt}{}}
+
+\title{M-N In EPR}
+\author{Ian Dardik}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+%\section{M-N In EPR}
+Suppose that $\Phi$ is universally quantified and in PNF while $\Delta$ is existentially quantified and in PNF.  We will assume a single sort $P$, and let $\Phi$ quantify over $m$ variables and $\Delta$ quantify over $n$ variables.  We will write $\Phi = \forall \hat{p}, \phi(\hat{p})$, $\Delta = \exists \hat{q}, \delta(\hat{q})$, and $\Phi' = \forall \hat{r}, \phi(\hat{r})'$, where $\phi$ and $\delta$ are non-quantified, uninterpreted, and contain no function symbols.  It is the case that $|\hat{p}| = |\hat{r}| = m$ and $|\hat{q}| = n$.  We use different quantifer variables for $\Phi$ and $\Phi'$ so the variables are already standardized apart.
+
+Then we can prove the M-N Theorem for this special case quite quickly:
+
+\begin{align*}
+  & \msp \Phi \land \Delta \rightarrow \Phi'\\
+  \leftrightarrow & \msp (\forall \hat{p}, \phi(\hat{p})) \land (\exists \hat{q}, \delta(\hat{q})) \rightarrow (\forall \hat{r}, \phi(\hat{r})')\\
+  \leftrightarrow & \msp \neg(\forall \hat{p}, \phi(\hat{p})) \lor \neg(\exists \hat{q}, \delta(\hat{q})) \lor (\forall \hat{r}, \phi(\hat{r})')\\
+  \leftrightarrow & \msp (\exists \hat{p}, \neg\phi(\hat{p})) \lor (\forall \hat{q}, \neg\delta(\hat{q})) \lor (\forall \hat{r}, \phi(\hat{r})')\\
+  \leftrightarrow & \msp (\forall \hat{q}, \neg\delta(\hat{q})) \lor (\forall \hat{r}, \phi(\hat{r})') \lor (\exists \hat{p}, \neg\phi(\hat{p}))\\
+  \leftrightarrow & \msp \forall \hat{q}, \forall \hat{r}, \exists \hat{p}, \neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p})\\
+\end{align*}
+
+In other words, we want to know if:
+$$\forall \hat{q}, \forall \hat{r}, \exists \hat{p}, \neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p})$$
+is valid.  We can turn this into a SAT question by negating the formula, which results in:
+$$\exists \hat{q}, \exists \hat{r}, \forall \hat{p}, \neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p})$$
+This formula is in EPR, and according to Proposition 14.2 (Libkin, Elements of Finite Model Theory), if the formula is satisfiable then it has a model whose universe is size $|\hat{r}| + |\hat{q}| = m + n$.
+
+%\bibliographystyle{plain}
+%\bibliography{refs}
+
+\end{document}
