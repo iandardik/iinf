@@ -82,6 +82,8 @@ In this section we introduce several assumptions, definitions, and notation that
 
 \begin{definition}[Ground Formula \textit{of F(k)}]
   Let $F$ be a quantified formula and $k \in \mathbb{N}$.  We say that $f$ is a ground formula \textit{of} $F(k)$ iff $f$ is a ground formula that is identical in structure to $F$ without quantifiers, and with all free variables replaced by members of $P(k)$.
+
+  TODO make this definition better.
 \end{definition}
 
 \begin{example}
@@ -94,6 +96,8 @@ In this section we introduce several assumptions, definitions, and notation that
   Let $F$ be a quantified formula and $k \in \mathbb{N}$.  Then:
   $$\gr(F,k) := \{f \st f \text{ is a ground formula of } F(k)\}$$
   %$$\gr(F,k) := \{f \st (f \text{ is a ground formula of } F(k)) \land (F(k) \models f)\}$$
+
+  TODO make this definition better (really make the definition of ``ground formula of" better).
 \end{definition}
 
 \begin{example}
@@ -106,9 +110,11 @@ In this section we introduce several assumptions, definitions, and notation that
   $$\gr((\forall p,q \in P, p \neq q \rightarrow \text{sv[p]} \neq \text{sv[q]}),3) = \{(1 \neq 1 \rightarrow \text{sv[1]} \neq \text{sv[1]}),(1 \neq 2 \rightarrow \text{sv[1]} \neq \text{sv[2]}),...\}$$
 \end{example}
 
-\begin{definition}[elems]
+\begin{definition}[Elems]
   Suppose that $F$ is a quantified formula, $k \in \mathbb{N}$, and $f \in \gr(F,k)$.  Then:
-  $$\elems(f) := \{e \st e \in P(k) \land e \text{ is present in } f\}$$
+  $$\elems(f) := \{e \st e \in P(k) \land e \text{ occurs in } f\}$$
+
+  TODO make this definition better.
 \end{definition}
 
 \subsection{Permutation Transformations}
@@ -164,7 +170,7 @@ We have loosely stipulated that $T$ must have ``indistinguishable" elements.  In
   $$(f \in \gr(F,k)) \leftrightarrow (M_\pi(f) \in \gr(F,k))$$
 \end{lemma}
 \begin{proof}
-  TODO
+  I will need a better definition for $\gr$ to prove this one rigorously.  For now, proof by obviousness.
 \end{proof}
 
 \begin{lemma}[Minimum Gr]
@@ -221,7 +227,9 @@ In this section, we will establish initiation and consecution in two separate le
   $$\elems(M_\pi(f')) \subseteq P(j) \subseteq P(m+n)$$
   And thus by Lemma \ref{lem:min-gr}, we see that $M_\pi(\delta) \in \gr(\Delta,m+n)$ and $M_\pi(f') \in \gr(\Phi',m+n)$.
 
-  Now because $s \models \Phi(k)$, we see that $s \models \Phi(m+n)$ by Lemma \ref{lem:lt-sat}, and furthermore $M_\pi(s) \models M_\pi(\Phi(m+n)) = \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Now:
+  Now because $s \models \Phi(k)$, we see that $s \models \Phi(m+n)$ by Lemma \ref{lem:lt-sat}, and furthermore $M_\pi(s) \models M_\pi(\Phi(m+n)) = \Phi(m+n)$ by Assumption \ref{asmp:indist}.  Notice:
+  $$M_\pi(t' \models (s \land \delta)) \leftrightarrow M_\pi(t' \rightarrow (s \land \delta)) \leftrightarrow (M_\pi(t') \rightarrow M_\pi(s \land \delta)) \leftrightarrow M_\pi(t') \models M_\pi(s \land \delta)$$
+  Now:
   $$M_\pi(t') \models M_\pi(s \land \delta) = M_\pi(s) \land M_\pi(\delta) \models [\Phi(m+n) \land \Delta(m+n)] = [\Phi\land\Delta](m+n)$$
   Thus $M_\pi(t') \models [\Phi\land\Delta](m+n)$, which in turn implies $M_\pi(t') \models \Phi'(m+n)$ by our initial assumption.  In particular, by Lemma \ref{lem:gr-sat} and the fact that $M_\pi(f') \in \gr(\Phi',m+n)$, we see:
   $$M_\pi(t') \models \Phi'(m+n) \land \Phi'(m+n) \models M_\pi(f')$$
