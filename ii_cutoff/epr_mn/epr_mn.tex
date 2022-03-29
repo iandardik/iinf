@@ -38,7 +38,7 @@
 \maketitle
 
 %\section{M-N In EPR}
-Suppose that $\Phi$ is universally quantified and in PNF while $\Delta$ is existentially quantified and in PNF.  We will assume a single sort $P$, and let $\Phi$ quantify over $m$ variables and $\Delta$ quantify over $n$ variables.  We will write $\Phi = \forall \hat{p}, \phi(\hat{p})$, $\Delta = \exists \hat{q}, \delta(\hat{q})$, and $\Phi' = \forall \hat{r}, \phi(\hat{r})'$, where $\phi$ and $\delta$ are non-quantified, uninterpreted, and contain no function symbols.  It is the case that $|\hat{p}| = |\hat{r}| = m$ and $|\hat{q}| = n$.  We use different quantifer variables for $\Phi$ and $\Phi'$ so the variables are already standardized apart.
+Suppose that $\Phi$ is universally quantified and in PNF while $\Delta$ is existentially quantified and in PNF.  We will assume a single sort $E$, and let $\Phi$ quantify over $m$ variables and $\Delta$ quantify over $n$ variables.  We will write $\Phi = \forall \hat{p}, \phi(\hat{p})$, $\Delta = \exists \hat{q}, \delta(\hat{q})$, and $\Phi' = \forall \hat{r}, \phi(\hat{r})'$, where $\phi$ and $\delta$ are non-quantified, uninterpreted, and contain no function symbols.  It is the case that $|\hat{p}| = |\hat{r}| = m$ and $|\hat{q}| = n$.  We use different quantifer variables for $\Phi$ and $\Phi'$ so the variables are already standardized apart.
 
 Then we can prove the M-N Theorem for this special case quite quickly:
 
@@ -50,12 +50,16 @@ Then we can prove the M-N Theorem for this special case quite quickly:
   \leftrightarrow & \msp (\forall \hat{q}, \neg\delta(\hat{q})) \lor (\forall \hat{r}, \phi(\hat{r})') \lor (\exists \hat{p}, \neg\phi(\hat{p}))\\
   \leftrightarrow & \msp \forall \hat{q}, \forall \hat{r}, \exists \hat{p}, \neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p})\\
 \end{align*}
-
 In other words, we want to know if:
 $$\forall \hat{q}, \forall \hat{r}, \exists \hat{p}, \neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p})$$
 is valid.  We can turn this into a SAT question by negating the formula, which results in:
-$$\exists \hat{q}, \exists \hat{r}, \forall \hat{p}, \neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p})$$
-This formula is in EPR, and according to Proposition 14.2 (Libkin, Elements of Finite Model Theory), if the formula is satisfiable then it has a model whose universe is size $|\hat{r}| + |\hat{q}| = m + n$.
+$$\exists \hat{q}, \exists \hat{r}, \forall \hat{p}, \neg(\neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p}))$$
+This formula is in EPR, and according to Proposition 14.2 (Libkin, Elements of Finite Model Theory), if the formula is satisfiable then it has a model whose universe is size $|\hat{r}| + |\hat{q}| = m + n$.  However, we assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid, and hence:
+$$\exists \hat{q}, \exists \hat{r}, \forall \hat{p} \in E(m+n), \neg(\neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p}))$$
+is unsatisfiable.  Therefore it follows that, for $k>m+n$:
+$$\exists \hat{q}, \exists \hat{r}, \forall \hat{p} \in E(k), \neg(\neg\delta(\hat{q}) \lor \phi(\hat{r})' \lor \neg\phi(\hat{p}))$$
+is unsatisfiable, and hence $[\Phi\land\Delta \rightarrow \Phi'](k)$ is valid.
+
 
 %\bibliographystyle{plain}
 %\bibliography{refs}
