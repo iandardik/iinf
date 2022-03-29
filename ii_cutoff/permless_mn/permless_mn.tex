@@ -1,0 +1,117 @@
+\documentclass[12pt]{article}
+\usepackage{anysize}
+\marginsize{1.2cm}{1.4cm}{.4cm}{1cm}
+
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{url}
+\usepackage{hyperref}
+
+\theoremstyle{definition}
+\newtheorem{assumption}{Assumption}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\newcommand{\msp}{\text{ }}
+\newcommand{\st}{\text{ }|\text{ }}
+\newcommand{\states}{\text{States}}
+\newcommand{\gr}{\text{Gr}}
+\newcommand{\elems}{\text{Elems}}
+\newcommand{\PQF}{\text{PQF}}
+\newcommand{\fininstances}{\text{FinInstances}}
+\newcommand{\replace}{\text{Replace}}
+\newcommand{\perm}{\genfrac{}{}{0pt}{}}
+
+\title{M-N Without Permutations}
+\author{Ian Dardik}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+In this note, we consider the verification problem of a transition system $T=(I,\Delta)$ where $I$ is the initial constraint, $\Delta$ is the transition relation, and the system is parameterized by a single sort $E=\{e_1,...\}$ of indistinguishable elements (We make the notion of ``indistinguishable" precise in Assumption \ref{asmp:indist} below).  
+
+To begin, we will introduce notation for the template and finite instances of a transition system.  We adopt the convention of \cite{goel2021symmetry} where $T(E)$ is the template of $T$ and $T(|E|)$ is a finite instance.  We can also refer to the template or a finite instance of a quantified formula $F$ and the sort $E$.  For example, suppose $F$ is in Prenex Normal Form (PNF) and univerally quantifies over $j$ variables, i.e. $F$ can be written as:
+$$F := \forall x_1,...,x_j \in E, \phi(x_1,...,x_j)$$
+where $\phi$ is a non-quantified statement whose only free variables are $x_1,...,x_j$.  Then $F(k)$ is identical to the formula $F$, except $E$ is replaced by $E(k) \subseteq E$, where $E(k)=\{e_1,...,e_k\}$, that is, $k$ distinct arbitrary elements of $E$.  Thus we see:
+$$F(k) = \forall x_1,...,x_j \in E(k), \phi(x_1,...,x_j)$$
+
+In this note, we are concerned with the specific scenario in which we are given a candidate inductive invariant $\Phi$, and the finite instances $\Phi(1),...,\Phi(k)$ have been proved to be inductive invariants for $T(1),...,T(k)$; we want to know whether $\Phi$ is an inductive invariant for $T$.  We are specifically concerned with the case in which both $\Delta$ and $\Phi$ are written in PNF and $\Phi$ is restricted to universal quantification.
+
+Throughout this note, we will build several lemmas that lead to an interesting result: let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over; if we suppose that $\Phi(m+n)$ is an inductive invariant for $T(m+n)$, then $\Phi(k)$ is also an inductive invariant for $T(k)$ for all $k>m+n$.  We will refer to this as the M-N Theorem in this note.  This result is useful because it reduces the verification problem on $T$ to model checking a finite number of instances $T(1),...,T(m+n)$.  Essentially, $m+n$ is a cutoff instance size for proving that our inductive invariant holds.
+
+Note: I think it is likely that if $\Phi(m+n)$ is an inductive invariant, then it is \textit{also} the case for $\Phi(k)$ for all $k<m+n$, but I left this out of this note for the time being to focus on the $k>m+n$ case.
+
+
+
+\section{Notation}
+\begin{definition}[Finite Instances]
+  Let $F$ be a quantified formula of the form:
+  $$Q_1 x_1,...,Q_m x_m \in E, f(x_1,...,x_m)$$
+  Where each $Q_i \in \{\forall,\exists\}$.  Then for any $k>0$:
+  $$\fininstances(F,k) = \{Q_1 \msp x_1,...,Q_m \msp x_m \in H, f(x_1,...,x_m) \st H \subseteq E \land |H|=k\}$$
+\end{definition}
+
+\begin{lemma}
+  Let $F$ be a quantified formula and $k>0$ be given, then:
+  $$F(k) \leftrightarrow \forall f \in \fininstances(F,k), f$$
+\end{lemma}
+\begin{proof}
+  Let $F$ be a quantified formula of the form:
+  $$Q_1 x_1,...,Q_m x_m \in E, f(x_1,...,x_m)$$
+  Now suppose that $F(k)$ is true.  Then it is the case that:
+  $$Q_1 x_1,...,Q_m x_m \in \{e_1,...,e_k\}, f(x_1,...,x_m)$$
+  for arbitrary elements $e_i \in E$.  Hence $\forall f \in \fininstances(F,k), f$.
+
+  TODO finish converse.
+\end{proof}
+
+
+
+\section{The M-N Theorem}
+
+In this section, we will establish initiation and consecution in two separate lemmas using similar techniques.  The M-N Theorem follows immediately from these two lemmas.
+
+\begin{lemma}[M-N Initiation]
+  Suppose that $\Phi(m)$ is an inductive invariant for $T(m)$, then $I(k) \rightarrow \Phi(k)$ for all $k>m$.
+\end{lemma}
+
+\begin{lemma}[M-N Consecution]
+  Suppose that $\Phi$ is in PNF with only universal quantifiers, while $\Delta$ is in PNF.  Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  If $\Phi(m+n)$ is an inductive invariant, then $\Phi(k)$ is inductive for any $k>m+n$.
+\end{lemma}
+\begin{proof}
+  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given and $s \in \states(k)$ such that $s \models \Phi(k)$.  Let $\delta \in \gr(\Delta,k)$, i.e. $\delta$ is a ground ``transition".  Let $t \in \states(k)$ such that $t' \models (s \land \delta)$, that is, $t'$ is an arbitrary ``next" state of $s$.  Finally, let $\phi' \in \gr(\Phi',k)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground} and the fact that $\Phi'$ is in PNF and universally quantified, it suffices to show that $t' \models \phi'$.
+
+  $\phi' \in \gr(\Phi,m+n)$ because $\Phi$ is in PNF and universally quantified.  Let $f_1,...,f_m$ be the elements of $E$ in $\phi$ and let $d_1,...,d_n$ be the elements of $E$ in $\delta$.  Then:
+  $$(s \land \delta) \models [\Phi\land\Delta](E=\{f_1,...,f_m,d_1,...,d_n\}) \models [\Phi\land\Delta](m+n)$$
+  And hence $(s \land \delta) \models \Phi'(E=\{f_1,...,f_m,d_1,...,d_n\})$ because $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Finally, we see:
+  $$t' \models (s \land \delta) \models \Phi'(E=\{f_1,...,f_m,d_1,...,d_n\}) \models \phi'$$
+\end{proof}
+
+Next we present the M-N Theorem:
+
+\begin{theorem}[M-N]
+  Suppose that $\Phi$ is in PNF with only universal quantifiers, while $\Delta$ is in PNF with only existential quantifiers.  Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  If $\Phi(m+n)$ is an inductive invariant, then $\Phi(k)$ is also an inductive invariant for any $k>m+n$.
+\end{theorem}
+\begin{proof}
+  This follows immediately from the previous two lemmas.
+\end{proof}
+
+
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}
