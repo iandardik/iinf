@@ -25,6 +25,8 @@
 \newcommand{\st}{\text{ }|\text{ }}
 \newcommand{\states}{\text{States}}
 \newcommand{\gr}{\text{EGr}}
+\newcommand{\srpl}{\text{SRPL}}
+\newcommand{\SRPL}{\text{SRPL}}
 \newcommand{\toground}{\text{ToEGround}}
 
 \title{M-N Without Permutations}
@@ -39,29 +41,29 @@
 \section{Introduction}
 Finding an inductive invariant is key for proving the correctness of a distributed protocol with respect to a safety property.  As such, a considerable amount of effort has been dedicated to finding and proving an inductive invariant for a given system.  For example, Ivy will guide a user to interactively find an inductive invariant within the confines of a decidable fragment of FOL.  In the past few years there has also been a host of research into inductive invariant synthesis for parameterized distributed protocols.  The synthesis tools that remain within the bounds of a decidable logic fragment are able to guarantee that they produce an inductive invariant, however, any tool that produces a candidate inductive invariant for a system that falls outside of a decidable fragment offers no guarantee that the candidate is indeed correct.  In this note, we assume that a candidate inductive invariant is \textit{given} and we exclusively focus on the verification step.
 
-We have discovered a syntactic class of protocols which exhibit a \textit{cutoff} for the number of finite protocol instances which need to be verified.  We have captured this result in the M-N Theorem.
+We have discovered a syntactic class of protocols that lie outside of a decidable logic fragment, but exhibit a \textit{cutoff} for the number of finite protocol instances which need to be verified.  We have captured this result in the M-N Theorem.
 
-In this note we begin by introducing the Sort-Restricted to PNF Language (SRPL), the logic language that we use to encode our class of protocols.  We then introduce our encoding of protocols as a transition system in SRPL.  Next, we will prove some key lemmas before finally presenting and proving the M-N Theorem.
+In this note we begin by introducing the Sort-Quantifiers Restricted to Prenex Normal Form Language (SRPL), the logic language that we use to encode our class of protocols.  We then introduce our encoding of protocols as a transition system in SRPL.  Next, we will prove some key lemmas before finally presenting and proving the M-N Theorem.
 
 
 
-\section{Sort-Restricted to PNF Language}
+\section{Sort-Quantifiers Restricted to PNF Language}
 
-In this section we will define SRPL as a parameterized grammar.  SRPL formulas are parameterized by a non-sorted grammar \textit{ns} as well as single sort $E$ of indistinguishable elements.
+In this section we will define $\SRPL(E,G)$ as a grammar parameterized by the sort $E$ and the \textit{input grammar} $G$.
 
 \begin{definition}
-  Let $\mathcal{V}$ be a countable set of variables, $E$ be an infinitely countable sort of indistinguishable elements, and \textit{sv} be an input grammar that may not refer to $E$.  A formula in SRPL is defined by the grammar for the production rule of \textit{srpl}:
+  Let $\mathcal{V}$ be a countable set of variables, $E$ be an infinitely countable sort of indistinguishable elements, and $G$ be an input grammar that may not refer to $E$.  A $\SRPL(E,G)$ formula is defined by the grammar for the production rule of \textit{srpl}:
   \begin{align*}
     &arg& &::= x \qquad &\text{for any } x \in \mathcal{V}\\
     &arg\_list& &::= arg\\
     &arg\_list& &::= arg,arg\_list\\
     &Q& &::= \forall \st \exists\\
-    &srpl& &::= Q \, x \in E, \, ns(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
+    &srpl& &::= Q \, x \in E, \, G(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
     &srpl& &::= Q \, x \in E, \, srpl \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
 \end{definition}
 
-The input grammar \textit{ns} has a single requirement--that it cannot explicitly refer to $E$--and therefore is quite general.  We now provide an example of an input grammar to illustrate a potential use case.
+The input grammar $G$ has a single requirement--that it cannot explicitly refer to $E$--and therefore is quite general.  We now provide an example of an input grammar to illustrate a potential use case.
 
 \begin{example}
   Let $\mathcal{S}$ be a finite set of state variables, $\mathcal{A}$ be a countable set of constants, and let $\mathcal{V}$ be a countable set of variables.  We define the grammar \textit{sample} that is parameterized on the variable symbols $x_1,...,x_n$ by the following production rules:
@@ -80,65 +82,69 @@ The input grammar \textit{ns} has a single requirement--that it cannot explicitl
 \end{example}
 
 \begin{definition}[Instance]
-  Let $\psi$ be a SRPL formula and let $H \subseteq E$ such that $H \neq \emptyset$.  Then we define $\psi(E \mapsto H)$ by the following rules on the SRPL grammar:
+  Let $E$ be a sort, $G$ be a valid SRPL input grammar, $\psi$ be a $\SRPL(E,G)$ formula and let $H \subseteq E$ such that $H \neq \emptyset$.  Then we define $\psi(E \mapsto H)$ by the following rules on the $\SRPL(E,G)$ grammar:
   \begin{align*}
     &x(E \mapsto H)& &:= x \qquad &\text{for any } x \in \mathcal{V}\\
     &[arg,arg\_list](E \mapsto H)& &:= arg,arg\_list\\
-    &[Q \, x \in E, \, ns(arg\_list)](E \mapsto H)& &:= Q \, x \in H, \, ns(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
+    &[Q \, x \in E, \, G(arg\_list)](E \mapsto H)& &:= Q \, x \in H, \, G(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
     &[Q \, x \in E, \, srpl](E \mapsto H)& &:=Q \, x \in H, \, [srpl(E \mapsto H)]  \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
   In other words, $\psi(E \mapsto H)$ is the formula $\psi$ with $E$ replaced with $H$.  We call $\psi(E \mapsto H)$ an \textit{instance} of $\psi$, and when $H$ is finite, we call $\psi(E \mapsto H)$ a \textit{finite instance} of $\psi$.
 \end{definition}
 
 \begin{definition}[Finite Instance Notation]
-  We use a special shorthand for finite instaces that mirrors the notation described in \cite{goel2021symmetry}.  Let $\psi$ be a SRPL formula and $k>0$ be given.  Then $\psi(k) := \psi(E \mapsto \{e_1,...,e_k\})$ where each $e_i \in E$ is arbitrary and distinct.  We can also write $E(k) := \{e_1,...,e_k\}$ where each $e_i \in E$ is arbitrary and distinct.
+  We may use a special shorthand for finite instaces that mirrors the notation described in \cite{goel2021symmetry}.  Let $\psi$ be a $\SRPL(E,G)$ formula and $k>0$ be given.  Then $\psi(k) := \psi(E \mapsto \{e_1,...,e_k\})$ where each $e_i \in E$ is arbitrary and distinct.  We can also write $E(k) := \{e_1,...,e_k\}$ where each $e_i \in E$ is arbitrary and distinct.
 \end{definition}
 
-\begin{definition}[Valid SPRL Formula]
-  Let $\psi$ be a SRPL formula.  Then $\psi$ is valid iff $\psi(E \mapsto H)$ is valid for every $H \subseteq E$.
+\begin{definition}[Valid SRPL Formula]
+  Let $E$ be a sort, $G$ be a valid SRPL input grammar, and $\psi$ be a $\SRPL(E,G)$ formula.  Then $\psi$ is valid iff $\psi(E \mapsto H)$ is valid for every $H \subseteq E$.
 \end{definition}
 
 \begin{lemma}
   \label{lem:valid-all-k}
   Let $\psi$ be a SRPL formula.  Then $\psi$ is valid iff $\psi(k)$ is valid for all $k>0$.
 \end{lemma}
+\begin{proof}
+  Coming soon.
+\end{proof}
 
 
 
 \section{\textit{E}-Ground Formulas}
 
 \begin{definition}[ToEGround]
-  Let $\psi$ be a SRPL formula, $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$, let $H \subseteq E$ such that $H \neq \emptyset$, and let $\rho : R \to H$ be given.  Then we define $\toground(\psi,\rho)$ by the following rules on the SRPL grammar:
+  Let $E$ be a sort, $G$ be a valid SRPL input grammar, and $\psi$ be a $\SRPL(E,G)$ formula.  Next, let $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$, let $H \subseteq E$ such that $H \neq \emptyset$, and let $\rho : R \to H$ be given.  Then we define $\toground(\psi,\rho)$ by the following rules on the $\SRPL(E,G)$ grammar:
   \begin{align*}
     &\toground(x,\rho)& &:= \rho(x) \qquad &\text{for any } x \in R\\
     &\toground([arg,arg\_list],\rho)& &:= \toground(arg,\rho),\toground(arg\_list,\rho)\\
-    &\toground([Q \, x \in E, \, ns(arg\_list)],\rho)& &:= ns(\toground(arg\_list,\rho)) \qquad &\text{for any } x \in \mathcal{V}\\
+    &\toground([Q \, x \in E, \, G(arg\_list)],\rho)& &:= G(\toground(arg\_list,\rho)) \qquad &\text{for any } x \in \mathcal{V}\\
     &\toground([Q \, x \in E, \, srpl],\rho)& &:= \toground(srpl,\rho)  \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
+  For this to work, we assume that each quantifier for $E$ in $\psi$ gets a unique variable name.  This assumption comes without loss of generality since we can always alpha-rename duplicate quantifier variables.
 \end{definition}
 
 \begin{definition}[EGround]
-  A formula $g$ is an \textit{e-ground} formula iff there exists a SRPL formula $\psi$ and a mapping $\rho$ such that $g = \toground(\psi,\rho)$.  Moreover, we call $g$ a \textit{ground instance} of $\psi$.
+  A formula $g$ is an \textit{E-ground formula} iff there exists a SRPL formula $\psi$ and a mapping $\rho$ such that $g = \toground(\psi,\rho)$.  Moreover, we call $g$ a \textit{ground instance} of $\psi$.
 \end{definition}
 
-Notice that e-ground terms are not necessarily \textit{ground terms}, that is, terms without quantifiers.  We illustrate this in the following example.
+Notice that \textit{E}-ground formulas are not necessarily vanilla ground formulas, that is, formulas without quantifiers.  We illustrate this in the following example.
 
 \begin{example}
-  Consider the following SRPL formula with input grammar \textit{sample}:
+  Consider the following $\SRPL(E,sample)$ formula:
   $$\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$$
-  where $A \in (E \to \{true,false\})$ and $B \in (E \to \mathbb{N})$ are state variables.  Let $H = \{e_1,e_2,e_3\}$ and $\rho(x) = e_1$, then:
+  where $A \in (E \to \{true,false\})$ and $B \in (E \to \mathcal{P}(\mathbb{N}))$ are state variables, and $\mathcal{P}$ denotes the power set.  Let $H = \{e_1,e_2,e_3\}$ and $\rho(x) = e_1$, then:
   $$\toground(\psi,\rho) = A[e_1] \rightarrow (\exists y \in B[e_1], y = 0)$$
-  is an e-ground term.  However, it is not a ground term because it contains a quantifier.
+  is an \textit{E}-ground formula.  However, it is not a ground formula because it contains a quantifier.
 \end{example}
 
 \begin{definition}[EGr]
   Let $\psi$ be a SRPL formula and let $H \subseteq E$ be finite.  Then:
   $$\gr(\psi,H) := \{g \st \exists \rho, \, g = \toground(\psi,\rho)\}$$
-  $\gr(\psi,H)$ is the set of all possible e-ground formulas of the finite instance $\psi(E \mapsto H)$.
+  $\gr(\psi,H)$ is the set of all possible \textit{E}-ground formulas of the finite instance $\psi(E \mapsto H)$.
 \end{definition}
 
 \begin{example}
-  Recall the SRPL formula with input grammar \textit{sample} from the previous example:
+  Recall the $\SRPL(E,sample)$ formula from the previous example:
   $$\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$$
   Let $H = \{e_1,e_2,e_3\}$, then:
   \begin{align*}
@@ -152,7 +158,9 @@ Notice that e-ground terms are not necessarily \textit{ground terms}, that is, t
 
 \section{Transition System}
 
-We encode a protocol as a transition system $T=(I,\Delta)$ where $I$ is the initial constraint restricted to universal quantification over $E$ and $\Delta$ is the transition relation restricted to existential quantification over $E$, and both are encoded in SRPL.  We assume that an inductive invariant candidate $\Phi$ is given in SRPL, and is restricted to universal quantification over $E$.  We use the notation $T(E \mapsto H):=(I(E \mapsto H),\Delta(E \mapsto H))$ where $H \subseteq E$.
+Let a sort $E$ be given along with a valid SRPL input grammar $G$.  We encode a protocol as a transition system $T=(I,\Delta)$ where $I$ is the initial constraint and $\Delta$ is the transition relation, both formulas encoded in $\SRPL(E,G)$.  We assume that $I$ is restricted to universal quantification over $E$ while $\Delta$ is restricted to existential quantification over $E$.  Further assume that an inductive invariant candidate $\Phi$ is given in $\SRPL(E,G)$ and is restricted to universal quantification over $E$.  We use the notation $T(E \mapsto H):=(I(E \mapsto H),\Delta(E \mapsto H))$ where $H \subseteq E$ to denote an \textit{instance} of $T$.
+
+For the remainder of this note we will refer to $E$, $T$, $I$, $\Delta$, and $\Phi$ as defined above.
 
 \begin{definition}[States]
   $$\states(H) := \{s \st s \text{ is a state of } T(E \mapsto H)\}$$
@@ -165,49 +173,87 @@ We encode a protocol as a transition system $T=(I,\Delta)$ where $I$ is the init
 
 
 
-\section{Lemmas}
+\section{Helper Lemmas}
 \begin{lemma}
   \label{lem:pnf-ground}
-  Let $k \in \mathbb{N}$ such that $s \in \states(k)$ and $F$ is a universally quantified formula.  Then:
-  $$(s \rightarrow F(k)) \leftrightarrow (\forall f \in \gr(F,k), s \rightarrow f)$$
+  Let $G$ be a valid SRPL input grammar and $\psi$ be a $\SRPL(E,G)$ formula restricted to universal quantification on $E$.  Let $H \subseteq E$ be finite where $H \neq \emptyset$ and let $s \in \states(H)$.  Then:
+  $$(s \rightarrow \psi(E \mapsto H)) \leftrightarrow (\forall g \in \gr(\psi,H), s \rightarrow g)$$
 \end{lemma}
 \begin{proof}
+  TODO need to be cleaned up with latest notation.
+
   Suppose that $s \rightarrow F(k)$.  For an arbitrary formula $f \in \gr(F,k)$, $F(k) \rightarrow f$ and hence we see that $s \rightarrow F(k) \land F(k) \rightarrow f$.  It follows that $s \rightarrow f$.
 
   Now suppose that $\forall f \in \gr(F,k), s \rightarrow f$.  Suppose, for the sake of contradiction, that $\neg(s \rightarrow F(k))$.  Then it must be the case that $s \land \neg F(k)$.  We know that $F$ is unversally quantified, so let $F(k) := \forall x_1,...,x_m \in P, \phi(x_1,...,x_m)$ where $m \geq 1$.  Then, because $\neg F(k)$ holds, it must be the case that $\exists x_1,...,x_m \in P, \neg \phi(x_1,...,x_m)$.  However, $\phi(x_1,...,x_m) \in \gr(F,k)$ which, by our original assumption, implies $\neg s$.  Hence we have both $s$ and $\neg s$ and we have reached a contradiction.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:forall-lower}
+  Let $G$ be a valid SRPL input grammar and $\psi$ be a $\SRPL(E,G)$ formula restricted to universal quantification on $E$.  Let $H_1 \subseteq E$ where $H_1 \neq \emptyset$ and let $s \in \states(H_1)$.  Let $H_2 \subseteq H_1$ where $H_2 \neq \emptyset$.  Then:
+  $$(s \rightarrow \psi(E \mapsto H_1)) \rightarrow (s \rightarrow \psi(E \mapsto H_2))$$
+\end{lemma}
+\begin{proof}
+  Suppose that $s \rightarrow \psi(E \mapsto H_1)$, it suffices to show that $s \rightarrow \psi(E \mapsto H_2)$.  We know that $\psi(E \mapsto H_2)$ is in the form:
+  $$\psi = \forall x_1 \in H_2,...,\forall x_m \in H_2, \, F_G(x_1,...,x_m)$$
+  where $F_G$ is a formula generated by the input grammar $G$.  Then $s \rightarrow \psi(E \mapsto H_2)$ holds iff $s \rightarrow F_G(e_1,...,e_m)$ holds for arbitrary $e_1 \in H_2,...,e_m \in H_2$.  However, this formula must hold by our assumptions that $H_2 \subseteq H_1$ and $s \rightarrow \psi(E \mapsto H_1)$ where $\psi$ is unversally quantified over $E$.
+\end{proof}
+
+\begin{lemma}
+  \label{lem:exists-lower}
+  Let $G$ be a valid SRPL input grammar and $\psi$ be a $\SRPL(E,G)$ formula restricted to existential quantification on $E$.  Let $H_1 \subseteq E$ where $H_1 \neq \emptyset$.  Let $g \in \gr(\psi,H_1)$, and let $e_1,...,e_m$ be the elements of $H_1$ that occur in $g$.  Then for any $H_2 \supseteq \{e_1,...,e_m\}$:
+  $$(g \rightarrow \psi(E \mapsto H_1)) \rightarrow (g \rightarrow \psi(E \mapsto H_2))$$
+\end{lemma}
+\begin{proof}
+  Suppose that $g \rightarrow \psi(E \mapsto H_1)$, then it suffices to show that $g \rightarrow \psi(E \mapsto H_2)$.  We know that $\psi$ is of the form:
+  $$\psi = \exists x_1 \in H_2,...,\exists x_m \in H_2, \, F_G(x_1,...,x_m)$$
+  where $F_G$ is a formula generated by the input grammar $G$.  Because $g \rightarrow \psi(E \mapsto H_1)$, it must be the case that $e_1,...,e_m$ witness the existential quantifiers of $\psi(E \mapsto H_1)$.  However, $\{e_1,...,e_m\} \subseteq H_2$, and hence $g \rightarrow \psi(E \mapsto H_2)$.
 \end{proof}
 
 
 
 \section{The M-N Theorem}
 
-In this section, we will establish initiation and consecution in two separate lemmas using similar techniques.  The M-N Theorem follows immediately from these two lemmas.
+In this section, we will establish initiation and consecution in two separate lemmas.  The M-N Theorem is then easily proved from these two lemmas.
 
 \begin{lemma}[M-N Initiation]
-  Let $m$ be the number of variables that $I$ quantifies over.  Then if $I(m) \rightarrow \Phi(m)$ is valid, $I(k) \rightarrow \Phi(k)$ is also valid for all $k>m$.
-\end{lemma}
-
-\begin{lemma}[M-N Consecution]
-  Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  Then if $\Phi(m+n)$ is inductive, $\Phi(k)$ is also inductive for any $k>m+n$.
+  \label{ref:initiation}
+  Let $m$ be the number of quantifiers over $E$ in $I$.  Then if $I(m) \rightarrow \Phi(m)$ is valid, $I(k) \rightarrow \Phi(k)$ is also valid for all $k>m$.
 \end{lemma}
 \begin{proof}
-  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given, we want to show that $[\Phi\land\Delta \rightarrow \Phi'](k)$ is also valid.  Let $H = \{e_1,...,e_k\} \subseteq E$ be an arbitrary finite instance of $E$.  Let $s \in \states(H)$ such that $s \rightarrow \Phi(E \mapsto H)$ and let $\delta \in \gr(\Delta,H)$ such that $\delta \rightarrow \Delta(E \mapsto H)$.  Then $(s \land \delta)$ is a formula that describes the states reachable from $s$ in one ``$\delta$ step", and it suffices to show that $(s \land \delta) \rightarrow \Phi'(E \mapsto H)$.  Furthermore, let $\phi' \in \gr(\Phi',H)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground} and the fact that $\Phi'$ is in PNF and universally quantified, it suffices to show that $(s \land \delta) \rightarrow \phi'$.
+  Coming soon.
+\end{proof}
 
-  Let $\alpha_1,...,\alpha_i$ be the unique elements of $\{e_1,...,e_k\}$ in $(\phi \land \delta)$, then we know that $i \leq m+n$ because $\phi \in \gr(\Phi,H)$ where $\Phi$ quantifies over $m$ variables and $\delta \in \gr(\Delta,H)$ where $\Delta$ quantifies over $n$ variables.  Let $j = m+n-i$, then we can choose $\beta_1,...,\beta_j$ such that $\{\beta_1,...,\beta_j\} \subseteq (\{e_1,...,e_k\}-\{\alpha_1,...,\alpha_i\})$.  Notice that $|\{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\}|=m+n$, and hence, by our initial assumption:
+\begin{lemma}[M-N Consecution]
+  \label{ref:consecution}
+  Let $m$ be the number of quantifiers over $E$ in $\Phi$ and $n$ be the number of quantifiers over $E$ in $\Delta$.  Then if $\Phi(m+n)$ is inductive, $\Phi(k)$ is also inductive for any $k>m+n$.
+\end{lemma}
+\begin{proof}
+  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given, we want to show that $[\Phi\land\Delta \rightarrow \Phi'](k)$ is also valid.  Let $H = \{e_1,...,e_k\} \subseteq E$ be an arbitrary finite instance of $E$.  Let $s \in \states(H)$ such that $s \rightarrow \Phi(E \mapsto H)$ and let $\delta \in \gr(\Delta,H)$ such that $\delta \rightarrow \Delta(E \mapsto H)$.  Then $(s \land \delta)$ is an \textit{E}-ground formula that describes the states reachable from $s$ in one ``$\delta$ step", and it suffices to show that $(s \land \delta) \rightarrow \Phi'(E \mapsto H)$.  Furthermore, let $\phi' \in \gr(\Phi',H)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground} and the fact that $\Phi'$ is restricted to universal quantification on $E$, it suffices to show that $(s \land \delta) \rightarrow \phi'$.
+
+  Let $\alpha_1,...,\alpha_i$ be the unique elements of $\{e_1,...,e_k\}$ that occur in $(\phi \land \delta)$, then we know that $i \leq m+n$ because $\phi \in \gr(\Phi,H)$ where $\Phi$ quantifies over $m$ variables and $\delta \in \gr(\Delta,H)$ where $\Delta$ quantifies over $n$ variables.  Let $j = m+n-i$, then we can choose $\beta_1,...,\beta_j$ such that $\{\beta_1,...,\beta_j\} \subseteq (\{e_1,...,e_k\}-\{\alpha_1,...,\alpha_i\})$ (define $\{\beta_1,...,\beta_j\}=\emptyset$ in the case where $j=0$).  Notice that $|\{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\}|=m+n$, and hence, by our initial assumption:
   $$[\Phi\land\Delta \rightarrow \Phi'](E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\})$$
   must be a valid formula.
 
-  Now, $s \rightarrow \Phi(E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\})$ because $\Phi$ is in PNF and universally quantified (need lemma).  Furthermore, $\delta \rightarrow \Delta(E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\})$ because $\Delta$ is in PNF and restricted to existential quantification (need lemma).  Thus we see:
+  Now, $s \rightarrow \Phi(E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\})$ due to Lemma \ref{lem:forall-lower} because $\Phi$ is restricted to universal quantification on $E$.  Furthermore, $\delta \rightarrow \Delta(E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\})$ by Lemma \ref{lem:exists-lower} because $\Delta$ is restricted to existential quantification on $E$.  Thus we see:
   $$(s \land \delta) \rightarrow [\Phi\land\Delta](E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\}) \rightarrow \Phi'(E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\}) \rightarrow \phi'$$
 \end{proof}
 
 Next we present the M-N Theorem:
 
 \begin{theorem}[M-N]
-  Suppose that $\Phi$ is in PNF with only universal quantifiers, while $\Delta$ is in PNF with only existential quantifiers.  Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  If $\Phi(m+n)$ is an inductive invariant, then $\Phi(k)$ is also an inductive invariant for any $k>m+n$.
+  Let $m$ be the number of quantifiers over $E$ in $\Phi$ and $n$ be the number of quantifiers over $E$ in $\Delta$.  Then if $\Phi(m+n)$ is an inductive invariant, $\Phi(k)$ is also an inductive invariant for any $k>m+n$.
 \end{theorem}
 \begin{proof}
-  This follows immediately from the previous two lemmas.
+  This follows immediately from Lemma \ref{ref:initiation} and Lemma \ref{ref:consecution}.
+\end{proof}
+
+Perhaps even more important than the M-N Theorem itself, is the following corollary:
+
+\begin{corollary}
+  Let $m$ be the number of quantifiers over $E$ in $\Phi$ and $n$ be the number of quantifiers over $E$ in $\Delta$.  Then if $\Phi(k)$ is an inductive invariant for all $k \in \{1,...,m+n\}$, then $\Phi$ is an inductive invariant for $T$.
+\end{corollary}
+\begin{proof}
+  Suppose that $\Phi(k)$ is an inductive invariant for all $k \in \{1,...,m+n\}$.  By the M-N Theorem, we know that $\Phi(k)$ is also an inductive invariant for all $k>0$.  The result then follows from Lemma \ref{lem:valid-all-k}.  (TODO: a bit more is need here)
 \end{proof}
 
 
