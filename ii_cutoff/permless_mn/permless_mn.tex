@@ -24,12 +24,8 @@
 \newcommand{\msp}{\text{ }}
 \newcommand{\st}{\text{ }|\text{ }}
 \newcommand{\states}{\text{States}}
-\newcommand{\gr}{\text{Gr}}
-\newcommand{\elems}{\text{Elems}}
-\newcommand{\PQF}{\text{PQF}}
-\newcommand{\fininstances}{\text{FinInstances}}
-\newcommand{\replace}{\text{Replace}}
-\newcommand{\perm}{\genfrac{}{}{0pt}{}}
+\newcommand{\gr}{\text{EGr}}
+\newcommand{\toground}{\text{ToEGround}}
 
 \title{M-N Without Permutations}
 \author{Ian Dardik}
@@ -41,7 +37,7 @@
 \maketitle
 
 \section{Introduction}
-In the past few years there has been ample research into inductive invariant synthesis for parameterized distributed protocols.  A key desirable feature for an invariant synthesis tool is the ability to check whether the algorithm terminates with a correct inductive invariant.  For tools that remain within the bounds of a decidable logic fragment, this check is feasible.  However, any tool that produces a candidate inductive invariant for a system that falls outside of a decidable fragment offers no guarantee that the candidate is indeed correct.  In this note, we assume that a candidate inductive invariant is \textit{given} and we exclusively focus on the verification step.
+Finding an inductive invariant is key for proving the correctness of a distributed protocol with respect to a safety property.  As such, a considerable amount of effort has been dedicated to finding and proving an inductive invariant for a given system.  For example, Ivy will guide a user to interactively find an inductive invariant within the confines of a decidable fragment of FOL.  In the past few years there has also been a host of research into inductive invariant synthesis for parameterized distributed protocols.  The synthesis tools that remain within the bounds of a decidable logic fragment are able to guarantee that they produce an inductive invariant, however, any tool that produces a candidate inductive invariant for a system that falls outside of a decidable fragment offers no guarantee that the candidate is indeed correct.  In this note, we assume that a candidate inductive invariant is \textit{given} and we exclusively focus on the verification step.
 
 We have discovered a syntactic class of protocols which exhibit a \textit{cutoff} for the number of finite protocol instances which need to be verified.  We have captured this result in the M-N Theorem.
 
@@ -51,138 +47,120 @@ In this note we begin by introducing the Sort-Restricted to PNF Language (SRPL),
 
 \section{Sort-Restricted to PNF Language}
 
-In this section we will define SRPL as the composition of two grammars.  SRPL formulas are parameterized by a single sort $E$ of indistinguishable elements.  We assume that $E$ is countably infinite.
+In this section we will define SRPL as a parameterized grammar.  SRPL formulas are parameterized by a non-sorted grammar \textit{ns} as well as single sort $E$ of indistinguishable elements.
 
 \begin{definition}
-  Let $\mathcal{D}$ be a countable set of domain symbols, $\mathcal{P}$ be a countable set of predicates, $\mathcal{A}$ be a countable set of constants, and $\mathcal{V}$ be a countable set of variables.  A parameterized \textit{svf} term is produced by the following grammar:
-
-  \begin{align*}
-    &arg(x_1,...,x_n)& &::= y \qquad &\text{for any } y \in \mathcal{V}\\
-    &arg(x_1,...,x_n)& &::= a \qquad &\text{for any } a \in \mathcal{A}\\
-    &arg(x_1,...,x_n)& &::= x_i \qquad &\text{for any } 1 \leq i \leq n\\
-    &arg\_list(x_1,...,x_n)& &::= arg(x_1,...,x_n)\\
-    &arg\_list(x_1,...,x_n)& &::= arg(x_1,...,x_n),arg\_list(x_1,...,x_n)\\
-    &svf(x_1,...,x_n)& &::= p(arg\_list(x_1,...,x_n)) \qquad &\text{for any } p \in \mathcal{P}\\
-    &svf(x_1,...,x_n)& &::= \neg svf(x_1,...,x_n)\\
-    &svf(x_1,...,x_n)& &::= svf(x_1,...,x_n) \land svf(x_1,...,x_n)\\
-    &Q& &::= \forall \st \exists\\
-    &svf(x_1,...,x_n)& &::= Q \, x \in D(arg\_list(x_1,...,x_n)), \, svf(x_1,...,x_n) \qquad &\text{for any } x \in \mathcal{V}, D \in \mathcal{D}\\
-  \end{align*}
-  It is important to note that no \textit{svf} term can refer to the sort $E$ directly, and hence cannot quantify over $E$ nor take its cardinality.
-\end{definition}
-
-\begin{definition}
-  Let $\mathcal{V}$ be a countable set of variables.  A formula in SRPL is defined by the grammar for the production rule of \textit{srpl}:
-
+  Let $\mathcal{V}$ be a countable set of variables, $E$ be an infinitely countable sort of indistinguishable elements, and \textit{sv} be an input grammar that may not refer to $E$.  A formula in SRPL is defined by the grammar for the production rule of \textit{srpl}:
   \begin{align*}
     &arg& &::= x \qquad &\text{for any } x \in \mathcal{V}\\
     &arg\_list& &::= arg\\
     &arg\_list& &::= arg,arg\_list\\
     &Q& &::= \forall \st \exists\\
-    &srpl& &::= Q \, x \in E, \, svf(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
+    &srpl& &::= Q \, x \in E, \, ns(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
     &srpl& &::= Q \, x \in E, \, srpl \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
 \end{definition}
 
-SRPL is quite rich and we should provide some examples to show this.
+The input grammar \textit{ns} has a single requirement--that it cannot explicitly refer to $E$--and therefore is quite general.  We now provide an example of an input grammar to illustrate a potential use case.
+
+\begin{example}
+  Let $\mathcal{S}$ be a finite set of state variables, $\mathcal{A}$ be a countable set of constants, and let $\mathcal{V}$ be a countable set of variables.  We define the grammar \textit{sample} that is parameterized on the variable symbols $x_1,...,x_n$ by the following production rules:
+  \begin{align*}
+    &prim(x_1,...,x_n)& &::= v \qquad &\text{for any } v \in \mathcal{S}\\
+    &prim(x_1,...,x_n)& &::= y \qquad &\text{for any } y \in \mathcal{V}\\
+    &prim(x_1,...,x_n)& &::= a \qquad &\text{for any } a \in \mathcal{A}\\
+    &prim(x_1,...,x_n)& &::= x_i \qquad &\text{for any } 1 \leq i \leq n\\
+    &prim(x_1,...,x_n)& &::= prim(x_1,...,x_n)[prim(x_1,...,x_n)]\\
+    &sample(x_1,...,x_n)& &::= prim(x_1,...,x_n) = prim(x_1,...,x_n)\\
+    &sample(x_1,...,x_n)& &::= \neg sample(x_1,...,x_n)\\
+    &sample(x_1,...,x_n)& &::= sample(x_1,...,x_n) \land sample(x_1,...,x_n)\\
+    &sample(x_1,...,x_n)& &::= \forall x \in sample(arg\_list(x_1,...,x_n)), \, sample(x_1,...,x_n) \qquad &\text{for any } x \in \mathcal{V}\\
+  \end{align*}
+  Notice that \textit{sample} formulas have no way to refer to the sort $E$ directly, and hence cannot quantify over $E$ nor take its cardinality.  We will use $\lor$, $\exists$, $\rightarrow$, etc. as syntactic sugar in \textit{sample} formulas, defined in the expected way.
+\end{example}
 
 \begin{definition}[Instance]
-  Let $\psi$ be an SRPL formula and let $H \subseteq E$.  Then we define $\psi(E \mapsto H)$ by the following rules on the SRPL grammar:
+  Let $\psi$ be a SRPL formula and let $H \subseteq E$ such that $H \neq \emptyset$.  Then we define $\psi(E \mapsto H)$ by the following rules on the SRPL grammar:
   \begin{align*}
     &x(E \mapsto H)& &:= x \qquad &\text{for any } x \in \mathcal{V}\\
-    &arg(E \mapsto H)& &:= arg\\
     &[arg,arg\_list](E \mapsto H)& &:= arg,arg\_list\\
-    &[Q \, x \in E, \, svf(arg\_list)](E \mapsto H)& &:= Q \, x \in H, \, svf(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
+    &[Q \, x \in E, \, ns(arg\_list)](E \mapsto H)& &:= Q \, x \in H, \, ns(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
     &[Q \, x \in E, \, srpl](E \mapsto H)& &:=Q \, x \in H, \, [srpl(E \mapsto H)]  \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
   In other words, $\psi(E \mapsto H)$ is the formula $\psi$ with $E$ replaced with $H$.  We call $\psi(E \mapsto H)$ an \textit{instance} of $\psi$, and when $H$ is finite, we call $\psi(E \mapsto H)$ a \textit{finite instance} of $\psi$.
 \end{definition}
 
 \begin{definition}[Finite Instance Notation]
-  We use a special shorthand for finite instaces that mirrors the notation described in \cite{goel2021symmetry}.  Let $\psi$ be an SRPL formula and $k>0$ be given.  Then $\psi(k) := \psi(E \mapsto \{e_1,...,e_k\})$ where each $e_i \in E$ is arbitrary and distinct.  We can also write $E(k) := \{e_1,...,e_k\}$ where each $e_i \in E$ is arbitrary and distinct.
+  We use a special shorthand for finite instaces that mirrors the notation described in \cite{goel2021symmetry}.  Let $\psi$ be a SRPL formula and $k>0$ be given.  Then $\psi(k) := \psi(E \mapsto \{e_1,...,e_k\})$ where each $e_i \in E$ is arbitrary and distinct.  We can also write $E(k) := \{e_1,...,e_k\}$ where each $e_i \in E$ is arbitrary and distinct.
 \end{definition}
 
 \begin{definition}[Valid SPRL Formula]
-  Let $\psi$ be an SRPL formula.  Then $\psi$ is valid iff $\psi(E \mapsto H)$ is valid for every $H \subseteq E$.
+  Let $\psi$ be a SRPL formula.  Then $\psi$ is valid iff $\psi(E \mapsto H)$ is valid for every $H \subseteq E$.
 \end{definition}
 
 \begin{lemma}
   \label{lem:valid-all-k}
-  Let $\psi$ be an SRPL formula.  Then $\psi$ is valid iff $\psi(k)$ is valid for all $k>0$.
+  Let $\psi$ be a SRPL formula.  Then $\psi$ is valid iff $\psi(k)$ is valid for all $k>0$.
 \end{lemma}
 
 
 
 \section{\textit{E}-Ground Formulas}
 
-\begin{definition}
-  Let $S$ be a sort.  Then a \textit{ground formula} is generated by the following grammar:
+\begin{definition}[ToEGround]
+  Let $\psi$ be a SRPL formula, $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$, let $H \subseteq E$ such that $H \neq \emptyset$, and let $\rho : R \to H$ be given.  Then we define $\toground(\psi,\rho)$ by the following rules on the SRPL grammar:
   \begin{align*}
-    argument &::= e \hfill \text{ for any } e \in S\\
-    argument\_list &::= argument\\
-    argument\_list &::= argument,argument\_list\\
-    ground\_formula &::= p(argument\_list) \hfill \text{ for any } n\text{-ary } p \in \mathbf{P}, n \geq 0\\
-  \end{align*}
-  %We will let $G := \{g \st g \text{ is generated by } gr\_formula\}$ be the universe of all ground formulas.
-\end{definition}
-
-\begin{definition}
-  Let $F$ be an RSL formula and $\rho : \mathbf{V} \to E$ be a function.  Then we define $\replace(F,\rho)$ recursively
-  \begin{align*}
-    \replace(x,\rho) &:= \rho(x) \hfill \text{ for any } x \in \mathbf{V}\\
-    \replace((argument,argument\_list),\rho) &:= \replace(argument,rho), \replace(argument\_list,\rho)\\
-    \replace(p(argument\_list),\rho) &:= p(\replace(argument\_list,\rho)) \hfill \text{ for any } n\text{-ary } p \in \mathbf{R}, n \geq 0\\
+    &\toground(x,\rho)& &:= \rho(x) \qquad &\text{for any } x \in R\\
+    &\toground([arg,arg\_list],\rho)& &:= \toground(arg,\rho),\toground(arg\_list,\rho)\\
+    &\toground([Q \, x \in E, \, ns(arg\_list)],\rho)& &:= ns(\toground(arg\_list,\rho)) \qquad &\text{for any } x \in \mathcal{V}\\
+    &\toground([Q \, x \in E, \, srpl],\rho)& &:= \toground(srpl,\rho)  \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
 \end{definition}
 
-\begin{definition}[Ground Instance of \textit{F(k)}]
-  Let $F$ be a quantified PNF formula and $k \in \mathbb{N}$.  Then $g$ is a \textit{ground instance} of $F(k)$ iff there exists a mapping $\rho : \mathbf{V} \to E(k)$ and an unquantified formula $f$ such that:
-  $$g = \replace(f,\rho) \text{ and } F \in \PQF(f)$$
-  In other words, $g$ is a ground formula that is identical in structure to $F$ without quantifiers, and with all variables of $F(k)$ replaced by members of $E(k)$.
+\begin{definition}[EGround]
+  A formula $g$ is an \textit{e-ground} formula iff there exists a SRPL formula $\psi$ and a mapping $\rho$ such that $g = \toground(\psi,\rho)$.  Moreover, we call $g$ a \textit{ground instance} of $\psi$.
+\end{definition}
+
+Notice that e-ground terms are not necessarily \textit{ground terms}, that is, terms without quantifiers.  We illustrate this in the following example.
+
+\begin{example}
+  Consider the following SRPL formula with input grammar \textit{sample}:
+  $$\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$$
+  where $A \in (E \to \{true,false\})$ and $B \in (E \to \mathbb{N})$ are state variables.  Let $H = \{e_1,e_2,e_3\}$ and $\rho(x) = e_1$, then:
+  $$\toground(\psi,\rho) = A[e_1] \rightarrow (\exists y \in B[e_1], y = 0)$$
+  is an e-ground term.  However, it is not a ground term because it contains a quantifier.
+\end{example}
+
+\begin{definition}[EGr]
+  Let $\psi$ be a SRPL formula and let $H \subseteq E$ be finite.  Then:
+  $$\gr(\psi,H) := \{g \st \exists \rho, \, g = \toground(\psi,\rho)\}$$
+  $\gr(\psi,H)$ is the set of all possible e-ground formulas of the finite instance $\psi(E \mapsto H)$.
 \end{definition}
 
 \begin{example}
-  Consider the transition system $T$ with two state variables, $x \in (P \to \mathbb{N})$ and $y \in \mathbb{Z}$.  Let $s := (x[1]=6 \land x[2]=0 \land y=-22)$ be a state in the transition system.  Let $F := \forall p,q \in P, x[p] \neq x[q]$ and $f := (x[1] \neq x[2])$.
-
-  Then $F(2) = \forall p,q \in P(2), x[p] \neq x[q]$.  Furthermore, $f$ is a ground instance of $F(2)$, $F(2) \rightarrow f$, $s \rightarrow F(2)$, and $s \rightarrow f$.
+  Recall the SRPL formula with input grammar \textit{sample} from the previous example:
+  $$\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$$
+  Let $H = \{e_1,e_2,e_3\}$, then:
+  \begin{align*}
+    \gr(\psi,H) = \{&A[e_1] \rightarrow (\exists y \in B[e_1], y = 0),\\
+    &A[e_2] \rightarrow (\exists y \in B[e_2], y = 0),\\
+    &A[e_3] \rightarrow (\exists y \in B[e_3], y = 0)\}\\
+  \end{align*}
 \end{example}
-
-\begin{definition}[Gr]
-  Let $F$ be a quantified formula and $k \in \mathbb{N}$.  Then:
-  $$\gr(F,k) := \{f \st f \text{ is a ground instance of } F(k)\}$$
-\end{definition}
-
-\begin{example}
-  $\gr([\forall p,q \in P, p=q],2) = \{(1=1),(1=2),(2=1),(2=2)\}$\\
-  Note: we sometimes use square braces to wrap formulas when it looks better than parentheses.\\
-  Notice that $\gr([\forall p,q \in P, p=q],2)$ contains elements that are false.  This indicates that the statement $[\forall p,q \in P, p=q](2)$ is not valid.
-\end{example}
-\begin{example}
-  Let $\text{sv}$ be a state variable, then:
-  $$\gr((\forall p,q \in P, p \neq q \rightarrow \text{sv[p]} \neq \text{sv[q]}),3) = \{(1 \neq 1 \rightarrow \text{sv[1]} \neq \text{sv[1]}),(1 \neq 2 \rightarrow \text{sv[1]} \neq \text{sv[2]}),...\}$$
-\end{example}
-
-\begin{definition}[Elems]
-  Suppose that $F$ is a quantified formula, $k \in \mathbb{N}$, and $f \in \gr(F,k)$.  Then:
-  $$\elems(f) := \{e \st e \in P(k) \land e \text{ occurs in } f\}$$
-
-  TODO make this definition better.
-\end{definition}
 
 
 
 \section{Transition System}
 
-We encode a protocol as a transition system $T=(I,\Delta)$ where $I$ is the initial constraint restricted to universal quantification over $E$ and $\Delta$ is the transition relation restricted to existential quantification over $E$, and both are encoded in SRPL.  We assume that an inductive invariant candidate $\Phi$ is given in SRPL, and is restricted to universal quantification over $E$.  We use the notation $T(k):=(I(k),\Delta(k))$ where $k>0$.
+We encode a protocol as a transition system $T=(I,\Delta)$ where $I$ is the initial constraint restricted to universal quantification over $E$ and $\Delta$ is the transition relation restricted to existential quantification over $E$, and both are encoded in SRPL.  We assume that an inductive invariant candidate $\Phi$ is given in SRPL, and is restricted to universal quantification over $E$.  We use the notation $T(E \mapsto H):=(I(E \mapsto H),\Delta(E \mapsto H))$ where $H \subseteq E$.
 
 \begin{definition}[States]
-  Let $k>0$ be given, then:
-  $$\states(k) := \{s \st s \text{ is a state of } T(k)\}$$
-  In this note we consider a ``state" $s \in \states(k)$ to be a ground formula.  More specifically--under a given interpretation for $T$--$s$ is a conjunction of constraints that describe a single state in $T(k)$.
+  $$\states(H) := \{s \st s \text{ is a state of } T(E \mapsto H)\}$$
+  In this note we consider a ``state" $s \in \states(H)$ to be a ground formula.  More specifically, $s$ is a conjunction of constraints that describe a single state in $T(E \mapsto H)$.
 \end{definition}
 
 \begin{definition}[Inductive Invariant]
-  $\Phi$ is an inductive invariant iff $\Phi \land \Delta \rightarrow \Phi'$ is valid.
+  $\Phi$ is an inductive invariant iff $I \rightarrow \Phi$ and $\Phi \land \Delta \rightarrow \Phi'$ are valid formulas.
 \end{definition}
 
 
@@ -213,7 +191,7 @@ In this section, we will establish initiation and consecution in two separate le
   Let $m$ be the number of variables that $\Phi$ quantifies over and $n$ be the number of variables that $\Delta$ quantifies over.  Then if $\Phi(m+n)$ is inductive, $\Phi(k)$ is also inductive for any $k>m+n$.
 \end{lemma}
 \begin{proof}
-  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given, we want to show that $[\Phi\land\Delta \rightarrow \Phi'](k)$ is also valid.  Let $H = \{e_1,...,e_k\} \subseteq E$ be an arbitrary finite instance of $E$.  Let $s \in \states(H)$ such that $s \rightarrow \Phi(E \mapsto H)$ and let $\delta \in \gr(\Delta,H)$ such that $\delta \rightarrow \Delta(H)$.  Then $(s \land \delta)$ is a formula that describes the states reachable from $s$ in one ``$\delta$ step", and it suffices to show that $(s \land \delta) \rightarrow \Phi'(H)$.  Furthermore, let $\phi' \in \gr(\Phi',H)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground} and the fact that $\Phi'$ is in PNF and universally quantified, it suffices to show that $(s \land \delta) \rightarrow \phi'$.
+  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given, we want to show that $[\Phi\land\Delta \rightarrow \Phi'](k)$ is also valid.  Let $H = \{e_1,...,e_k\} \subseteq E$ be an arbitrary finite instance of $E$.  Let $s \in \states(H)$ such that $s \rightarrow \Phi(E \mapsto H)$ and let $\delta \in \gr(\Delta,H)$ such that $\delta \rightarrow \Delta(E \mapsto H)$.  Then $(s \land \delta)$ is a formula that describes the states reachable from $s$ in one ``$\delta$ step", and it suffices to show that $(s \land \delta) \rightarrow \Phi'(E \mapsto H)$.  Furthermore, let $\phi' \in \gr(\Phi',H)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground} and the fact that $\Phi'$ is in PNF and universally quantified, it suffices to show that $(s \land \delta) \rightarrow \phi'$.
 
   Let $\alpha_1,...,\alpha_i$ be the unique elements of $\{e_1,...,e_k\}$ in $(\phi \land \delta)$, then we know that $i \leq m+n$ because $\phi \in \gr(\Phi,H)$ where $\Phi$ quantifies over $m$ variables and $\delta \in \gr(\Delta,H)$ where $\Delta$ quantifies over $n$ variables.  Let $j = m+n-i$, then we can choose $\beta_1,...,\beta_j$ such that $\{\beta_1,...,\beta_j\} \subseteq (\{e_1,...,e_k\}-\{\alpha_1,...,\alpha_i\})$.  Notice that $|\{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\}|=m+n$, and hence, by our initial assumption:
   $$[\Phi\land\Delta \rightarrow \Phi'](E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\})$$
