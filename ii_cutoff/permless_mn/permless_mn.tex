@@ -39,17 +39,17 @@
 \maketitle
 
 \section{Introduction}
-Finding an inductive invariant is key for proving the correctness of a distributed protocol with respect to a safety property.  As such, a considerable amount of effort has been dedicated to finding and proving an inductive invariant for a given system.  For example, Ivy will guide a user to interactively find an inductive invariant within the confines of a decidable fragment of FOL.  In the past few years there has also been a host of research into inductive invariant synthesis for parameterized distributed protocols.  The synthesis tools that remain within the bounds of a decidable logic fragment are able to guarantee that they produce an inductive invariant, however, any tool that produces a candidate inductive invariant for a system that falls outside of a decidable fragment offers no guarantee that the candidate is indeed correct.  In this note, we assume that a candidate inductive invariant is \textit{given} and we exclusively focus on the verification step.
+Finding an inductive invariant is key for proving safety of a distributed protocol.  As such, a considerable amount of effort has been dedicated to aid engineers and researchers in finding and proving an inductive invariant for a given system.  Ivy, for example, will interactively guide a user towards discovering an inductive invariant, while many other tools attempt to synthesize an inductive invariant with little to no help.  Many tools operate within the confines of a decidable fragment of FOL which makes it possible to \textit{prove} that the output is, indeed, an inductive invariant.  However, tools that may accept protocols and properties outside of a decidable FOL fragment--such as IC3PO--offer no theoretical guarantees that the output is a correct inductive invariant, and may rely on heuristics instead.
 
-We have discovered a syntactic class of protocols that lie outside of a decidable logic fragment, but exhibit a \textit{cutoff} for the number of finite protocol instances which need to be verified.  We have captured this result in the M-N Theorem.
+In this note, we choose to focus exclusively on verifying that a candidate is inductive invariant, assuming that a candidate is already provided.  We have discovered a syntactic class of protocols that lie outside of a decidable logic fragment, but exhibit a \textit{cutoff} for the number of finite protocol instances which need to be verified.  We have captured this result in the M-N Theorem.
 
-In this note we begin by introducing the Sort-Quantifiers Restricted to Prenex Normal Form Language (SRPL), the logic language that we use to encode our class of protocols.  We then introduce our encoding of protocols as a transition system in SRPL.  Next, we will prove some key lemmas before finally presenting and proving the M-N Theorem.
+We begin by introducing the Sort-Quantifiers Restricted to Prenex Normal Form Language (SRPL), the logic language that we use to encode our class of protocols.  We then introduce our encoding of protocols as a transition system in SRPL.  Next, we will prove some key lemmas before finally presenting and proving the M-N Theorem.
 
 
 
 \section{Sort-Quantifiers Restricted to PNF Language}
 
-In this section we will define $\SRPL(E,G)$ as a grammar parameterized by the sort $E$ and the \textit{input grammar} $G$.
+In this section we will define $\SRPL(E,G)$ as a grammar parameterized by a sort $E$ and an \textit{input grammar} $G$.
 
 \begin{definition}
   Let $\mathcal{V}$ be a countable set of variables, $E$ be an infinitely countable sort of indistinguishable elements, and $G$ be an input grammar that may not refer to $E$.  A $\SRPL(E,G)$ formula is defined by the grammar for the production rule of \textit{srpl}:
@@ -61,12 +61,13 @@ In this section we will define $\SRPL(E,G)$ as a grammar parameterized by the so
     &srpl& &::= Q \, x \in E, \, G(arg\_list) \qquad &\text{for any } x \in \mathcal{V}\\
     &srpl& &::= Q \, x \in E, \, srpl \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
+  We will often refer to a grammar $\SRPL(E,G)$ and implicitly assume that $E$ and $G$ are either given or previously defined.
 \end{definition}
 
-The input grammar $G$ has a single requirement--that it cannot explicitly refer to $E$--and therefore is quite general.  We now provide an example of an input grammar to illustrate a potential use case.
+We now provide an example of an input grammar to illustrate a potential use case of the SRPL grammar.
 
 \begin{example}
-  Let $\mathcal{S}$ be a finite set of state variables, $\mathcal{A}$ be a countable set of constants, and let $\mathcal{V}$ be a countable set of variables.  We define the grammar \textit{sample} that is parameterized on the variable symbols $x_1,...,x_n$ by the following production rules:
+  Let $\mathcal{S}$ be a finite set of state variables, $\mathcal{A}$ be a countable set of constants, and let $\mathcal{V}$ be a countable set of variables.  We define the grammar \textit{sample} that is parameterized on the variable symbols $x_1,...,x_n$ and is by the following production rules:
   \begin{align*}
     &prim(x_1,...,x_n)& &::= v \qquad &\text{for any } v \in \mathcal{S}\\
     &prim(x_1,...,x_n)& &::= y \qquad &\text{for any } y \in \mathcal{V}\\
@@ -79,10 +80,16 @@ The input grammar $G$ has a single requirement--that it cannot explicitly refer 
     &sample(x_1,...,x_n)& &::= \forall x \in sample(arg\_list(x_1,...,x_n)), \, sample(x_1,...,x_n) \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
   Notice that \textit{sample} formulas have no way to refer to the sort $E$ directly, and hence cannot quantify over $E$ nor take its cardinality.  We will use $\lor$, $\exists$, $\rightarrow$, etc. as syntactic sugar in \textit{sample} formulas, defined in the expected way.
+
+  The following is an example of a $\SRPL(E,sample)$ formula:
+  $$\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$$
+  where $A \in (E \to \{true,false\})$ and $B \in (E \to \mathcal{P}(\mathbb{N}))$ are state variables, and $\mathcal{P}$ denotes the power set.
 \end{example}
 
+The sort $E$ in a SRPL grammar is assumed to be countably infinite, however, we are particularly interested in verifying SRPL formulas for arbitrary \textit{finite} sized subsets of $E$, since the sort presumably models a real world system with finite resources.  Hence, we will be primarily concerned with a \textit{finite instance} of a formula.  We formally introduce this concept below.
+
 \begin{definition}[Instance]
-  Let $E$ be a sort, $G$ be a valid SRPL input grammar, $\psi$ be a $\SRPL(E,G)$ formula and let $H \subseteq E$ such that $H \neq \emptyset$.  Then we define $\psi(E \mapsto H)$ by the following rules on the $\SRPL(E,G)$ grammar:
+  Let $\psi$ be a $\SRPL(E,G)$ formula and $H \subseteq E$ such that $H \neq \emptyset$.  Then we define $\psi(E \mapsto H)$ by the following rules on the $\SRPL(E,G)$ grammar:
   \begin{align*}
     &x(E \mapsto H)& &:= x \qquad &\text{for any } x \in \mathcal{V}\\
     &[arg,arg\_list](E \mapsto H)& &:= arg,arg\_list\\
@@ -93,11 +100,17 @@ The input grammar $G$ has a single requirement--that it cannot explicitly refer 
 \end{definition}
 
 \begin{definition}[Finite Instance Notation]
-  We may use a special shorthand for finite instaces that mirrors the notation described in \cite{goel2021symmetry}.  Let $\psi$ be a $\SRPL(E,G)$ formula and $k>0$ be given.  Then $\psi(k) := \psi(E \mapsto \{e_1,...,e_k\})$ where each $e_i \in E$ is arbitrary and distinct.  We can also write $E(k) := \{e_1,...,e_k\}$ where each $e_i \in E$ is arbitrary and distinct.
+  We may use a special shorthand for finite instaces that mirrors the notation described in \cite{goel2021symmetry}.  Let $\psi$ be a $\SRPL(E,G)$ formula and $k>0$ be given.  Then $\psi(k) := \psi(E \mapsto \{e_1,...,e_k\})$ where each $e_i \in E$ is arbitrary and distinct.
 \end{definition}
 
+\begin{definition}[Subinstance]
+  Let $\psi$ be a $\SRPL(E,G)$ formula and $\psi(E \mapsto H_1)$ be an instance of $\psi$.  Then for any $H_2 \subseteq H_1$ where $H_2 \neq \emptyset$, we call $\psi(E \mapsto H_2)$ a \textit{subinstance} of $\psi(E \mapsto H_1)$.
+\end{definition}
+
+We now define validity of a SRPL formula in terms of finite instances.
+
 \begin{definition}[Valid SRPL Formula]
-  Let $E$ be a sort, $G$ be a valid SRPL input grammar, and $\psi$ be a $\SRPL(E,G)$ formula.  Then $\psi$ is valid iff $\psi(E \mapsto H)$ is valid for every $H \subseteq E$.
+  Let $E$ be a sort, $G$ be a valid SRPL input grammar, and $\psi$ be a $\SRPL(E,G)$ formula.  Then $\psi$ is valid iff every finite instance of $\psi$ is valid.
 \end{definition}
 
 \begin{lemma}
@@ -105,22 +118,24 @@ The input grammar $G$ has a single requirement--that it cannot explicitly refer 
   Let $\psi$ be a SRPL formula.  Then $\psi$ is valid iff $\psi(k)$ is valid for all $k>0$.
 \end{lemma}
 \begin{proof}
-  Coming soon.
+  Notice that, for a given $k>0$, $\psi(k)$ is valid iff $\psi(E \mapsto H)$ for arbitrary $H$ such that $|H|=|\{e_1,...,e_k\}|=k$.  Thus it follows that every $\psi(k)$ is valid iff every finite instance of $\psi$ is valid; our desired result follows immediately.
 \end{proof}
 
 
 
 \section{\textit{E}-Ground Formulas}
 
+In this section we introduce \textit{E}-ground formulas, an important tool that will be used in the proof for the M-N Theorem.  We begin by introducing the $\toground$ operator which we then use to formally define an \textit{E}-ground formula.
+
 \begin{definition}[ToEGround]
-  Let $E$ be a sort, $G$ be a valid SRPL input grammar, and $\psi$ be a $\SRPL(E,G)$ formula.  Next, let $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$, let $H \subseteq E$ such that $H \neq \emptyset$, and let $\rho : R \to H$ be given.  Then we define $\toground(\psi,\rho)$ by the following rules on the $\SRPL(E,G)$ grammar:
+  Let $E$ be a sort, $G$ be a valid SRPL input grammar, and $\psi$ be a $\SRPL(E,G)$ formula.  Next, let $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$, and let $\rho : R \to E$ be given.  Then we define $\toground(\psi,\rho)$ by the following rules on the $\SRPL(E,G)$ grammar:
   \begin{align*}
     &\toground(x,\rho)& &:= \rho(x) \qquad &\text{for any } x \in R\\
     &\toground([arg,arg\_list],\rho)& &:= \toground(arg,\rho),\toground(arg\_list,\rho)\\
     &\toground([Q \, x \in E, \, G(arg\_list)],\rho)& &:= G(\toground(arg\_list,\rho)) \qquad &\text{for any } x \in \mathcal{V}\\
     &\toground([Q \, x \in E, \, srpl],\rho)& &:= \toground(srpl,\rho)  \qquad &\text{for any } x \in \mathcal{V}\\
   \end{align*}
-  For this to work, we assume that each quantifier for $E$ in $\psi$ gets a unique variable name.  This assumption comes without loss of generality since we can always alpha-rename duplicate quantifier variables.
+  Here we assume that each quantifier for $E$ in $\psi$ gets a unique variable name.  This assumption comes without loss of generality since we can always alpha-rename duplicate quantifier variables.
 \end{definition}
 
 \begin{definition}[EGround]
@@ -130,25 +145,24 @@ The input grammar $G$ has a single requirement--that it cannot explicitly refer 
 Notice that \textit{E}-ground formulas are not necessarily vanilla ground formulas, that is, formulas without quantifiers.  We illustrate this in the following example.
 
 \begin{example}
-  Consider the following $\SRPL(E,sample)$ formula:
-  $$\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$$
-  where $A \in (E \to \{true,false\})$ and $B \in (E \to \mathcal{P}(\mathbb{N}))$ are state variables, and $\mathcal{P}$ denotes the power set.  Let $H = \{e_1,e_2,e_3\}$ and $\rho(x) = e_1$, then:
+  Recall the following $\SRPL(E,sample)$ formula from the previous example $\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$.  Assume $E = \{e_1,...\}$ and let $\rho(x) = e_1$, then:
   $$\toground(\psi,\rho) = A[e_1] \rightarrow (\exists y \in B[e_1], y = 0)$$
-  is an \textit{E}-ground formula.  However, it is not a ground formula because it contains a quantifier.
+  is an \textit{E}-ground formula.  However, it is not a ground formula because it contains a quantifier.  Notice that we can also take the $\toground$ of a finite instance:
+  $$\toground(\psi(E \mapsto \{e_1,e_2,e_3\}),\rho) = A[e_1] \rightarrow (\exists y \in B[e_1], y = 0)$$
 \end{example}
 
+We next introduce the $\gr$ operator.  This operator offers a simple notation for describing the set of all possible \textit{E}-ground instances for a given SRPL formula.
+
 \begin{definition}[EGr]
-  Let $\psi$ be a SRPL formula and let $H \subseteq E$ be finite.  Then:
-  $$\gr(\psi,H) := \{g \st \exists \rho, \, g = \toground(\psi,\rho)\}$$
-  $\gr(\psi,H)$ is the set of all possible \textit{E}-ground formulas of the finite instance $\psi(E \mapsto H)$.
+  Let $\psi$ be a SRPL formula and let $\psi(E \mapsto H)$ be a finite instance.  Let $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$.  Then:
+  $$\gr(\psi,H) := \{g \st \exists \, \rho : R \to E, \, g = \toground(\psi,\rho)\}$$
+  In other words, $\gr(\psi,H)$ is the set of all possible \textit{E}-ground formulas of the finite instance $\psi(E \mapsto H)$.
 \end{definition}
 
 \begin{example}
-  Recall the $\SRPL(E,sample)$ formula from the previous example:
-  $$\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$$
-  Let $H = \{e_1,e_2,e_3\}$, then:
+  Let $\psi := \forall x \in E, \, A[x] \rightarrow (\exists y \in B[x], y = 0)$ from the previous example, then:
   \begin{align*}
-    \gr(\psi,H) = \{&A[e_1] \rightarrow (\exists y \in B[e_1], y = 0),\\
+    \gr(\psi,\{e_1,e_2,e_3\}) = \{&A[e_1] \rightarrow (\exists y \in B[e_1], y = 0),\\
     &A[e_2] \rightarrow (\exists y \in B[e_2], y = 0),\\
     &A[e_3] \rightarrow (\exists y \in B[e_3], y = 0)\}\\
   \end{align*}
@@ -160,23 +174,40 @@ Notice that \textit{E}-ground formulas are not necessarily vanilla ground formul
 
 Let a sort $E$ be given along with a valid SRPL input grammar $G$.  We encode a protocol as a transition system $T=(I,\Delta)$ where $I$ is the initial constraint and $\Delta$ is the transition relation, both formulas encoded in $\SRPL(E,G)$.  We assume that $I$ is restricted to universal quantification over $E$ while $\Delta$ is restricted to existential quantification over $E$.  Further assume that an inductive invariant candidate $\Phi$ is given in $\SRPL(E,G)$ and is restricted to universal quantification over $E$.  We use the notation $T(E \mapsto H):=(I(E \mapsto H),\Delta(E \mapsto H))$ where $H \subseteq E$ to denote an \textit{instance} of $T$.
 
-For the remainder of this note we will refer to $E$, $T$, $I$, $\Delta$, and $\Phi$ as defined above.
+For the remainder of this note we will refer to $E$, $T$, $I$, $\Delta$, and $\Phi$ as defined above.  In particular, we will no longer think of $E$ as a generic input sort to a SRPL grammar; it is now \textit{the} sort of $T$ that we specifically use as input to the SRPL grammar that is used to encode $I$, $\Delta$, and $\Phi$.
+
+\begin{definition}[Inductive Invariant]
+  Let $\psi$ be a $\SRPL(E,G)$ formula.  Then $\psi$ is an inductive invariant iff $I \rightarrow \psi$ and $\psi \land \Delta \rightarrow \psi'$ are valid formulas.
+\end{definition}
 
 \begin{definition}[States]
+  Let $H$ be a nonempty, finite subset of $E$.  Then:
   $$\states(H) := \{s \st s \text{ is a state of } T(E \mapsto H)\}$$
   In this note we consider a ``state" $s \in \states(H)$ to be a ground formula.  More specifically, $s$ is a conjunction of constraints that describe a single state in $T(E \mapsto H)$.
 \end{definition}
 
-\begin{definition}[Inductive Invariant]
-  $\Phi$ is an inductive invariant iff $I \rightarrow \Phi$ and $\Phi \land \Delta \rightarrow \Phi'$ are valid formulas.
-\end{definition}
+\begin{example}
+  Recall the running example with state variables $A \in (E \to \{true,false\})$ and $B \in (E \to \mathcal{P}(\mathbb{N}))$.  Here are several examples of ``states":
+  \begin{align*}
+    &A[e_1]=true \land B[e_1]=\{1,2,9\}& &\in \states(\{e_1\})\\
+    &A[e_1]=false \land B[e_1]=\{0\}& &\in \states(\{e_1\})\\
+    &A[e_1]=true \land A[e_2]=true \land B[e_1]=\emptyset \land B[e_2]=\emptyset& &\in \states(\{e_1,e_2\})\\
+    &A[e_1]=true \land A[e_2]=false \land B[e_1]=\{1,2,9\} \land B[e_2]=\emptyset& &\in \states(\{e_1,e_2\})\\
+    &A[e_1]=false \land A[e_2]=false \land B[e_1]=\{0,...,74\} \land B[e_2]=\{0,2,4\}& &\in \states(\{e_1,e_2\})\\
+  \end{align*}
+  This example showcases the power of using formulas to describe states; it allows us to reason about states across different finite instances.  For example:
+  \begin{align*}
+    (A[e_1]=true \land& A[e_2]=false \land B[e_1]=\{1,2,9\} \land B[e_2]=\emptyset) \rightarrow\\
+    &(A[e_1]=true \land B[e_1]=\{1,2,9\})\\
+  \end{align*}
+  Here, the first state is stronger than the second state.
+\end{example}
 
+We now show a key lemma that shows that a state that satisfies a SRPL formula restricted to universal quantification on $E$ can be described equivalently in terms of the formulas \textit{E}-ground formulas.
 
-
-\section{Helper Lemmas}
 \begin{lemma}
   \label{lem:pnf-ground}
-  Let $G$ be a valid SRPL input grammar and $\psi$ be a $\SRPL(E,G)$ formula restricted to universal quantification on $E$.  Let $H \subseteq E$ be finite where $H \neq \emptyset$ and let $s \in \states(H)$.  Then:
+  Let $\psi$ be a $\SRPL(E,G)$ formula restricted to universal quantification on $E$, and $\psi(E \mapsto H)$ be a finite instance.  Let $s \in \states(H)$, then:
   $$(s \rightarrow \psi(E \mapsto H)) \leftrightarrow (\forall g \in \gr(\psi,H), s \rightarrow g)$$
 \end{lemma}
 \begin{proof}
@@ -187,9 +218,19 @@ For the remainder of this note we will refer to $E$, $T$, $I$, $\Delta$, and $\P
   Now suppose that $\forall f \in \gr(F,k), s \rightarrow f$.  Suppose, for the sake of contradiction, that $\neg(s \rightarrow F(k))$.  Then it must be the case that $s \land \neg F(k)$.  We know that $F$ is unversally quantified, so let $F(k) := \forall x_1,...,x_m \in P, \phi(x_1,...,x_m)$ where $m \geq 1$.  Then, because $\neg F(k)$ holds, it must be the case that $\exists x_1,...,x_m \in P, \neg \phi(x_1,...,x_m)$.  However, $\phi(x_1,...,x_m) \in \gr(F,k)$ which, by our original assumption, implies $\neg s$.  Hence we have both $s$ and $\neg s$ and we have reached a contradiction.
 \end{proof}
 
+
+
+\section{Lemmas For Restricting The Sort Domain}
+
+The following two lemmas show two interesting ways a SRPL formula can remain true if elements are removed from the sort $E$.  These two properties are key to proving the M-N Theorem because they show how a property $\psi$ that holds as $\psi(k)$ may also hold for $\psi(m+n)$ where $k>m+n$.
+
+The first lemma shows that any state that satisfies a property $\psi$--restricted to universal quantificaiton over $E$--will also satisfy any subinstance (maybe add this as a technical def?) of $\psi$.  While this result is rather intuitive if $\psi$ is restricted to quantification only on $E$, this result is perhaps less clear when additional quantifiers are included in the formula.  The key reason this result holds is because a subinstance of $\psi$ will only affect the domain of sort $E$, leaving all domains of the input grammar unaffected.
+
+The second lemma essentially states that, for a property $\psi$ restricted to existential quantification on $E$, any ground term that implies $\psi$ will also imply the subinstance of $\psi$ when $E$ is restricted to the sort elements in the ground term of $\psi$.  This result is also intuitive if $\psi$ is restricted to quantification only on $E$ because the sort elements in the ground term witness the existentials of $\psi$, and less clear when additional quantifiers are included in the formula.  The key reason this result holds is the same--all domains of the input grammar are unaffected in any subinstance of $\psi$.  In fact, the lemma goes a step further and shows that the ground term implies \textit{any} instance of $\psi$ that contains its sort elements.
+
 \begin{lemma}
   \label{lem:forall-lower}
-  Let $G$ be a valid SRPL input grammar and $\psi$ be a $\SRPL(E,G)$ formula restricted to universal quantification on $E$.  Let $H_1 \subseteq E$ where $H_1 \neq \emptyset$ and let $s \in \states(H_1)$.  Let $H_2 \subseteq H_1$ where $H_2 \neq \emptyset$.  Then:
+  Let $\psi$ be a $\SRPL(E,G)$ formula restricted to universal quantification on $E$ and let $\psi(E \mapsto H_1)$ be an instance of $\psi$.  Now let $\psi(E \mapsto H_2)$ be a subinstance of $\psi(E \mapsto H_1)$, then:
   $$(s \rightarrow \psi(E \mapsto H_1)) \rightarrow (s \rightarrow \psi(E \mapsto H_2))$$
 \end{lemma}
 \begin{proof}
@@ -200,7 +241,7 @@ For the remainder of this note we will refer to $E$, $T$, $I$, $\Delta$, and $\P
 
 \begin{lemma}
   \label{lem:exists-lower}
-  Let $G$ be a valid SRPL input grammar and $\psi$ be a $\SRPL(E,G)$ formula restricted to existential quantification on $E$.  Let $H_1 \subseteq E$ where $H_1 \neq \emptyset$.  Let $g \in \gr(\psi,H_1)$, and let $e_1,...,e_m$ be the elements of $H_1$ that occur in $g$.  Then for any $H_2 \supseteq \{e_1,...,e_m\}$:
+  Let $\psi$ be a $\SRPL(E,G)$ formula restricted to existential quantification on $E$ and let $\psi(E \mapsto H_1)$ be a finite instance.  Now let $g \in \gr(\psi,H_1)$ and $e_1,...,e_m$ be the elements of $H_1$ that occur in $g$.  Then for any sort $H_2 \supseteq \{e_1,...,e_m\}$:
   $$(g \rightarrow \psi(E \mapsto H_1)) \rightarrow (g \rightarrow \psi(E \mapsto H_2))$$
 \end{lemma}
 \begin{proof}
