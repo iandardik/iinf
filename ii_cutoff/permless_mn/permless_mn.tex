@@ -29,7 +29,7 @@
 \newcommand{\SRPL}{\text{SRPL}}
 \newcommand{\toground}{\text{ToEGround}}
 
-\title{M-N Without Permutations}
+\title{A Cutoff Rule For A Special Class Of Parameterized Distributed Protocols}
 \author{Ian Dardik}
 \date{\today}
 
@@ -41,7 +41,7 @@
 \section{Introduction}
 Finding an inductive invariant is key for proving safety of a distributed protocol.  As such, a considerable amount of effort has been dedicated to aid engineers and researchers in finding and proving an inductive invariant for a given system.  Ivy, for example, will interactively guide a user towards discovering an inductive invariant, while many other tools attempt to synthesize an inductive invariant with little to no help.  Many tools operate within the confines of a decidable fragment of FOL which makes it possible to \textit{prove} that the output is, indeed, an inductive invariant.  However, tools that may accept protocols and properties outside of a decidable FOL fragment--such as IC3PO--offer no theoretical guarantees that the output is a correct inductive invariant, and may rely on heuristics instead.
 
-In this note, we choose to focus exclusively on verifying that a candidate is inductive invariant, assuming that a candidate is already provided.  We have discovered a syntactic class of protocols that lie outside of a decidable logic fragment, but exhibit a \textit{cutoff} for the number of finite protocol instances which need to be verified.  We have captured this result in the M-N Theorem.
+In this note, we choose to focus exclusively on verifying that a candidate is an inductive invariant, assuming that a candidate is already provided.  We have discovered a syntactic class of protocols that lie outside of a decidable logic fragment, but exhibit a \textit{cutoff} for the number of finite protocol instances which need to be verified.  We have captured this result in the M-N Theorem.
 
 We begin by introducing the Sort-Quantifiers Restricted to Prenex Normal Form Language (SRPL), the logic language that we use to encode our class of protocols.  We then introduce our encoding of protocols as a transition system in SRPL.  Next, we will prove some key lemmas before finally presenting and proving the M-N Theorem.
 
@@ -67,7 +67,7 @@ In this section we will define $\SRPL(E,G)$ as a grammar parameterized by a sort
 We now provide an example of an input grammar to illustrate a potential use case of the SRPL grammar.
 
 \begin{example}
-  Let $\mathcal{S}$ be a finite set of state variables, $\mathcal{A}$ be a countable set of constants, and let $\mathcal{V}$ be a countable set of variables.  We define the grammar \textit{sample} that is parameterized on the variable symbols $x_1,...,x_n$ and is by the following production rules:
+  Let $\mathcal{S}$ be a finite set of state variables, $\mathcal{A}$ be a countable set of constants, and let $\mathcal{V}$ be a countable set of variables.  We define the grammar \textit{sample} that is parameterized on the variable symbols $x_1,...,x_n$ by the following production rules:
   \begin{align*}
     &prim(x_1,...,x_n)& &::= v \qquad &\text{for any } v \in \mathcal{S}\\
     &prim(x_1,...,x_n)& &::= y \qquad &\text{for any } y \in \mathcal{V}\\
@@ -110,12 +110,12 @@ The sort $E$ in a SRPL grammar is assumed to be countably infinite, however, we 
 We now define validity of a SRPL formula in terms of finite instances.
 
 \begin{definition}[Valid SRPL Formula]
-  Let $E$ be a sort, $G$ be a valid SRPL input grammar, and $\psi$ be a $\SRPL(E,G)$ formula.  Then $\psi$ is valid iff every finite instance of $\psi$ is valid.
+  Let $\psi$ be a $\SRPL(E,G)$ formula.  Then $\psi$ is valid iff every finite instance of $\psi$ is valid.
 \end{definition}
 
 \begin{lemma}
   \label{lem:valid-all-k}
-  Let $\psi$ be a SRPL formula.  Then $\psi$ is valid iff $\psi(k)$ is valid for all $k>0$.
+  Let $\psi$ be a $\SRPL(E,G)$ formula.  Then $\psi$ is valid iff $\psi(k)$ is valid for all $k>0$.
 \end{lemma}
 \begin{proof}
   Notice that, for a given $k>0$, $\psi(k)$ is valid iff $\psi(E \mapsto H)$ for arbitrary $H$ such that $|H|=|\{e_1,...,e_k\}|=k$.  Thus it follows that every $\psi(k)$ is valid iff every finite instance of $\psi$ is valid; our desired result follows immediately.
@@ -128,7 +128,7 @@ We now define validity of a SRPL formula in terms of finite instances.
 In this section we introduce \textit{E}-ground formulas, an important tool that will be used in the proof for the M-N Theorem.  We begin by introducing the $\toground$ operator which we then use to formally define an \textit{E}-ground formula.
 
 \begin{definition}[ToEGround]
-  Let $E$ be a sort, $G$ be a valid SRPL input grammar, and $\psi$ be a $\SRPL(E,G)$ formula.  Next, let $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$, and let $\rho : R \to E$ be given.  Then we define $\toground(\psi,\rho)$ by the following rules on the $\SRPL(E,G)$ grammar:
+  Let $\psi$ be a $\SRPL(E,G)$ formula.  Additionally, let $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$, and let $\rho : R \to E$ be given.  Then we define $\toground(\psi,\rho)$ by the following rules on the $\SRPL(E,G)$ grammar:
   \begin{align*}
     &\toground(x,\rho)& &:= \rho(x) \qquad &\text{for any } x \in R\\
     &\toground([arg,arg\_list],\rho)& &:= \toground(arg,\rho),\toground(arg\_list,\rho)\\
@@ -154,7 +154,7 @@ Notice that \textit{E}-ground formulas are not necessarily vanilla ground formul
 We next introduce the $\gr$ operator.  This operator offers a simple notation for describing the set of all possible \textit{E}-ground instances for a given SRPL formula.
 
 \begin{definition}[EGr]
-  Let $\psi$ be a SRPL formula and let $\psi(E \mapsto H)$ be a finite instance.  Let $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$.  Then:
+  Let $\psi$ be a $\SRPL(E,G)$ formula and let $\psi(E \mapsto H)$ be a finite instance.  Let $R \subseteq \mathcal{V}$ be the variables that occur in $\psi$ that quantify over $E$.  Then:
   $$\gr(\psi,H) := \{g \st \exists \, \rho : R \to E, \, g = \toground(\psi,\rho)\}$$
   In other words, $\gr(\psi,H)$ is the set of all possible \textit{E}-ground formulas of the finite instance $\psi(E \mapsto H)$.
 \end{definition}
@@ -172,7 +172,7 @@ We next introduce the $\gr$ operator.  This operator offers a simple notation fo
 
 \section{Transition System}
 
-Let a sort $E$ be given along with a valid SRPL input grammar $G$.  We encode a protocol as a transition system $T=(I,\Delta)$ where $I$ is the initial constraint and $\Delta$ is the transition relation, both formulas encoded in $\SRPL(E,G)$.  We assume that $I$ is restricted to universal quantification over $E$ while $\Delta$ is restricted to existential quantification over $E$.  Further assume that an inductive invariant candidate $\Phi$ is given in $\SRPL(E,G)$ and is restricted to universal quantification over $E$.  We use the notation $T(E \mapsto H):=(I(E \mapsto H),\Delta(E \mapsto H))$ where $H \subseteq E$ to denote an \textit{instance} of $T$.
+Let a sort $E$ be given along with a valid SRPL input grammar $G$.  We encode a protocol as a transition system $T=(I,\Delta)$ where $I$ is the initial constraint and $\Delta$ is the transition relation, both formulas encoded in $\SRPL(E,G)$.  We assume that $I$ is restricted to universal quantification over $E$ while $\Delta$ is restricted to existential quantification over $E$.  Further assume that an inductive invariant candidate $\Phi$ is given in $\SRPL(E,G)$ and is restricted to universal quantification over $E$.  We use the notation $T(E \mapsto H):=(I(E \mapsto H),\Delta(E \mapsto H))$ where $H \subseteq E$ and $H \neq \emptyset$ to denote an \textit{instance} of $T$.
 
 For the remainder of this note we will refer to $E$, $T$, $I$, $\Delta$, and $\Phi$ as defined above.  In particular, we will no longer think of $E$ as a generic input sort to a SRPL grammar; it is now \textit{the} sort of $T$ that we specifically use as input to the SRPL grammar that is used to encode $I$, $\Delta$, and $\Phi$.
 
@@ -203,7 +203,7 @@ For the remainder of this note we will refer to $E$, $T$, $I$, $\Delta$, and $\P
   Here, the first state is stronger than the second state.
 \end{example}
 
-We now show a key lemma that shows that a state that satisfies a SRPL formula restricted to universal quantification on $E$ can be described equivalently in terms of the formulas \textit{E}-ground formulas.
+We now show a key lemma that shows that a state that satisfies a SRPL formula restricted to universal quantification on $E$ can be described equivalently in terms of \textit{E}-ground formulas.
 
 \begin{lemma}
   \label{lem:pnf-ground}
@@ -224,7 +224,9 @@ In this section we present two lemmas on the subinstances of a SRPL formula.  We
 
 The first lemma, Lemma \ref{lem:forall-lower}, considers a state $s$ that implies a property $\psi$ that is restricted to universal quantification, i.e. in the form $\psi(E \mapsto H) = \forall x_1 \in H,...,\forall x_m \in H, \, F_G(x_1,...,x_m)$.  The lemma states the intuitive fact that $s$ also implies any subinstance of $\psi(E \mapsto H)$ as well.  It is worthwhile to point out that this fact holds even when $F_G$ contains quantifiers.
 
-The second lemma, Lemma \ref{lem:exists-lower}, considers a state $s$ that implies a property $\psi$ that is restricted to existential quantification, i.e. in the form $\psi(E \mapsto H) = \exists x_1 \in H,...,\exists x_m \in H, \, F_G(x_1,...,x_m)$.  Essentially, the lemma states that if $g \in \gr(\psi,H)$ such that $g \rightarrow \psi(E \mapsto H)$, then $g$ also implies any subinstance of $\psi(E \mapsto H)$ whose sort domain is restricted to the sort elements that occur in $g$.  The reason this fact holds is because the sort elements that occur in $g$ witness the existentials of $\psi$ in the formula $g \rightarrow \psi(E \mapsto H)$.  The statement of Lemma \ref{lem:exists-lower} is in fact more general, and states that any sort \textit{containing} the sort elements of $g$ also holds.  It is worthwhile to point out that this fact holds as well when $F_G$ contains quantifiers.
+The second lemma, Lemma \ref{lem:exists-lower}, considers an \textit{E}-ground formula $g$ that implies a property $\psi$ such that $g \in \gr(\psi,H)$.  In this case, $\psi$ is restricted to existential quantification, i.e. it is in the form $\psi(E \mapsto H) = \exists x_1 \in H,...,\exists x_m \in H, \, F_G(x_1,...,x_m)$.  Essentially, the lemma states that if $g \rightarrow \psi(E \mapsto H)$, then $g$ also implies any subinstance of $\psi(E \mapsto H)$ whose sort domain contains the sort elements that occur in $g$.  The reason this fact holds is because the sort elements that occur in $g$ witness the existentials of $\psi$ in the formula $g \rightarrow \psi(E \mapsto H)$.  It is worthwhile to point out that this fact holds as well when $F_G$ contains quantifiers.
+
+These two lemmas also help motivate the disallowance of the sort $E$ in SRPL input grammars.  The idea is that, even if we alter the elements of $E$, the inner formula $F_G$ does not change.  Any domains that are quantified over in $F_G$ remain constant when $E$ changes, which explains why we can allow an arbitrary grammar with quantification (that doe not refer to $E$) as an input grammar to SRPL.
 
 \begin{lemma}
   \label{lem:forall-lower}
@@ -263,7 +265,7 @@ In this section, we will establish initiation and consecution in two separate le
   Let $m$ be the number of quantifiers over $E$ in $\Phi$ and $n$ be the number of quantifiers over $E$ in $\Delta$.  Then if $\Phi(m+n)$ is inductive, $\Phi(k)$ is also inductive for any $k>m+n$.
 \end{lemma}
 \begin{proof}
-  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given, we want to show that $[\Phi\land\Delta \rightarrow \Phi'](k)$ is also valid.  Let $H = \{e_1,...,e_k\} \subseteq E$ be an arbitrary finite instance of $E$.  Let $s \in \states(H)$ such that $s \rightarrow \Phi(E \mapsto H)$ and let $\delta \in \gr(\Delta,H)$ such that $\delta \rightarrow \Delta(E \mapsto H)$.  Then $(s \land \delta)$ is an \textit{E}-ground formula that describes the states reachable from $s$ in one ``$\delta$ step", and it suffices to show that $(s \land \delta) \rightarrow \Phi'(E \mapsto H)$.  Furthermore, let $\phi' \in \gr(\Phi',H)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground} and the fact that $\Phi'$ is restricted to universal quantification on $E$, it suffices to show that $(s \land \delta) \rightarrow \phi'$.
+  Assume that $[\Phi\land\Delta \rightarrow \Phi'](m+n)$ is valid.  Let $k>m+n$ be given, we want to show that $[\Phi\land\Delta \rightarrow \Phi'](k)$ is also valid.  Let $H = \{e_1,...,e_k\} \subseteq E$ be an arbitrary finite instance of $E$ of size $k$.  Let $s \in \states(H)$ such that $s \rightarrow \Phi(E \mapsto H)$ and let $\delta \in \gr(\Delta,H)$ such that $\delta \rightarrow \Delta(E \mapsto H)$.  Then $(s \land \delta)$ is an \textit{E}-ground formula that describes the states reachable from $s$ in one ``$\delta$ step", and it suffices to show that $(s \land \delta) \rightarrow \Phi'(E \mapsto H)$.  Furthermore, let $\phi' \in \gr(\Phi',H)$ be arbitrary, then, by Lemma \ref{lem:pnf-ground} and the fact that $\Phi'$ is restricted to universal quantification on $E$, it suffices to show that $(s \land \delta) \rightarrow \phi'$.
 
   Let $\alpha_1,...,\alpha_i$ be the unique elements of $\{e_1,...,e_k\}$ that occur in $(\phi \land \delta)$, then we know that $i \leq m+n$ because $\phi \in \gr(\Phi,H)$ where $\Phi$ quantifies over $m$ variables and $\delta \in \gr(\Delta,H)$ where $\Delta$ quantifies over $n$ variables.  Let $j = m+n-i$, then we can choose $\beta_1,...,\beta_j$ such that $\{\beta_1,...,\beta_j\} \subseteq (\{e_1,...,e_k\}-\{\alpha_1,...,\alpha_i\})$ (define $\{\beta_1,...,\beta_j\}=\emptyset$ in the case where $j=0$).  Notice that $|\{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\}|=m+n$, and hence, by our initial assumption:
   $$[\Phi\land\Delta \rightarrow \Phi'](E \mapsto \{\alpha_1,...,\alpha_i,\beta_1,...,\beta_j\})$$
