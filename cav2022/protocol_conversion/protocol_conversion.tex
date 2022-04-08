@@ -11,6 +11,8 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{definition}{Definition}
 
+\newcommand{\tla}[1]{{\small\scshape #1}}
+
 \title{CAV 2022 Protocol Conversion}
 \author{Ian Dardik}
 \date{\today}
@@ -20,21 +22,72 @@
 
 \maketitle
 
-\section{Introduction}
-Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a nontrivial exercise.  There are two main bottlenecks that we will cover in this note in the sections below.
 
-The two bottlenecks: quorum overlap property, and staying in EPR (ultimately we just trust IC3PO).
 
-\section{Conversion}
-Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a nontrivial exercise.  In particular, working within EPR and describing the \textit{Quorum Overlap} property were the two complications we encountered during conversion.  We will begin by describing our solution to these two complications, and then describing the conversion.
+%\section{Introduction}
+%Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a nontrivial exercise.  There are two main bottlenecks that we will cover in this note in the sections below.
 
-The \textit{MongoLoglessDynamicRaft} protocol relies on the \textit{Quorum Overlap} property to safely move to new server configurations.  The \textit{Quorum Overlap} property is a relation between two confgurations (sets of servers):
-\begin{definition}
-  Given two configurations $c_1, c_2 \in 2^{Server}$, $c_1$ and $c_2$ exhibit the \textit{Quorum Overlap} property iff $\forall Q_1 \in Quorums(c_1), \forall Q_2 \in Quorums(c_2), \exists x \in Server, x \in Q_1 \land x \in Q_2$.
-\end{definition}
+%The two bottlenecks: quorum overlap property, and staying in EPR (ultimately we just trust IC3PO).
 
-Unfortunately, this statement naturally contains a $\forall\exists$ edge from the set $2^{Server}$ to itself, placing the property outside of Stratified EPR (Padon, et al.).  While techniques such as \textit{information hiding} exist for fitting an Ivy specification into EPR, we found these techniques to be nontrivial and we are still working to fit MLDR into EPR.  To bypass this difficulty, we leveraged the IC3PO tool, which includes a mechanism for checking inductiveness of a property outside of EPR.  Working outside of EPR--and more generally, FAU--allowed us to easily encode a powerset module as well as the Quorum Overlap property.
+%\section{Conversion}
+%Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a nontrivial exercise.  In particular, working within EPR and describing the \textit{Quorum Overlap} property were the two complications we encountered during conversion.  We will begin by describing our solution to these two complications, and then describing the conversion.
 
-Once we encoded the Quorum Overlap property as a relation, the translation from TLA+ to Ivy was straightforward.  
+%The \textit{MongoLoglessDynamicRaft} protocol relies on the \textit{Quorum Overlap} property to safely move to new server configurations.  The \textit{Quorum Overlap} property is a relation between two confgurations (sets of servers):
+%\begin{definition}
+  %Given two configurations $c_1, c_2 \in 2^{Server}$, $c_1$ and $c_2$ exhibit the \textit{Quorum Overlap} property iff $\forall Q_1 \in Quorums(c_1), \forall Q_2 \in Quorums(c_2), \exists x \in Server, x \in Q_1 \land x \in Q_2$.
+%\end{definition}
+
+%Unfortunately, this statement naturally contains a $\forall\exists$ edge from the set $2^{Server}$ to itself, placing the property outside of Stratified EPR (Padon, et al.).  While techniques such as \textit{information hiding} exist for fitting an Ivy specification into EPR, we found these techniques to be nontrivial and we are still working to fit MLDR into EPR.  To bypass this difficulty, we leveraged the IC3PO tool, which includes a mechanism for checking inductiveness of a property outside of EPR.  Working outside of EPR--and more generally, FAU--allowed us to easily encode a powerset module as well as the Quorum Overlap property.
+
+%Once we encoded the Quorum Overlap property as a relation, the translation from TLA+ to Ivy was straightforward.  
+
+
+
+\section{Converting MLDR From TLA+ To Ivy}
+
+%The \textit{MongoLoglessDynamicRaft} protocol was previously implemented in \cite{schultz2021design} as a TLA+ specification.  
+Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a nontrivial exercise.  In this appendix we describe the conversion process as well as the challenges we faced.
+
+\subsection{Protocol Conversion}
+
+The \textit{MongoLoglessDynamicRaft} protocol that is introduced in \cite{schultz2021design} is encoded as a TLA+ specification.  The specification encodes the STS using TLA+ constructs; the sort \textit{Server} is encoded as a \tla{constant}, each state variable is encoded as a \tla{variable}, and the initial constraint and transition relation are each encoded as a TLA+ \textit{operator}.  In addition, the TLA+ spec also includes several auxiliary operators that make the spec more readable.  We can convert by mapping the sort \textit{Server} to Ivy's \textit{type} construct, the state variables to Ivy \textit{functions}, the initial constraint and transition relation to Ivy \textit{actions}, and the auxiliary operators to relations.  We describe each mapping in a separate section below, except for the sort \textit{Server} because it maps directly to an Ivy \textit{type}.
+
+\subsubsection{State Variable Mapping}
+
+The state variables are mapped to functions based on the \textit{TypeOK} property over the MLDR state variables in TLA+:
+\begin{align*}
+  T&ypeOK ==& \text{I}&\text{vy translation:}\\
+    &\land currentTerm \in [Server \to \mathbb{N}]& &\text{function } currentTerm(S:server) : nat\\
+    &\land state \in [Server \to \{Secondary, Primary\}]& &\text{function } state(S:server) : state\_type\\
+    &\land config \in [Server \to \text{SUBSET } Server]& &\text{function } config(S:server) : conf\\
+    &\land configVersion \in [Server \to \mathbb{N}]& &\text{function } config\_version(S:server) : nat\\
+    &\land configTerm \in [Server \to \mathbb{N}]& &\text{function } config\_term(S:server) : nat\\
+\end{align*}
+
+This translation implies that we also need three more types: \textit{nat}, \textit{state\_type}, and \textit{conf}, which we encode as Ivy types.
+
+\subsubsection{Auxiliary Operator Mapping}
+
+blah blah
+
+
+\subsection{Inductive Invariant Conversion}
+
+
+\subsection{Challenges}
+
+In this section we cover the challenges we faced during conversion.
+
+\subsubsection{EPR}
+
+Fitting MLDR into EPR was especially tough because of the quorum overlap property that must be encoded into MLDR.  They key here is to separate the type for configs and quorums, even though their types are both subsets of \textit{Server}.
+
+\subsubsection{Testing Our Ivy Spec}
+
+Once we completed the conversion process, it was not clear how we might test our spec since our inductive invariant puts our spec outside of EPR.  One option would be to develop a new inductive invariant within EPR using Ivy, but this is a costly process and it is not clear whether we are guaranteed to find such an inductive invariant.  Instead we gained intuition by proving simple properties, and by confirming our inductive invariant ``works" in IC3PO for sufficiently large sort sizes.
+
+
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}
