@@ -50,11 +50,25 @@ Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a 
 
 \subsection{Protocol Conversion}
 
-The \textit{MongoLoglessDynamicRaft} protocol that is introduced in \cite{schultz2021design} is encoded as a TLA+ specification.  The specification encodes the STS using TLA+ constructs; the sort \textit{Server} is encoded as a \tla{constant}, each state variable is encoded as a \tla{variable}, and the initial constraint and transition relation are each encoded as a TLA+ \textit{operator}.  In addition, the TLA+ spec also includes several auxiliary operators that make the spec more readable.  We can convert by mapping the sort \textit{Server} to Ivy's \textit{type} construct, the state variables to Ivy \textit{functions}, the initial constraint and transition relation to Ivy \textit{actions}, and the auxiliary operators to relations.  We describe each mapping in a separate section below, except for the sort \textit{Server} because it maps directly to an Ivy \textit{type}.
+The \textit{MongoLoglessDynamicRaft} protocol that is introduced in \cite{schultz2021design} is encoded as a TLA+ specification.  The specification encodes the STS using TLA+ constructs; the sort \textit{Server} is encoded as a \tla{constant}, each state variable is encoded as a \tla{variable}, and the initial constraint and transition relation are each encoded as a TLA+ \textit{operator}.  In addition, the TLA+ spec also includes several auxiliary operators that make the spec more readable.  We can convert by mapping the sort \textit{Server} to Ivy's \textit{type} construct, the state variables to Ivy \textit{functions}, the initial constraint and transition relation to Ivy \textit{actions}, and the auxiliary operators to relations.  We describe each mapping in a separate section below, except for the sort \textit{Server} because it maps directly to an Ivy \textit{type}.  We provide a summary of the mapping below:
+
+\begin{center}
+\begin{tabular}{lcl}
+  TLA+& & Ivy\\
+  \hline
+  %\tla{constant} Server& $\to$& type server\\
+  Sort& $\to$& Type\\
+  State Variables& $\to$& Functions\\
+  Initial Constraint Operator& $\to$& ``after init" Action\\
+  Transition Relation Operator& $\to$& Actions\\
+  Auxiliary Operators& $\to$& Relations\\
+\end{tabular}
+\end{center}
 
 \subsubsection{State Variable Mapping}
 
-The state variables are mapped to functions based on the \textit{TypeOK} property over the MLDR state variables in TLA+:
+TLA+ encodes state variables using the \tla{variable} keyword.  Ivy does not have a designated keyword for declaring state variables; instead we use functions.  Ivy is a typed language so we must assign a type to each function.  TLA+ is not typed, however we do encode a constraint on the universe of values for each state varaible in the \textit{TypeOK} property.  We use this property as guide for implementing each state variable as an Ivy function.
+
 \begin{align*}
   T&ypeOK ==& \text{I}&\text{vy translation:}\\
     &\land currentTerm \in [Server \to \mathbb{N}]& &\text{function } currentTerm(S:server) : nat\\
@@ -64,14 +78,20 @@ The state variables are mapped to functions based on the \textit{TypeOK} propert
     &\land configTerm \in [Server \to \mathbb{N}]& &\text{function } config\_term(S:server) : nat\\
 \end{align*}
 
-This translation implies that we also need three more types: \textit{nat}, \textit{state\_type}, and \textit{conf}, which we encode as Ivy types.
+This mapping implies that we also need three more types: \textit{nat}, \textit{state\_type}, and \textit{conf}, which we encode as Ivy types.
+
+\subsubsection{Initial Constraint And Transition Relation Mapping}
+
+The initial constraint is encoded as a conjunction of constraints on the state variables in TLA+.  This remains the same in Ivy; we simply wrap the constraint in a ``after init" action.  The transition relation for MLDR--as is typical in TLA+--is encoded as a disjunction of several individual transitions.  In Ivy, we enumerate each individual transition as an exported action.  Transition guards are described in TLA+ with a constraint on non-primed variables, while guards in Ivy are described using the ``assume" keyword to describe any constraints/preconditions for actions.  Transitions in TLA+ are described symbolically as a relation between unprimed and primed state variables, while transitions in Ivy are described via assignment.  The translations are straightforward.
 
 \subsubsection{Auxiliary Operator Mapping}
 
-blah blah
+Operators in TLA+ can be encoded as relations with definitions.  Give some examples.  In particular, give quorum\_overlap as an example because we will hone in on this in a later section.
 
 
 \subsection{Inductive Invariant Conversion}
+
+This was straightforward, especially given the auxiliary operators that were previously translated to Ivy.  Unfortunately, our inductive invariant does not fall into Extended EPR.  TODO did we try to put it into EPR at all?
 
 
 \subsection{Challenges}
