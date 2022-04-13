@@ -12,6 +12,7 @@
 \newtheorem{definition}{Definition}
 
 \newcommand{\tla}[1]{{\small\scshape #1}}
+\newcommand{\ivy}[1]{{\footnotesize\texttt #1}}
 
 \title{CAV 2022 Protocol Conversion}
 \author{Ian Dardik}
@@ -45,66 +46,91 @@
 
 \section{Converting MLDR From TLA+ To Ivy}
 
-%The \textit{MongoLoglessDynamicRaft} protocol was previously implemented in \cite{schultz2021design} as a TLA+ specification.  
-Converting the \textit{MongoLoglessDynamicRaft} protocol from TLA+ to Ivy was a nontrivial exercise.  In this appendix we describe the conversion process as well as the challenges we faced.
+Converting the \textit{MongoLoglessDynamicRaft} (MLDR) protocol from TLA+ to Ivy was a nontrivial exercise.  In this appendix we describe the conversion process as well as the challenges we faced.
 
 \subsection{Protocol Conversion}
 
-The \textit{MongoLoglessDynamicRaft} protocol that is introduced in \cite{schultz2021design} is encoded as a TLA+ specification.  The specification encodes the STS using TLA+ constructs; the sort \textit{Server} is encoded as a \tla{constant}, each state variable is encoded as a \tla{variable}, and the initial constraint and transition relation are each encoded as a TLA+ \textit{operator}.  In addition, the TLA+ spec also includes several auxiliary operators that make the spec more readable.  We can convert by mapping the sort \textit{Server} to Ivy's \textit{type} construct, the state variables to Ivy \textit{functions}, the initial constraint and transition relation to Ivy \textit{actions}, and the auxiliary operators to relations.  We describe each mapping in a separate section below, except for the sort \textit{Server} because it maps directly to an Ivy \textit{type}.  We provide a summary of the mapping below:
+The MLDR Protocol is introduced in \cite{schultz2021design} accompanied with a TLA+ specification.  We converted this TLA+ specification to Ivy by creating a direct mapping of keywords and concepts in TLA+ to the appropriate construct in Ivy.  We targeted Ivy $1.8$ in our mapping, the most recent version of Ivy to date.  The mapping is summarized at a high level in Figure \ref{fig:conv-map}.  We provide a detailed explanation of each individual mapping in the sections below.
 
-\begin{center}
-\begin{tabular}{lcl}
-  TLA+& & Ivy\\
-  \hline
-  %\tla{constant} Server& $\to$& type server\\
-  Sort& $\to$& Type\\
-  State Variables& $\to$& Functions\\
-  Initial Constraint Operator& $\to$& ``after init" Action\\
-  Transition Relation Operator& $\to$& Actions\\
-  Auxiliary Operators& $\to$& Relations\\
-\end{tabular}
-\end{center}
+\begin{figure}
+  \label{fig:conv-map}
+  \begin{center}
+  \begin{tabular}{lcl}
+    TLA+& & Ivy $1.8$\\
+    \hline
+    %\tla{constant} Server& $\to$& type server\\
+    Sort& $\to$& Type\\
+    State Variables& $\to$& Functions\\
+    Initial Constraint Operator& $\to$& \ivy{after init}\\
+    Transition Relation Operator& $\to$& Actions\\
+    Auxiliary Operators& $\to$& Relations\\
+  \end{tabular}
+  \end{center}
+\end{figure}
+
+\subsubsection{Sorts And Types}
+
+MLDR is parameterized by a single sort \textit{Server}, denoted in TLA+ using the \tla{constant} keyword which maps to the \ivy{type} keyword in Ivy.  We also include a \ivy{state\_type} type in Ivy to denote primary and secondary servers, as well as a \ivy{nat} type to represent natural numbers with some barebones axioms and operators, including \ivy{succ}.  We also include a separate \ivy{quorum} and \ivy{conf} type to represent quorums and configs, even though these two types are conceptually identical.  We will discuss the need to separate types for quorums and configs in Section \ref{sec:mldr-epr}.
 
 \subsubsection{State Variable Mapping}
 
-TLA+ encodes state variables using the \tla{variable} keyword.  Ivy does not have a designated keyword for declaring state variables; instead we use functions.  Ivy is a typed language so we must assign a type to each function.  TLA+ is not typed, however we do encode a constraint on the universe of values for each state varaible in the \textit{TypeOK} property.  We use this property as guide for implementing each state variable as an Ivy function.
+State variables are encoded in TLA+ using the \tla{variable} keyword, and must be translated to functions or relations in Ivy.  Ivy, unlike TLA+, is a typed language so we must assign a type to each function and relation.  While TLA+ is not typed, the MLDR protocol includes a standard \textit{TypeOK} property that constrains the universe of values for each state variable.  We use this property as a guide for state variable conversion, which we show in Figure \ref{fig:statevar-map}.
 
-\begin{align*}
-  T&ypeOK ==& \text{I}&\text{vy translation:}\\
-    &\land currentTerm \in [Server \to \mathbb{N}]& &\text{function } currentTerm(S:server) : nat\\
-    &\land state \in [Server \to \{Secondary, Primary\}]& &\text{function } state(S:server) : state\_type\\
-    &\land config \in [Server \to \text{SUBSET } Server]& &\text{function } config(S:server) : conf\\
-    &\land configVersion \in [Server \to \mathbb{N}]& &\text{function } config\_version(S:server) : nat\\
-    &\land configTerm \in [Server \to \mathbb{N}]& &\text{function } config\_term(S:server) : nat\\
-\end{align*}
-
-This mapping implies that we also need three more types: \textit{nat}, \textit{state\_type}, and \textit{conf}, which we encode as Ivy types.
+\begin{figure}
+  \label{fig:statevar-map}
+  \begin{align*}
+    T&ypeOK ==& \text{I}&\text{vy translation:}\\
+      &\land currentTerm \in [Server \to \mathbb{N}]& &\text{function } currentTerm(S:server) : nat\\
+      &\land state \in [Server \to \{Secondary, Primary\}]& &\text{function } state(S:server) : state\_type\\
+      &\land config \in [Server \to \text{SUBSET } Server]& &\text{function } config(S:server) : conf\\
+      &\land configVersion \in [Server \to \mathbb{N}]& &\text{function } config\_version(S:server) : nat\\
+      &\land configTerm \in [Server \to \mathbb{N}]& &\text{function } config\_term(S:server) : nat\\
+  \end{align*}
+\end{figure}
 
 \subsubsection{Initial Constraint And Transition Relation Mapping}
 
-The initial constraint is encoded as a conjunction of constraints on the state variables in TLA+.  This remains the same in Ivy; we simply wrap the constraint in a ``after init" action.  The transition relation for MLDR--as is typical in TLA+--is encoded as a disjunction of several individual transitions.  In Ivy, we enumerate each individual transition as an exported action.  Transition guards are described in TLA+ with a constraint on non-primed variables, while guards in Ivy are described using the ``assume" keyword to describe any constraints/preconditions for actions.  Transitions in TLA+ are described symbolically as a relation between unprimed and primed state variables, while transitions in Ivy are described via assignment.  The translations are straightforward.
+The initial constraint is mapped from a conjunction of constraints in TLA+ to a sequence of constraints in Ivy, wrapped in a \ivy{after init} block.  The transition relation is encoded in TLA+ as a disjunction of individual action, each of which map to an exported Ivy \ivy{action} block.  Within each action, guards are described in TLA+ with a constraint on non-primed variables, and map to the \ivy{assume} keyword.  The actions themselves are described symbolically in TLA+ as a relation between unprimed and primed state variables, and map to assignment of functions and relations in Ivy.
 
 \subsubsection{Auxiliary Operator Mapping}
 
-Operators in TLA+ can be encoded as relations with definitions.  Give some examples.  In particular, give quorum\_overlap as an example because we will hone in on this in a later section.
+%A TLA+ operator is simply an identifier and its parameters along with a definition.  While operators are not strictly necessary in a nonrecursive protocol such as MLDR, they are advantageous because they make the specification modular and readable.
 
+In TLA+ it is standard to wrap the initial constraint, the transition relation, and each individual action in an operator.  However, operators are often used quite liberally as a means to make a specification modular and readable.  Any operator that does not refer to a standard TLA+ construct--such as the initial constraint, TypeOK, etc.--we will refer to as an \textit{auxiliary operator}.  Auxiliary operators directly map to functions and relations in Ivy.  The mapping is straightforward, except for the quorum\_overlap operator which we describe in more detail in section \ref{sec:mldr-epr}.
 
 \subsection{Inductive Invariant Conversion}
 
-This was straightforward, especially given the auxiliary operators that were previously translated to Ivy.  Unfortunately, our inductive invariant does not fall into Extended EPR.  TODO did we try to put it into EPR at all?
-
+The work in \cite{schultz2021formal} includes a TLA+ inductive invariant for the \textit{MongoRaftReconfig} (MRR) protocol.  MRR is a large protocol that is composed of two subprotocols, one of which is MLDR.  We use the conjuncts of the inductive invariant for MRR that exclusively reference the state variables of MLDR to create an inductive invariant specifically for MLDR.  Unfortunately, this inductive invariants includes a cycle in the quantifier alternation graph, and hence falls outside of Extended EPR \cite{padonpaxosEPR}.  Although techniques exist that may fit a protocol into EPR--such as splitting dependent code into modules \cite{McMillan2018DeductiveVI}--these techniques are expensive and, in general, are not necessarily guaranteed to work; this is because modeling a protocol from an aribtrary logic into EPR, and more generally FOL, cannot be guaranteed to be complete \cite{padonpaxosEPR}.  Instead of continuing to manually find an inductive invariant in EPR using Ivy, we left this task for the automatic synthesis tools.
 
 \subsection{Challenges}
 
-In this section we cover the challenges we faced during conversion.
+During the conversion process we faced two main challenges: fitting MLDR into EPR and validating the translation.  In this section we discuss these two challenges as well as our solutions.
 
 \subsubsection{EPR}
+\label{sec:mldr-epr}
 
-Fitting MLDR into EPR was especially tough because of the quorum overlap property that must be encoded into MLDR.  They key here is to separate the type for configs and quorums, even though their types are both subsets of \textit{Server}.
+% EPR & Enough Axioms
+% For example, we can't have: axiom ~empty(A) -> quorumof(A, A)
 
-\subsubsection{Testing Our Ivy Spec}
+%Fitting MLDR into EPR was especially tough because of the quorum overlap property that must be encoded into MLDR.  They key here is to separate the type for configs and quorums, even though their types are both subsets of \textit{Server}.
 
-Once we completed the conversion process, it was not clear how we might test our spec since our inductive invariant puts our spec outside of EPR.  One option would be to develop a new inductive invariant within EPR using Ivy, but this is a costly process and it is not clear whether we are guaranteed to find such an inductive invariant.  Instead we gained intuition by proving simple properties, and by confirming our inductive invariant ``works" in IC3PO for sufficiently large sort sizes.
+Fitting MLDR into EPR was not obvious at first given that we are not experts in this area.  One of the large issues was correctly modeling quorums and configurations without a powerset operator; once we figured out how to model this cleanly, the protocol fell into EPR.
+
+\subsubsection{Validating The Translation}
+
+%Once we completed the conversion process, it was not clear how we might test our spec since our inductive invariant puts our spec outside of EPR.  One option would be to develop a new inductive invariant within EPR using Ivy, but this is a costly process and it is not clear whether we are guaranteed to find such an inductive invariant.  Instead we gained intuition by proving simple properties, and by confirming our inductive invariant ``works" in IC3PO for sufficiently large sort sizes.
+
+Once we completed the conversion process, it was important to test the Ivy specification to make sure it is correct.  The best litmus test for correctness would be to encode the inductive invariant into Ivy and confirm that it holds.  Unfortunately, the inductive invariant causes the protocol to fall outside of EPR, so we needed an alternative.  Instead, we chose to include two sanity check proofs and leverage IC3PO to speculate whether our inductive invariant is correct based on its finite convergence checks.
+
+\subsubsection{Do Ivy Synthesis Tools Have A Fighting Chance?}
+
+TLA+ is a rather expressive language where we can explicitly create complicated constructs, including second order formulas.  For example, quorums and configurations are key concepts in MLDR, both of whose types are the power set of Server.  In TLA+, the power set--and hence quorums and configurations--can be explicitly defined by using the \tla{subset} keyword.  In Ivy, however, there is no support for power sets or second order logic; instead, a protocol designer can use a binary \textit{member} relation on quorums and configurations to define key axioms that Ivy can use for proving theorems.
+
+The Ivy method--in which we provide key axioms instead of explicitly defining key higher order constructs--begs an interesting question: how do we know that we know that the axioms that we have provided will be sufficient for an automatic invariant synthesis tool to succeed?  When using Ivy to create an inductive invariant by hand, presumably it will be clear that more axioms are needed during the Ivy workflow.  When the task is handed to a synthesis tool, this workflow becomes opaque which implies that insufficient user provided axioms must be added to the long list of possible causes upon failure.
+%, rending failure a mystery as to whether the user provided insufficient axioms, 
+
+Furthermore, SWISS and DistAI both operate within EPR, and it may be the case that IC3PO and FOL-IC3 operate more efficiently in EPR.  However, even in the case that a protocol and its key safey property fall into EPR, it is not clear whether an inductive invariant can be synthesized in EPR.  It is possible that \textit{every} possible inductive invariant introduces a quantifier alternation graph cycle, and that the protocol must be split into separate modules as a prerequisite for \textit{any} inductive invariant to possibly be in EPR.  This is also an issue that would presumably be ironed out during manual search for an inductive invariant using the Ivy workflow, and now becomes opaque when handed to an auomatic synthesis tool.
+%in order to write down an inductive invariant that fits into EPR alongside the protocol, 
 
 
 \bibliographystyle{plain}
