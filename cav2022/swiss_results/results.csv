@@ -1,0 +1,35 @@
+protocol,duration_secs,invsize,inv_synthesized,config,notes
+tla-consensus,0,1,1,auto,
+tla-tcommit,2,10,9,auto,
+i4-lock-server,0,2,1,templ,
+ex-quorum-leader-election,14,5,4,auto,
+pyv-toy-consensus-forall,16,5,4,auto,
+tla-simple,34,8,7,auto,auto was faster than templ (templ was 56 sec)
+ex-lockserv-automaton,na,na,na,na,both auto and templ failed
+tla-simpleregular,132,20,19,auto,
+pyv-sharded-kv,na,na,na,na,both auto and templ failed
+pyv-lockserv,na,na,na,na,both auto and templ failed
+tla-twophase,25,25,24,templ
+i4-learning-switch,na,na,na,na,auto times out after 4min
+ex-simple-decentralized-lock,2,2,1,templ,
+i4-two-phase-commit,20,15,14,templ,
+pyv-consensus-wo-decide,84,10,9,auto,
+pyv-consensus-forall,32,8,7,templ,
+pyv-learning-switch,na,na,na,na,auto failed (no templ)
+i4-chord-ring-maintenance,na,na,na,na,both auto and templ timed out after 4min
+pyv-sharded-kv-no-lost-keys,2,4,3,auto,
+ex-naive-consensus,20,5,4,auto,
+pyv-client-server-ae,8,5,4,auto,
+ex-simple-election,10,5,4,atuo,
+pyv-toy-consensus-epr,11,5,4,auto,
+ex-toy-consensus,7,4,3,auto,
+pyv-client-server-db-ae,44,4,12,auto,# invariants synthesized reported by swiss is wrong (should be 3 not 12)
+pyv-hybrid-reliable-broadcast,na,na,na,na,auto timed out after 4min
+pyv-firewall,na,na,na,na,both auto and templ failed
+ex-majorityset-leader-election,30,10,9,auto,
+pyv-consensus-epr,61,7,6,auto,
+paxos,na,na,na,na,takes 2 hours according to the paper so not trying this
+flexible-paxos,na,na,na,na,not trying this either
+multi-paxos,na,na,na,na,timed out after 30 min using multi_paxios.pyv from swiss' benchmarks (basic config)
+fast-paxos,x,-,,,
+mongo-logless-reconfig,x,-,,,coming soon hopefully

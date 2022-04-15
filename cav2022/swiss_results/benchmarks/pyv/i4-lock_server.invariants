@@ -1,0 +1,2 @@
+# Success: True
+conjecture (forall A000:client, A001:server . (((~(link(A000, A001))) | (~(semaphore(A001))))))

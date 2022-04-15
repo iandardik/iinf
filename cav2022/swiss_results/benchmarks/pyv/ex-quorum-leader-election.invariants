@@ -1,0 +1,5 @@
+# Success: True
+conjecture (majority(quorum) | (forall A002:node . ((~(isleader(A002))))))
+conjecture (exists A002:node . ((voted(A002, A002) | (~(isleader(A002))) | (~(member(A002, quorum))))))
+conjecture (forall A000:node, A001:node . (((A000 = A001) | (forall A002:node . (((~(voted(A002, A000))) | (~(voted(A002, A001)))))))))
+conjecture (forall A002:node . (((~(isleader(A002))) | (forall A001:node . ((voted(A001, A002) | (~(member(A001, quorum)))))))))
