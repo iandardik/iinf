@@ -9,7 +9,7 @@ ex-lockserv-automaton,na,na,na,na,both auto and templ failed
 tla-simpleregular,132,20,19,auto,
 pyv-sharded-kv,na,na,na,na,both auto and templ failed
 pyv-lockserv,na,na,na,na,both auto and templ failed
-tla-twophase,25,25,24,templ
+tla-twophase,25,25,24,templ,
 i4-learning-switch,na,na,na,na,auto times out after 4min
 ex-simple-decentralized-lock,2,2,1,templ,
 i4-two-phase-commit,20,15,14,templ,
