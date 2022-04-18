@@ -77,70 +77,64 @@ relation config_disabled(S:server) = forall Q:quorum. quorumof(Q,config(S)) -> e
 relation active_config(S:server) = ~config_disabled(S)
 
 
-init current_term(S) := zero
-init state(S) := secondary;
-init config_version(S) := zero
-init config_term(S) := zero
-init assume config(S) = config(T)
-
-action reconfig = {
-  local s:server, c:conf, v:nat {
-	  assume succ(config_version(s), v);
-	  assume state(s) = primary;
-	  assume exists Q:quorum. # config quorum check
-	    quorumof(Q,config(s)) &
-	    forall T:server.
-	      qmember(T,Q) -> config_term(s) = config_term(T) & config_version(s) = config_version(T);
-	  assume exists Q:quorum.  # term quorum check
-	    quorumof(Q,config(s)) &
-	    forall T:server.
-	      qmember(T,Q) -> current_term(s) = current_term(T);
-	  assume quorums_overlap(config(s), c);
-	  assume cmember(s, c);
-	  
-	  config_term(s) := current_term(s);
-	  config_version(s) := v;
-	  config(s) := c;
-  }
+after init {
+  current_term(S) := zero;
+  state(S) := secondary;
+  config_version(S) := zero;
+  config_term(S) := zero;
+  assume config(S) = config(T);
 }
 
-action sendConfig = {
-  local s:server, t:server {
-	  assume state(t) = secondary;
-	  assume newer_config(s,t);
-	  config_version(t) := config_version(s);
-	  config_term(t) := config_term(s);
-	  config(t) := config(s);
-  }
+action reconfig(s:server, c:conf, v:nat) = {
+  assume succ(config_version(s), v);
+  assume state(s) = primary;
+  assume exists Q:quorum. # config quorum check
+    quorumof(Q,config(s)) &
+    forall T:server.
+      qmember(T,Q) -> config_term(s) = config_term(T) & config_version(s) = config_version(T);
+  assume exists Q:quorum.  # term quorum check
+    quorumof(Q,config(s)) &
+    forall T:server.
+      qmember(T,Q) -> current_term(s) = current_term(T);
+  assume quorums_overlap(config(s), c);
+  assume cmember(s, c);
+
+  config_term(s) := current_term(s);
+  config_version(s) := v;
+  config(s) := c;
 }
 
-action becomeLeader = {
-  local s:server, q:quorum, t:nat {
-	  assume quorumof(q, config(s));
-	  assume succ(current_term(s), t);
-	  assume cmember(s, config(s));
-	  assume qmember(s, q);
-	  assume qmember(X, q) -> lt(current_term(X), t);
-	  assume qmember(X, q) -> newer_or_equal_config(s, X);
-
-	  current_term(S) := t if qmember(S,q) else current_term(S);
-	  state(S) := primary if S = s else (secondary if qmember(S,q) else state(S));
-	  config_term(s) := t;
-  }
+action sendConfig(s:server, t:server) = {
+  assume state(t) = secondary;
+  assume newer_config(s,t);
+  config_version(t) := config_version(s);
+  config_term(t) := config_term(s);
+  config(t) := config(s);
 }
 
-action updateTerms = {
-  local s:server, t:server {
-	  assume lt(current_term(s), current_term(t));
+action becomeLeader(s:server, q:quorum, t:nat) = {
+  assume quorumof(q, config(s));
+  assume succ(current_term(s), t);
+  assume cmember(s, config(s));
+  assume qmember(s, q);
+  assume qmember(X, q) -> lt(current_term(X), t);
+  assume qmember(X, q) -> newer_or_equal_config(s, X);
 
-	  current_term(s) := current_term(t);
-	  state(s) := secondary;
-  }
+  #current_term(S) := t if qmember(S,q) else current_term(S);
+  #state(S) := primary if S = s else (secondary if qmember(S,q) else state(S));
+  config_term(s) := t;
+}
+
+action updateTerms(s:server, t:server) = {
+  assume lt(current_term(s), current_term(t));
+
+  current_term(s) := current_term(t);
+  state(s) := secondary;
 }
 
 export reconfig
 export sendConfig
-export becomeLeader
+#export becomeLeader
 export updateTerms
 
 
@@ -148,29 +142,28 @@ export updateTerms
 conjecture state(S1) = primary & state(S2) = primary & current_term(S1) = current_term(S2) -> S1 = S2
 
 # PrimaryConfigTermEqualToCurrentTerm
-#invariant state(S) = primary -> config_term(S) = current_term(S)
+#conjecture state(S) = primary -> config_term(S) = current_term(S)
 
 # ConfigVersionAndTermUnique
-#invariant config_term(S) = config_term(T) & config_version(S) = config_version(T) -> config(S) = config(T)
+#conjecture config_term(S) = config_term(T) & config_version(S) = config_version(T) -> config(S) = config(T)
 
 # PrimaryInTermContainsNewestConfigOfTerm
-#invariant state(P) = primary & config_term(S) = config_term(P) -> (config_version(S) = config_version(P) | lt(config_version(S), config_version(P)))
+#conjecture state(P) = primary & config_term(S) = config_term(P) -> (config_version(S) = config_version(P) | lt(config_version(S), config_version(P)))
 
 # ActiveConfigsOverlap
-#invariant active_config(S) & active_config(T) -> quorums_overlap(config(S), config(T))
+#conjecture active_config(S) & active_config(T) -> quorums_overlap(config(S), config(T))
 
 # ActiveConfigsSafeAtTerms
-#invariant forall S, T : server. active_config(T) ->
+#conjecture forall S, T : server. active_config(T) ->
   #forall Q:quorum. quorumof(Q,config(T)) ->
     #exists N:server. qmember(N,Q) & (config_term(S) = current_term(N) | lt(config_term(S), current_term(N)))
 
 
 
 # false invariants
-#invariant current_term(S) = zero
-#invariant config_term(S) = zero
-#invariant config_version(S) = zero
-#invariant config(S) = config(T)
-#invariant (forall S1 . (one = config_version(S1)))
-#invariant false
-
+#conjecture current_term(S) = zero
+#conjecture config_term(S) = zero
+#conjecture config_version(S) = zero
+#conjecture config(S) = config(T)
+#conjecture (forall S1 . (one = config_version(S1)))
+#conjecture false

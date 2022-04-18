@@ -32,4 +32,5 @@ paxos,na,na,na,na,takes 2 hours according to the paper so not trying this
 flexible-paxos,na,na,na,na,not trying this either
 multi-paxos,na,na,na,na,timed out after 30 min using multi_paxios.pyv from swiss' benchmarks (basic config)
 fast-paxos,x,-,,,
-mongo-logless-reconfig,x,-,,,coming soon hopefully
+mongo-logless-reconfig,na,na,na,na,swiss can compile mldr without becomeLeader but still crashes for auto and templ
+
