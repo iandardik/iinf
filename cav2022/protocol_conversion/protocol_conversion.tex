@@ -21,8 +21,9 @@
 \newcommand{\tla}[1]{{\small\scshape #1}}
 \newcommand{\ivy}[1]{{\texttt #1}}
 
-\title{CAV 2022 Protocol Conversion}
+\title{Converting The MLDR TLA+ Specification To Ivy}
 \author{Ian Dardik}
+\institute{Northeastern University}
 \date{\today}
 
 
@@ -45,7 +46,7 @@ The conversion can be summarized as a mapping from each component of the MLDR TL
     Protocol & \qquad TLA+& & \qquad Ivy $1.8$\\
     \hline
     Sort & \qquad \tla{constant}& $\qquad\to$& \qquad \ivy{type}\\
-    State Variables& \qquad \tla{variable}& $\qquad\to$& \qquad \ivy{function} / \ivy{individual}\\
+    State Variables& \qquad \tla{variable}& $\qquad\to$& \qquad \ivy{individual} / \ivy{function}\\
     Initial Constraint& \qquad \textit{Init} Operator& $\qquad\to$& \qquad \ivy{after init}\\
     Transition Relation& \qquad \textit{Next} Operator& $\qquad\to$& \qquad \ivy{action}\\
     Helper Definitions& \qquad Operators& $\qquad\to$& \qquad \ivy{relation}\\
@@ -61,7 +62,7 @@ TLA+ is untyped while Ivy is typed, and thus we need to introduce several types 
 
 \subsubsection{State Variables}
 
-State variables are encoded in TLA+ using the \tla{variable} keyword, and map to functions and individuals in Ivy.  MLDR includes a \textit{TypeOK} property that places constraints on the universe of values for each state variable; we use this property as a direct guide in our state variable conversion, which we show in Figure \ref{fig:statevar-map}.  In MLDR, every state variable is a function, so we do not use the \ivy{individual} keyword in the Ivy MLDR specification.
+State variables are encoded in TLA+ using the \tla{variable} keyword, and map to the \ivy{individual} and \ivy{function} keywords in Ivy, depending on whether each state variable has an individual or a function type.  In the MLDR TLA+ specification, every state variable is a function whose universe of values is constrained by the \textit{TypeOK} property.  We use this property as a direct guide in our state variable conversion, which we show in Figure \ref{fig:statevar-map}.
 
 \begin{figure}
   \begin{align*}
@@ -78,7 +79,9 @@ State variables are encoded in TLA+ using the \tla{variable} keyword, and map to
 
 \subsubsection{The Initial Constraint And Transition Relation}
 
-The initial constraint is encoded in TLA+ as a conjunction of state variable constraints, and maps to Ivy as a sequence of function constraints, wrapped in an \ivy{after init} block.  The transition relation is encoded in TLA+ as a disjunction of actions, each of which maps to an exported Ivy \ivy{action} block.  Within each action, guards are specified in TLA+ as a constraint on unprimed state variables, and map to the \ivy{assume} keyword in Ivy.  The actions are described symbolically in TLA+ as a relation between unprimed and primed state variables, and map to assignment operators on functions and relations in Ivy (recall that functions and relations represent state variables in Ivy).  The mapping for MLDR from TLA+ to Ivy is shown in Figure \ref{fig:init-map}.
+The initial constraint is encoded in TLA+ as a conjunction of state variable constraints, and maps to Ivy as a sequence of function constraints, wrapped in an \ivy{after init} block.    The initial constraint mapping for MLDR from TLA+ to Ivy is shown in Figure \ref{fig:init-map}.
+
+The transition relation is encoded in TLA+ as a disjunction of actions, each of which maps to an exported Ivy \ivy{action} block.  Within each action, guards are specified in TLA+ as a constraint on unprimed state variables, and map to the \ivy{assume} keyword in Ivy.  The actions are described symbolically in TLA+ as a relation between unprimed and primed state variables, and map to assignment operators on individuals, functions, and relations in Ivy.
 
 \begin{figure}
   \begin{center}
@@ -108,20 +111,22 @@ In TLA+ it is standard to wrap the initial constraint, transition relation, and 
   \begin{tabular}{lcl}
     TLA+ && Ivy 1.8\\
     \hline
-    \textit{IsNewerConfig(i,j)} == && \ivy{relation newer\_config(S:server, T:server) =}\\
-      $\quad \lor \, configTerm[i] > configTerm[j]$ &$\qquad\to\qquad$& \quad \ivy{lt(config\_term(T), config\_term(S))}\\
-      $\quad \lor \land \, configTerm[i] = configTerm[j]$ && \quad \ivy{| config\_term(T) = config\_term(S)}\\
-      $\qquad \land \text{ } configVersion[i] > configVersion[j]$ && \qquad \ivy{\& lt(config\_version(T), config\_version(S))}\\\\
+    \textit{IsNewerConfig(s,t)} == && \ivy{relation newer\_config}\\
+      $\lor \, configTerm[s] > configTerm[t]$ && \qquad \ivy{(S:server, T:server) =}\\
+      $\lor \land \, configTerm[s] = configTerm[t]$ &$\quad\to\quad$& \ivy{lt(config\_term(T), config\_term(S))}\\
+      $\quad \land \text{ } configVersion[s] > configVersion[t]$ && \ivy{| config\_term(T) = config\_term(S)}\\
+      && \quad \ivy{\& lt(config\_version(T),}\\
+      && \quad \qquad \ivy{config\_version(S))}\\
   \end{tabular}
   \end{center}
-  \caption{Conversion Mapping For \textit{IsNewerConfig}, A Helper Operator}
+  \caption{The conversion mapping for \textit{IsNewerConfig}, a helper operator.  \ivy{lt} is another helper operator in the MLDR TLA+ specification that has been translated into an Ivy relation, and represents the \textit{less than} operator on the \ivy{nat} type.}
   \label{fig:help-op-map}
 \end{figure}
 
 \subsection{Inductive Invariant Conversion}
 \label{subsec:indinv-conv}
 
-\textit{Endive} successfully synthesized an inductive invariant for MLDR which we tried to convert from TLA+ to Ivy.  Unfortunately, this inductive invariant introduces a cycle in the quantifier alternation graph of the MLDR Ivy specification, and hence falls outside of Extended EPR \cite{padonpaxosEPR}.  Although techniques exist that may fit a protocol into Extended EPR--such as splitting code with mutually dependent types into modules \cite{McMillan2018DeductiveVI}--these techniques may require significant effort and, in general, are not guaranteed to be complete \cite{padonpaxosEPR}.  Instead of manually using Ivy to find an inductive invariant in Extended EPR, we left this task for the invariant inference tools.
+\textit{Endive} successfully synthesized an inductive invariant for MLDR which we tried to convert from TLA+ to Ivy.  Unfortunately, this inductive invariant introduces a cycle in the quantifier alternation graph of the MLDR Ivy specification, and hence falls outside of Extended EPR \cite{padonpaxosEPR}.  Although techniques exist that may fit a protocol into Extended EPR--such as splitting code with mutually dependent types into modules \cite{McMillan2018DeductiveVI,padonpaxosEPR}--these techniques may require significant effort and, in general, are not guaranteed to be complete \cite{padonpaxosEPR}.  Instead of manually using Ivy to find an inductive invariant in Extended EPR, we left this task for the invariant inference tools.
 
 \subsection{Challenges}
 
