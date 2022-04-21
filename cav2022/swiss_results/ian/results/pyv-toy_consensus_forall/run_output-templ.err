@@ -1,8 +1,14 @@
 Traceback (most recent call last):
   File "scripts/driver.py", line 630, in <module>
     main()
-  File "scripts/driver.py", line 614, in main
-    parse_args(ivy_filename, args))
-  File "scripts/driver.py", line 581, in parse_args
-    os.mkdir(logdir)
-FileExistsError: [Errno 17] File exists: 'logs/log.2022-04-20_16.22.34-710190115'
+  File "scripts/driver.py", line 627, in main
+    do_threading(stats, ivy_filename, json_filename, logdir, nthreads, main_args, breadth_args, finisher_args, by_size)
+  File "scripts/driver.py", line 225, in do_threading
+    success, invfile = do_breadth("iteration", logdir, nthreads, json_filename, main_args, main_args + breadth_args, invfile, stats, by_size)
+  File "scripts/driver.py", line 268, in do_breadth
+    success, hasany, invfile = do_breadth_single(iterkey+"."+str(i),
+  File "scripts/driver.py", line 297, in do_breadth_single
+    chunk_files = chunkify(iterkey, logfile, nthreads, json_filename, args)
+  File "scripts/driver.py", line 324, in chunkify
+    assert not synres.failed, "chunkify failed"
+AssertionError: chunkify failed

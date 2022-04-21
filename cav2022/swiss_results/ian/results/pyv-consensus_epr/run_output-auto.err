@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "scripts/driver.py", line 630, in <module>
-    main()
-  File "scripts/driver.py", line 614, in main
-    parse_args(ivy_filename, args))
-  File "scripts/driver.py", line 581, in parse_args
-    os.mkdir(logdir)
-FileExistsError: [Errno 17] File exists: 'logs/log.2022-04-20_16.16.25-710190115'

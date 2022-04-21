@@ -1,0 +1,25 @@
+#lang ivy1.5
+
+type value
+
+relation chosen(V:value)
+
+#after init {
+	#chosen(V) := false;
+#}
+init ~chosen(V)
+
+action choose = {
+	local v:value {
+		assume ~chosen(V);
+		chosen(v) := true;
+	}
+}
+
+export choose
+
+#invariant [safety] (forall V1, V2. (chosen(V1) & chosen(V2)) -> (V1 = V2) )
+conjecture (forall V1, V2. (chosen(V1) & chosen(V2)) -> (V1 = V2) )
+
+#template forall A:value . forall B:value . forall C:value . WILD
+#template exists A:value . forall B:value . forall C:value . WILD
