@@ -1,31 +1,31 @@
-protocol,success,duration (sec),protocol invs,# synthesized invs,output loc,notes,swiss command
-ex-lockserv_automaton,False,18,1,0,ian/results/ex-lockserv_automaton,,./run.sh ian/src/ex-lockserv_automaton.pyv --config auto --threads 1 --minimal-models --with-conjs
-ex-majorityset-leader-election,True,27,1,9,ian/results/ex-majorityset-leader-election,,./run.sh ian/src/ex-majorityset-leader-election.pyv --config auto --threads 1 --minimal-models --with-conjs
-ex-naive_consensus,True,18,4,4,ian/results/ex-naive_consensus,,./run.sh ian/src/ex-naive_consensus.pyv --config auto --threads 1 --minimal-models --with-conjs
-ex-quorum-leader-election,True,10,1,4,ian/results/ex-quorum-leader-election,,./run.sh ian/src/ex-quorum-leader-election.pyv --config auto --threads 1 --minimal-models --with-conjs
-ex-simple-decentralized-lock,True,8,4,3,ian/results/ex-simple-decentralized-lock,,./run.sh ian/src/ex-simple-decentralized-lock.pyv --config auto --threads 1 --minimal-models --with-conjs
-ex-simple-election,True,9,1,4,ian/results/ex-simple-election,,./run.sh ian/src/ex-simple-election.pyv --config auto --threads 1 --minimal-models --with-conjs
-ex-toy_consensus,True,7,1,3,ian/results/ex-toy_consensus,,./run.sh ian/src/ex-toy_consensus.pyv --config auto --threads 1 --minimal-models --with-conjs
-i4-chord_ring_maintenance,NA,NA,NA,NA,ian/results/i4-chord_ring_maintenance,timeout after 4min,./run.sh ian/src/i4-chord_ring_maintenance.pyv --config auto --threads 1 --minimal-models --with-conjs
-i4-learning_switch,NA,NA,NA,NA,ian/results/i4-learning_switch,timeout after 4min,./run.sh ian/src/i4-learning_switch.pyv --config auto --threads 1 --minimal-models --with-conjs
-i4-lock_server,True,1,1,1,ian/results/i4-lock_server,,./run.sh ian/src/i4-lock_server.pyv --config auto --threads 1 --minimal-models --with-conjs
-i4-two_phase_commit,True,16,3,13,ian/results/i4-two_phase_commit,,./run.sh ian/src/i4-two_phase_commit.pyv --config auto --threads 1 --minimal-models --with-conjs
-mldr_epr_15,NA,NA,NA,NA,ian/results/mldr_epr_15,crash,./run.sh ian/src/mldr_epr_15.ivy --config auto --threads 1 --minimal-models --with-conjs
-pyv-client_server_ae,True,7,2,4,ian/results/pyv-client_server_ae,,./run.sh ian/src/pyv-client_server_ae.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-client_server_db_ae,True,39,5,12,ian/results/pyv-client_server_db_ae,,./run.sh ian/src/pyv-client_server_db_ae.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-consensus_epr,True,55,7,7,ian/results/pyv-consensus_epr,,./run.sh ian/src/pyv-consensus_epr.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-consensus_forall,True,107,7,9,ian/results/pyv-consensus_forall,,./run.sh ian/src/pyv-consensus_forall.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-consensus_wo_decide,True,69,5,10,ian/results/pyv-consensus_wo_decide,,./run.sh ian/src/pyv-consensus_wo_decide.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-firewall,False,74,2,4,ian/results/pyv-firewall,,./run.sh ian/src/pyv-firewall.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-hybrid_reliable_broadcast,NA,NA,NA,NA,ian/results/pyv-hybrid_reliable_broadcast,timeout after 4min,./run.sh ian/src/pyv-hybrid_reliable_broadcast.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-learning_switch,NA,NA,NA,NA,ian/results/pyv-learning_switch,timeout after 4min,./run.sh ian/src/pyv-learning_switch.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-lockserv,False,20,9,0,ian/results/pyv-lockserv,,./run.sh ian/src/pyv-lockserv.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-sharded_kv,False,37,5,0,ian/results/pyv-sharded_kv,,./run.sh ian/src/pyv-sharded_kv.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-sharded_kv_no_lost_keys,True,1,2,3,ian/results/pyv-sharded_kv_no_lost_keys,,./run.sh ian/src/pyv-sharded_kv_no_lost_keys.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-toy_consensus_epr,True,8,4,4,ian/results/pyv-toy_consensus_epr,,./run.sh ian/src/pyv-toy_consensus_epr.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-toy_consensus_forall,True,14,4,4,ian/results/pyv-toy_consensus_forall,,./run.sh ian/src/pyv-toy_consensus_forall.pyv --config auto --threads 1 --minimal-models --with-conjs
-tla-Consensus,True,0,1,1,ian/results/tla-Consensus,,./run.sh ian/src/tla-Consensus.pyv --config auto --threads 1 --minimal-models --with-conjs
-tla-Simple,True,28,1,7,ian/results/tla-Simple,,./run.sh ian/src/tla-Simple.pyv --config auto --threads 1 --minimal-models --with-conjs
-tla-SimpleRegular,True,67,1,18,ian/results/tla-SimpleRegular,,./run.sh ian/src/tla-SimpleRegular.pyv --config auto --threads 1 --minimal-models --with-conjs
-tla-TCommit,True,2,1,9,ian/results/tla-TCommit,,./run.sh ian/src/tla-TCommit.pyv --config auto --threads 1 --minimal-models --with-conjs
-tla-TwoPhase,True,37,1,24,ian/results/tla-TwoPhase,,./run.sh ian/src/tla-TwoPhase.pyv --config auto --threads 1 --minimal-models --with-conjs
+protocol,compare,success,duration (sec),protocol invs,# synthesized invs,output loc,notes,swiss command
+ex-lockserv_automaton,NA,False,18,1,0,ian/results/ex-lockserv_automaton,,./run.sh ian/src/ex-lockserv_automaton.pyv --config auto --threads 1 --minimal-models --with-conjs
+ex-majorityset-leader-election,NA,True,27,1,9,ian/results/ex-majorityset-leader-election,,./run.sh ian/src/ex-majorityset-leader-election.pyv --config auto --threads 1 --minimal-models --with-conjs
+ex-naive_consensus,NA,True,18,4,4,ian/results/ex-naive_consensus,,./run.sh ian/src/ex-naive_consensus.pyv --config auto --threads 1 --minimal-models --with-conjs
+ex-quorum-leader-election,NA,True,10,1,4,ian/results/ex-quorum-leader-election,,./run.sh ian/src/ex-quorum-leader-election.pyv --config auto --threads 1 --minimal-models --with-conjs
+ex-simple-decentralized-lock,NA,True,8,4,3,ian/results/ex-simple-decentralized-lock,,./run.sh ian/src/ex-simple-decentralized-lock.pyv --config auto --threads 1 --minimal-models --with-conjs
+ex-simple-election,NA,True,9,1,4,ian/results/ex-simple-election,,./run.sh ian/src/ex-simple-election.pyv --config auto --threads 1 --minimal-models --with-conjs
+ex-toy_consensus,NA,True,7,1,3,ian/results/ex-toy_consensus,,./run.sh ian/src/ex-toy_consensus.pyv --config auto --threads 1 --minimal-models --with-conjs
+i4-chord_ring_maintenance,both fail,NA,NA,NA,NA,ian/results/i4-chord_ring_maintenance,timeout after 4min,./run.sh ian/src/i4-chord_ring_maintenance.pyv --config auto --threads 1 --minimal-models --with-conjs
+i4-learning_switch,NA,NA,NA,NA,NA,ian/results/i4-learning_switch,timeout after 4min,./run.sh ian/src/i4-learning_switch.pyv --config auto --threads 1 --minimal-models --with-conjs
+i4-lock_server,closest to server-sync both work,True,1,1,1,ian/results/i4-lock_server,,./run.sh ian/src/i4-lock_server.pyv --config auto --threads 1 --minimal-models --with-conjs
+i4-two_phase_commit,both work,True,16,3,13,ian/results/i4-two_phase_commit,,./run.sh ian/src/i4-two_phase_commit.pyv --config auto --threads 1 --minimal-models --with-conjs
+mldr_epr_15,NA,NA,NA,NA,NA,ian/results/mldr_epr_15,crash,./run.sh ian/src/mldr_epr_15.ivy --config auto --threads 1 --minimal-models --with-conjs
+pyv-client_server_ae,both work,True,7,2,4,ian/results/pyv-client_server_ae,,./run.sh ian/src/pyv-client_server_ae.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-client_server_db_ae,both work,True,39,5,12,ian/results/pyv-client_server_db_ae,,./run.sh ian/src/pyv-client_server_db_ae.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-consensus_epr,both work,True,55,7,7,ian/results/pyv-consensus_epr,,./run.sh ian/src/pyv-consensus_epr.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-consensus_forall,both work,True,107,7,9,ian/results/pyv-consensus_forall,,./run.sh ian/src/pyv-consensus_forall.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-consensus_wo_decide,both work,True,69,5,10,ian/results/pyv-consensus_wo_decide,,./run.sh ian/src/pyv-consensus_wo_decide.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-firewall,NA,False,74,2,4,ian/results/pyv-firewall,,./run.sh ian/src/pyv-firewall.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-hybrid_reliable_broadcast,both fail,NA,NA,NA,NA,ian/results/pyv-hybrid_reliable_broadcast,timeout after 4min,./run.sh ian/src/pyv-hybrid_reliable_broadcast.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-learning_switch,learning-switch-quad works in the paper butwe fail,NA,NA,NA,NA,ian/results/pyv-learning_switch,timeout after 4min,./run.sh ian/src/pyv-learning_switch.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-lockserv,server-async works but we fail,False,20,9,0,ian/results/pyv-lockserv,,./run.sh ian/src/pyv-lockserv.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-sharded_kv,paper works and we fail,False,37,5,0,ian/results/pyv-sharded_kv,,./run.sh ian/src/pyv-sharded_kv.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-sharded_kv_no_lost_keys,both work,True,1,2,3,ian/results/pyv-sharded_kv_no_lost_keys,,./run.sh ian/src/pyv-sharded_kv_no_lost_keys.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-toy_consensus_epr,both work,True,8,4,4,ian/results/pyv-toy_consensus_epr,,./run.sh ian/src/pyv-toy_consensus_epr.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-toy_consensus_forall,both work,True,14,4,4,ian/results/pyv-toy_consensus_forall,,./run.sh ian/src/pyv-toy_consensus_forall.pyv --config auto --threads 1 --minimal-models --with-conjs
+tla-Consensus,NA,True,0,1,1,ian/results/tla-Consensus,,./run.sh ian/src/tla-Consensus.pyv --config auto --threads 1 --minimal-models --with-conjs
+tla-Simple,NA,True,28,1,7,ian/results/tla-Simple,,./run.sh ian/src/tla-Simple.pyv --config auto --threads 1 --minimal-models --with-conjs
+tla-SimpleRegular,NA,True,67,1,18,ian/results/tla-SimpleRegular,,./run.sh ian/src/tla-SimpleRegular.pyv --config auto --threads 1 --minimal-models --with-conjs
+tla-TCommit,NA,True,2,1,9,ian/results/tla-TCommit,,./run.sh ian/src/tla-TCommit.pyv --config auto --threads 1 --minimal-models --with-conjs
+tla-TwoPhase,NA,True,37,1,24,ian/results/tla-TwoPhase,,./run.sh ian/src/tla-TwoPhase.pyv --config auto --threads 1 --minimal-models --with-conjs
