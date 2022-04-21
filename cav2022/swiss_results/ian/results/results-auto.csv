@@ -18,9 +18,9 @@ pyv-consensus_forall,both work,True,107,7,9,ian/results/pyv-consensus_forall,,./
 pyv-consensus_wo_decide,both work,True,69,5,10,ian/results/pyv-consensus_wo_decide,,./run.sh ian/src/pyv-consensus_wo_decide.pyv --config auto --threads 1 --minimal-models --with-conjs
 pyv-firewall,NA,False,74,2,4,ian/results/pyv-firewall,,./run.sh ian/src/pyv-firewall.pyv --config auto --threads 1 --minimal-models --with-conjs
 pyv-hybrid_reliable_broadcast,both fail,NA,NA,NA,NA,ian/results/pyv-hybrid_reliable_broadcast,timeout after 4min,./run.sh ian/src/pyv-hybrid_reliable_broadcast.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-learning_switch,learning-switch-quad works in the paper but we fail\*,NA,NA,NA,NA,ian/results/pyv-learning_switch,timeout after 4min,./run.sh ian/src/pyv-learning_switch.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-lockserv,server-async works but we fail\*,False,20,9,0,ian/results/pyv-lockserv,,./run.sh ian/src/pyv-lockserv.pyv --config auto --threads 1 --minimal-models --with-conjs
-pyv-sharded_kv,paper works and we fail\*,False,37,5,0,ian/results/pyv-sharded_kv,,./run.sh ian/src/pyv-sharded_kv.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-learning_switch,learning-switch-quad works in the paper but we fail,NA,NA,NA,NA,ian/results/pyv-learning_switch,timeout after 4min,./run.sh ian/src/pyv-learning_switch.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-lockserv,server-async works but we fail,False,20,9,0,ian/results/pyv-lockserv,,./run.sh ian/src/pyv-lockserv.pyv --config auto --threads 1 --minimal-models --with-conjs
+pyv-sharded_kv,paper works and we fail,False,37,5,0,ian/results/pyv-sharded_kv,,./run.sh ian/src/pyv-sharded_kv.pyv --config auto --threads 1 --minimal-models --with-conjs
 pyv-sharded_kv_no_lost_keys,both work,True,1,2,3,ian/results/pyv-sharded_kv_no_lost_keys,,./run.sh ian/src/pyv-sharded_kv_no_lost_keys.pyv --config auto --threads 1 --minimal-models --with-conjs
 pyv-toy_consensus_epr,both work,True,8,4,4,ian/results/pyv-toy_consensus_epr,,./run.sh ian/src/pyv-toy_consensus_epr.pyv --config auto --threads 1 --minimal-models --with-conjs
 pyv-toy_consensus_forall,both work,True,14,4,4,ian/results/pyv-toy_consensus_forall,,./run.sh ian/src/pyv-toy_consensus_forall.pyv --config auto --threads 1 --minimal-models --with-conjs
@@ -29,5 +29,3 @@ tla-Simple,NA,True,28,1,7,ian/results/tla-Simple,,./run.sh ian/src/tla-Simple.py
 tla-SimpleRegular,NA,True,67,1,18,ian/results/tla-SimpleRegular,,./run.sh ian/src/tla-SimpleRegular.pyv --config auto --threads 1 --minimal-models --with-conjs
 tla-TCommit,NA,True,2,1,9,ian/results/tla-TCommit,,./run.sh ian/src/tla-TCommit.pyv --config auto --threads 1 --minimal-models --with-conjs
 tla-TwoPhase,NA,True,37,1,24,ian/results/tla-TwoPhase,,./run.sh ian/src/tla-TwoPhase.pyv --config auto --threads 1 --minimal-models --with-conjs
-
-\* I manually confirmed that the pyv files that we compare are the same.
