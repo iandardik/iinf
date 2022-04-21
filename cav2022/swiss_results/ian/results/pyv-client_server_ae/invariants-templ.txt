@@ -1,0 +1,2 @@
+# Success: False
+conjecture (forall A000:node, A002:response . ((response_sent(A000, A002) | (~(response_received(A000, A002))))))

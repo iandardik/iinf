@@ -1,0 +1,10 @@
+# Success: True
+conjecture (forall A001:node, A002:node . ((vote(A001, A002) | (forall A000:nodeset . (((~(member(A001, A000))) | (~(voters(A002, A000)))))))))
+conjecture (exists A000:nodeset . ((forall A001:node, A002:node . ((voters(A001, emptyset) | (~(voters(A002, emptyset))) | (~(voters(A002, A000))))))))
+conjecture (exists A000:nodeset . ((forall A002:node . ((majority(A000) | (~(leader(A002))))))))
+conjecture (forall A002:node . (((~(leader(A002))) | (~(voters(A002, emptyset))))))
+conjecture (forall A000:nodeset . ((exists A002:node . ((member(A002, A000) | voters(A002, emptyset) | (~(voters(A002, A000))))))))
+conjecture (forall A000:nodeset, A001:nodeset . (((A000 = A001) | (forall A002:node . (((~(voters(A002, A000))) | (~(voters(A002, A001)))))))))
+conjecture (forall A000:node, A001:node . (((A000 = A001) | (forall A002:node . (((~(vote(A002, A000))) | (~(vote(A002, A001)))))))))
+conjecture (forall A000:nodeset . ((majority(A000) | (forall A002:node . (((~(leader(A002))) | (~(voters(A002, A000)))))))))
+conjecture (exists A000:nodeset . ((forall A001:node . ((voters(A001, A000) | (~(leader(A001))))))))

@@ -1,0 +1,4 @@
+# Success: True
+conjecture (forall A000:value . ((exists A001:quorum . ((forall A002:node . ((vote(A002, A000) | (~(decision(A000))) | (~(member(A002, A001))))))))))
+conjecture (forall A000:value, A001:value . (((A000 = A001) | (forall A002:node . (((~(vote(A002, A000))) | (~(vote(A002, A001)))))))))
+conjecture (exists A000:value . ((forall A001:quorum, A002:quorum . (((decision(A000) & (~(decision(A000)))) | decision(A000) | (~(decision(A000))))))))

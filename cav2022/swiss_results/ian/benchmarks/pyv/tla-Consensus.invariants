@@ -1,0 +1,2 @@
+# Success: True
+conjecture (forall V1:value, V2:value . (((chosen(V1) & chosen(V2)) -> (V1 = V2))))

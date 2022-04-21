@@ -1,0 +1,31 @@
+protocol,success,duration (sec),protocol invs,# synthesized invs,output loc,notes,swiss command
+ex-lockserv_automaton,False,4,1,0,results/ex-lockserv_automaton/,,./run.sh ian/src/ex-lockserv_automaton.pyv --config templ --threads 1 --minimal-models --with-conjs
+ex-majorityset-leader-election,False,42,1,1,results/ex-majorityset-leader-election/,,./run.sh ian/src/ex-majorityset-leader-election.pyv --config templ --threads 1 --minimal-models --with-conjs
+ex-naive_consensus,False,7,4,2,results/ex-naive_consensus/,,./run.sh ian/src/ex-naive_consensus.pyv --config templ --threads 1 --minimal-models --with-conjs
+ex-quorum-leader-election,False,15,1,2,results/ex-quorum-leader-election/,,./run.sh ian/src/ex-quorum-leader-election.pyv --config templ --threads 1 --minimal-models --with-conjs
+ex-simple-decentralized-lock,True,1,4,1,results/ex-simple-decentralized-lock/,,./run.sh ian/src/ex-simple-decentralized-lock.pyv --config templ --threads 1 --minimal-models --with-conjs
+ex-simple-election,NA,NA,NA,NA,results/ex-simple-election/,crash,./run.sh ian/src/ex-simple-election.pyv --config templ --threads 1 --minimal-models --with-conjs
+ex-toy_consensus,NA,NA,NA,NA,results/ex-toy_consensus/,crash,./run.sh ian/src/ex-toy_consensus.pyv --config templ --threads 1 --minimal-models --with-conjs
+i4-chord_ring_maintenance,NA,NA,NA,NA,results/i4-chord_ring_maintenance/,timeout after 4min,./run.sh ian/src/i4-chord_ring_maintenance.pyv --config templ --threads 1 --minimal-models --with-conjs
+i4-learning_switch,NA,NA,NA,NA,results/i4-learning_switch/,timeout after 4min,./run.sh ian/src/i4-learning_switch.pyv --config templ --threads 1 --minimal-models --with-conjs
+i4-lock_server,True,0,1,1,results/i4-lock_server/,,./run.sh ian/src/i4-lock_server.pyv --config templ --threads 1 --minimal-models --with-conjs
+i4-two_phase_commit,True,25,3,14,results/i4-two_phase_commit/,,./run.sh ian/src/i4-two_phase_commit.pyv --config templ --threads 1 --minimal-models --with-conjs
+mldr_epr_15,NA,NA,NA,NA,results/mldr_epr_15/,crash,./run.sh ian/src/mldr_epr_15.ivy --config templ --threads 1 --minimal-models --with-conjs
+pyv-client_server_ae,False,3,2,1,results/pyv-client_server_ae/,,./run.sh ian/src/pyv-client_server_ae.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-client_server_db_ae,False,3,5,2,results/pyv-client_server_db_ae/,,./run.sh ian/src/pyv-client_server_db_ae.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-consensus_epr,NA,NA,NA,NA,results/pyv-consensus_epr/,crash,./run.sh ian/src/pyv-consensus_epr.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-consensus_forall,NA,NA,NA,NA,results/pyv-consensus_forall/,crash,./run.sh ian/src/pyv-consensus_forall.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-consensus_wo_decide,False,110,5,4,results/pyv-consensus_wo_decide/,,./run.sh ian/src/pyv-consensus_wo_decide.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-firewall,NA,NA,NA,NA,results/pyv-firewall/,crash,./run.sh ian/src/pyv-firewall.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-hybrid_reliable_broadcast,NA,NA,NA,NA,results/pyv-hybrid_reliable_broadcast/,crash,./run.sh ian/src/pyv-hybrid_reliable_broadcast.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-learning_switch,NA,NA,NA,NA,results/pyv-learning_switch/,crash,./run.sh ian/src/pyv-learning_switch.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-lockserv,NA,NA,NA,NA,results/pyv-lockserv/,crash,./run.sh ian/src/pyv-lockserv.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-sharded_kv,False,1,5,0,results/pyv-sharded_kv/,,./run.sh ian/src/pyv-sharded_kv.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-sharded_kv_no_lost_keys,NA,NA,NA,NA,results/pyv-sharded_kv_no_lost_keys/,crash,./run.sh ian/src/pyv-sharded_kv_no_lost_keys.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-toy_consensus_epr,NA,NA,NA,NA,results/pyv-toy_consensus_epr/,crash,./run.sh ian/src/pyv-toy_consensus_epr.pyv --config templ --threads 1 --minimal-models --with-conjs
+pyv-toy_consensus_forall,NA,NA,NA,NA,results/pyv-toy_consensus_forall/,crash,./run.sh ian/src/pyv-toy_consensus_forall.pyv --config templ --threads 1 --minimal-models --with-conjs
+tla-Consensus,NA,NA,NA,NA,results/tla-Consensus/,crash,./run.sh ian/src/tla-Consensus.pyv --config templ --threads 1 --minimal-models --with-conjs
+tla-Simple,True,33,1,6,results/tla-Simple/,,./run.sh ian/src/tla-Simple.pyv --config templ --threads 1 --minimal-models --with-conjs
+tla-SimpleRegular,NA,NA,NA,NA,results/tla-SimpleRegular/,timeout after 4min,./run.sh ian/src/tla-SimpleRegular.pyv --config templ --threads 1 --minimal-models --with-conjs
+tla-TCommit,NA,NA,NA,NA,results/tla-TCommit/,crash,./run.sh ian/src/tla-TCommit.pyv --config templ --threads 1 --minimal-models --with-conjs
+tla-TwoPhase,NA,NA,NA,NA,results/tla-TwoPhase/,crash,./run.sh ian/src/tla-TwoPhase.pyv --config templ --threads 1 --minimal-models --with-conjs

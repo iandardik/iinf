@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "scripts/driver.py", line 630, in <module>
+    main()
+  File "scripts/driver.py", line 627, in main
+    do_threading(stats, ivy_filename, json_filename, logdir, nthreads, main_args, breadth_args, finisher_args, by_size)
+  File "scripts/driver.py", line 231, in do_threading
+    success = do_finisher("finisher", logdir, nthreads, json_filename, main_args, main_args + finisher_args, invfile, stats)
+  File "scripts/driver.py", line 537, in do_finisher
+    stats.add_finisher_result(output_files[some_key], time.time() - t1)
+KeyError: None

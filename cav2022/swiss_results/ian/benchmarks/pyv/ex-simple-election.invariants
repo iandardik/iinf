@@ -1,0 +1,5 @@
+# Success: True
+conjecture (forall A001:proposer . ((start(A001) | (forall A002:acceptor . ((~(promise(A002, A001))))))))
+conjecture (forall A000:proposer, A001:proposer . (((A000 = A001) | (forall A002:acceptor . (((~(promise(A002, A000))) | (~(promise(A002, A001)))))))))
+conjecture (forall A000:proposer . ((exists A001:quorum . ((forall A002:acceptor . ((promise(A002, A000) | (~(leader(A000))) | (~(member(A002, A001))))))))))
+conjecture (forall A000:quorum, A001:quorum . ((exists A002:acceptor . ((member(A002, A000) | (~(member(A002, A000))))))))

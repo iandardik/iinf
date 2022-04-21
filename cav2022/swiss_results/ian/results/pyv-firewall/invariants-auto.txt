@@ -1,0 +1,5 @@
+# Success: False
+conjecture (forall A000:node . (((~(allowed_in(A000))) | (~(internal(A000))))))
+conjecture (forall A000:node . ((internal(A000) | (forall A001:node . ((internal(A001) | (~(sent(A000, A001)))))))))
+conjecture (exists A000:node . ((internal(A000) | (~(allowed_in(A000))))))
+conjecture (forall A000:node . ((allowed_in(A000) | (forall A001:node . ((allowed_in(A001) | (~(sent(A000, A001)))))))))

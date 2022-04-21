@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "scripts/driver.py", line 630, in <module>
+    main()
+  File "scripts/driver.py", line 614, in main
+    parse_args(ivy_filename, args))
+  File "scripts/driver.py", line 588, in parse_args
+    bench = suite.get(config)
+  File "/home/root/swiss/scripts/templates.py", line 44, in get
+    return self.benches[name]
+KeyError: 'templ'

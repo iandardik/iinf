@@ -1,0 +1,2 @@
+# Success: False
+conjecture (forall A000:node, A001:node . (((A000 = A001) | (forall A002:node . (((~(vote(A002, A000))) | (~(vote(A002, A001)))))))))

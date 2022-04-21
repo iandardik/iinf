@@ -1,0 +1,2 @@
+# Success: True
+conjecture (forall A000:node, A001:node, A002:node, A003:node . ((((~(has_lock(A000))) & (~(message(A000, A001)))) | (start_node = A000))))

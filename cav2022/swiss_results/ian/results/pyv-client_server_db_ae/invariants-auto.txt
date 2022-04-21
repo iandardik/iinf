@@ -1,0 +1,13 @@
+# Success: True
+conjecture (forall A001:node, A002:response . ((response_sent(A001, A002) | (~(response_received(A001, A002))))))
+conjecture (forall A000:db_request_id, A001:node . ((exists A002:request . ((db_request_sent(A000, A002) | (~(t(A000, A001))))))))
+conjecture (forall A000:db_request_id . ((exists A001:node . ((forall A002:request . ((t(A000, A001) | (~(db_request_sent(A000, A002))))))))))
+conjecture (forall A001:node, A002:request . ((request_sent(A001, A002) | (forall A000:db_request_id . (((~(db_request_sent(A000, A002))) | (~(t(A000, A001)))))))))
+conjecture (forall A000:db_request_id, A001:response . ((exists A002:request . ((db_request_sent(A000, A002) | (~(db_response_sent(A000, A001))))))))
+conjecture (forall A000:db_request_id, A001:response . ((exists A002:request . ((match(A002, A001) | (~(db_response_sent(A000, A001))))))))
+conjecture (forall A001:node, A002:node . (((A001 = A002) | (forall A000:db_request_id . (((~(t(A000, A001))) | (~(t(A000, A002)))))))))
+conjecture (forall A000:node, A001:response . ((exists A002:request . ((match(A002, A001) | (~(response_sent(A000, A001))))))))
+conjecture (forall A000:node, A001:response . ((exists A002:request . ((request_sent(A000, A002) | (~(response_sent(A000, A001))))))))
+conjecture (forall A001:request, A002:request . (((A001 = A002) | (forall A000:db_request_id . (((~(db_request_sent(A000, A001))) | (~(db_request_sent(A000, A002)))))))))
+conjecture (forall A001:response, A002:request . ((match(A002, A001) | (forall A000:db_request_id . (((~(db_request_sent(A000, A002))) | (~(db_response_sent(A000, A001)))))))))
+conjecture (forall A000:node, A001:response . ((exists A002:request . (((match(A002, A001) & request_sent(A000, A002)) | (~(response_sent(A000, A001))))))))

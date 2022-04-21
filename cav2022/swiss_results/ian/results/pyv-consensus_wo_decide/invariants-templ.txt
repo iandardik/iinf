@@ -1,0 +1,5 @@
+# Success: False
+conjecture (forall A000:node, A001:node . ((vote_msg(A000, A001) | (~(votes(A001, A000))))))
+conjecture (forall A000:node . ((voted(A000) | (forall A001:node . ((~(vote_msg(A000, A001))))))))
+conjecture (forall A000:node . (((~(vote_msg(A000, A000))) | (forall A001:node . (((A000 = A001) | (~(vote_msg(A000, A001)))))))))
+conjecture (forall A000:node . ((voted(A000) | (~(member(A000, voting_quorum))) | (forall A001:node . ((~(leader(A001))))))))
