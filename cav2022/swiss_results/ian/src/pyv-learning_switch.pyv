@@ -34,6 +34,6 @@ safety table(T,X,Y) & table(T,X,Z) -> table(T,Y,Z) | table(T,Z,Y)
 # invariant table(T,X,Y) & T != Y & X != Y -> exists W. table(T,Y,W) & W != Y
 
 # alternative which is purely universally quantified:
-invariant pending(PS,PD,S,D) & PS != S -> table(PS,S,PS)
-invariant table(T,X,Y) & T != Y & X != Y -> table(T,Y,T)
+
+
 

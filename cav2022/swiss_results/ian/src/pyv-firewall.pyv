@@ -24,4 +24,4 @@ transition send_to_internal(src: node, dst: node)
 
 safety sent(S,D) & internal(D) -> exists I. internal(I) & sent(I,S)
 
-invariant allowed_in(D) -> exists I. internal(I) & sent(I,D)
+

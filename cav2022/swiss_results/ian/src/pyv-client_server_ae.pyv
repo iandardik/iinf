@@ -37,4 +37,4 @@ transition receive_response(n:node, p:response)
 
 
 safety forall N,P. response_received(N,P) -> exists R. request_sent(N,R) & match(R,P)
-invariant forall N,P. response_sent(N,P) -> exists R. request_sent(N,R) & match(R,P)
+

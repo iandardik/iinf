@@ -35,9 +35,9 @@ transition put(n: node, k: key, v: value)
 
 safety [keys_unique] table(N1, K, V1) & table(N2, K, V2) -> N1 = N2 & V1 = V2
 
-invariant owner(N1, K) & owner(N2, K) -> N1 = N2
-invariant table(N, K, V) -> owner(N, K)
 
-invariant !(transfer_msg(N1, K, V) & owner(N2, K))
-invariant transfer_msg(N1, K, V1) & transfer_msg(N2, K, V2) -> N1 = N2 & V1 = V2
+
+
+
+
 

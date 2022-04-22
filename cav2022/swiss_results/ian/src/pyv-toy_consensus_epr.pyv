@@ -25,6 +25,6 @@ transition decide(v: value, q: quorum)
   & (decided(V) <-> (old(decided(V)) | V=v))
 
 safety decided(V1) & decided(V2) -> V1 = V2
-invariant vote(N,V) -> voted(N)
-invariant vote(N, V1) & vote(N, V2) -> V1 = V2
-invariant forall V. decided(V) -> exists Q. forall N. member(N, Q) -> vote(N, V)
+
+
+

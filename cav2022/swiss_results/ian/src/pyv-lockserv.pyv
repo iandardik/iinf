@@ -44,13 +44,13 @@ transition recv_unlock(n: node)
 
 safety [mutex] holds_lock(N1) & holds_lock(N2) -> N1 = N2
 
-invariant grant_msg(N1) & grant_msg(N2) -> N1 = N2
-invariant unlock_msg(N1) & unlock_msg(N2) -> N1 = N2
 
-invariant !(holds_lock(N1) & grant_msg(N2))
-invariant !(holds_lock(N1) & unlock_msg(N2))
-invariant !(grant_msg(N1) & unlock_msg(N2))
 
-invariant !(grant_msg(N) & server_holds_lock)
-invariant !(holds_lock(N) & server_holds_lock)
-invariant !(unlock_msg(N) & server_holds_lock)
+
+
+
+
+
+
+
+

@@ -52,8 +52,8 @@ transition recv(sender: node, n: node, next: node)
 #safety [one_leader] leader(L1) & leader(L2) -> L1 = L2
 safety [not_dead] (exists L. leader(L)) | (exists M,N. pending(M, N)) | (exists N. !sent(N))
 
-invariant [leader_max] leader(L) -> le(N, L)
-invariant pending(S, D) & btw(S, N, D) -> le(N, S)
-invariant pending(L, L) -> le(N, L)
 
-invariant [for_not_dead] exists N. (forall X. le(X,N)) & (!sent(N) | leader(N) | (exists M. pending(N, M)))
+
+
+
+

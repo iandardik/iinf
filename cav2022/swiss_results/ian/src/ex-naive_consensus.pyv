@@ -30,6 +30,6 @@ transition learn_value(q: quorum, v: value)
 
 safety decision(V1) & decision(V2) -> V1 = V2
 
-invariant [ic3po_global3]	(forall N0, V0, V1 . ((vote(N0, V1) & vote(N0, V0)) -> (V0 = V1)))
-invariant [ic3po_global2]	(forall Q0, N0, V0 . ((member(N0, Q0) & decide(Q0, V0)) -> vote(N0, V0)))
-invariant [ic3po_global3_1]	(forall V0 . (decision(V0) -> (exists Q0 . decide(Q0, V0))))
+
+
+

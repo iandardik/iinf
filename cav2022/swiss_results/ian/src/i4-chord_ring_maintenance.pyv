@@ -129,12 +129,12 @@ transition test(x : node)
 
 safety [prop] !error(N)
 
-invariant [help_7_ic3po_required]	(forall N0 . (a(N0) -> in_s1(N0)))
-invariant [help_10_ic3po_required]	(forall N0 . ((org = N0) -> reach(N0)))
-invariant [help_11_ic3po_required]	(forall N1, N0, N2 . (s1(N2, N1) -> ((org = N0) -> !btw(N2, N0, N1))))
-invariant [help_14_ic3po_required]	(forall N1, N0, N2 . ((s2(N2, N2) & s1(N2, N1) & (org = N0)) -> ((N0 = N1) | (N0 = N2) | (N1 = N2))))
-invariant [help_15_ic3po_required]	(forall N2, N1, N0 . ((s1(N0, N2) & s1(N0, N1)) -> (N1 = N2)))
-invariant [help_22_ic3po_required]	(forall N1, N0, N3, N2 . (((org = N0) & in_s2(N1) & btw(N1, N0, N3) & s1(N1, N2) & s2(N1, N3)) -> (N0 = N2)))
-invariant [help_28_ic3po_required]	(forall N1, N2, N0 . ((s1(N0, N1) & s2(N0, N2)) -> (a(N2) | a(N1))))
-invariant [help_31_ic3po_required]	(forall N0 . ((org = N0) -> a(N0)))
-invariant [help_35_ic3po_required]	(forall N1, N0, N2 . (((org = N2) & s1(N0, N1)) -> ((N0 = N2) | a(N1) | in_s2(N0))))
+
+
+
+
+
+
+
+
+

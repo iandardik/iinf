@@ -59,8 +59,8 @@ safety [not_dead] (exists L. leader(L)) | (exists M,N. pending(M, N)) | (exists 
 #invariant [ic3po_1]	(forall I2, N0 . (((idn(N0) = I2) & sent(N0) & !leader(N0) & !pending(I2, N0)) -> (exists I0, N2 . (((I2 = I0) | le(I0, I2)) -> (!(N0 = N2) & pending(I2, N2))))))
 #invariant [ic3po_3]	(forall I0, N1, N0 . (((idn(N1) = I0) & pending(I0, N0)) -> sent(N1)))
 
-invariant [ic3po_1_1]	(forall N0 . ((sent(N0) & !leader(N0) & !pending(idn(N0), N0)) -> (exists I0, N1 . ((pending(idn(N0), N1) -> (N0 = N1)) -> (!(idn(N0) = I0) & le(idn(N0), I0))))))
-invariant [ic3po_3_1]	(forall I1 . (exists I0, N0 . (((le(I1, I0) -> (I1 = I0)) & sent(N0)) -> (leader(N0) | pending(I1, N0)))))
+
+
 
 sat trace {
     send

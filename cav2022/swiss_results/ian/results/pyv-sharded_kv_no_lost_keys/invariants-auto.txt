@@ -1,4 +1,4 @@
 # Success: True
+conjecture (forall A000:key . ((exists A001:value, A002:node . (((~(owner(A002, A000))) | (~(transfer_msg(A002, A000, A001))))))))
 conjecture (forall A000:key . ((exists A001:value, A002:node . ((owner(A002, A000) | transfer_msg(A002, A000, A001))))))
 conjecture (forall A000:key . ((exists A001:value, A002:node . ((owner(A002, A000) | (~(table(A002, A000, A001))))))))
-conjecture (forall A000:key . ((exists A001:value, A002:node . (((~(owner(A002, A000))) | (~(transfer_msg(A002, A000, A001))))))))

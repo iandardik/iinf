@@ -27,6 +27,6 @@ transition decide(v: value, q: quorum)
   & (voting_quorum = q)
 
 safety decided(V1) & decided(V2) -> V1 = V2
-invariant vote(N,V) -> voted(N)
-invariant vote(N, V1) & vote(N, V2) -> V1 = V2
-invariant decided(V) & member(N, voting_quorum) -> vote(N, V)
+
+
+

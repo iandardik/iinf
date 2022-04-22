@@ -58,7 +58,7 @@ transition receive_response(n:node, p:response)
   & (forall N,P. response_received(N,P) <-> (old(response_received(N,P)) | (N = n & P = p)))
 
 safety forall N,P. response_received(N,P) -> exists R. request_sent(N,R) & match(R,P)
-invariant forall N,P. response_sent(N,P) -> exists R. request_sent(N,R) & match(R,P)
-invariant forall I,R. db_request_sent(I,R) -> exists N. t(I,N) & request_sent(N,R)
-invariant forall I,P. db_response_sent(I,P) -> exists R. db_request_sent(I,R) & match(R,P)
-invariant t(I,N1) & t(I,N2) -> N1 = N2
+
+
+
+

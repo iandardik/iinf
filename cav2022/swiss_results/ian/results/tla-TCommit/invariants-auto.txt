@@ -5,6 +5,4 @@ conjecture (forall A000:resource_manager . (((~(aborted(A000))) | (~(working(A00
 conjecture (forall A000:resource_manager . (((~(committed(A000))) | (~(prepared(A000))))))
 conjecture (forall A000:resource_manager . (((~(committed(A000))) | (~(working(A000))))))
 conjecture (forall A000:resource_manager . (((~(prepared(A000))) | (~(working(A000))))))
-conjecture (forall A001:resource_manager . (((~(committed(A001))) | (forall A002:resource_manager . ((~(working(A002))))))))
-conjecture (forall A001:resource_manager . (((~(aborted(A001))) | (forall A002:resource_manager . ((~(committed(A002))))))))
 conjecture (forall A000:resource_manager . ((committed(A000) | prepared(A000) | (forall A001:resource_manager . ((~(committed(A001))))))))

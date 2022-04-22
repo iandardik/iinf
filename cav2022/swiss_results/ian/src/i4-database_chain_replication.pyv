@@ -106,7 +106,7 @@ safety [prop] (!(TX1 != TX2 &
 	    !le(TX1, T3)))
         & ((commit_tx(T) & op_in_tx(T, O) & op_node(O, N)) -> precommit_tx(T, N))   # Safety: Atomicity
 
-invariant [help_2_ic3po_required]	(forall T2, T1, T0, K0 . ((write_tx(T1, K0) & depends_tx(T0, K0, T2)) -> (abort_tx(T0) | abort_tx(T1) | le(T1, T2) | le(T0, T1))))
-invariant [help_10_ic3po_required]	(forall T2, T1, T0, N0, K0 . ((write_tx(T0, K0) & node_for_key(K0, N0) & depends_tx(T1, K0, T2)) -> (abort_tx(T0) | le(T0, T2) | le(T1, T0) | precommit_tx(T0, N0))))
-invariant [help_11_ic3po_required]	(forall T0 . (commit_tx(T0) -> !abort_tx(T0)))
-invariant [help_16_ic3po_required]	(forall T1, T0, K0 . (depends_tx(T1, K0, T0) -> read_tx(T1, K0)))
+
+
+
+

@@ -23,7 +23,7 @@ transition recv(src: node, dst: node)
 
 safety X != Y -> !(has_lock(X) & has_lock(Y))
 
-invariant !(has_lock(X) & message(Y,Z))
-invariant !(message(X,Y)) | !(message(Z,W)) | X=Z
-invariant !(message(X,Y)) | !(message(Z,W)) | Y=W
+
+
+
 
