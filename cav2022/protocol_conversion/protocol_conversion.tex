@@ -10,6 +10,7 @@
 \usepackage{mathtools}
 \usepackage{enumerate}
 \usepackage[]{soul}
+\usepackage{url}
 
 \usepackage{amsmath}
 \usepackage{amssymb}
@@ -21,7 +22,7 @@
 \newcommand{\tla}[1]{{\small\scshape #1}}
 \newcommand{\ivy}[1]{{\texttt #1}}
 
-\title{Converting The MLDR TLA+ Specification To Ivy}
+\title{Converting The \textit{MongoLoglessDynamicRaft} TLA+ Specification To Ivy}
 \author{Ian Dardik}
 \institute{Northeastern University}
 \date{\today}
@@ -34,9 +35,18 @@
 
 \section{Converting MLDR From TLA+ To Ivy}
 
-The MLDR protocol is introduced in \cite{schultz2021design} along with a TLA+ specification.  We converted the TLA+ specification to Ivy in order to compare \textit{endive} with other invariant inference tools.  This conversion was nontrivial; we describe the the process in this appendix along with the challenges we faced.  We targeted Ivy $1.8$ in our conversion, the latest version of Ivy to date.
+The \textit{MongoLoglessDynamicRaft} (MLDR) protocol is introduced in \cite{schultz2021design} along with a TLA+ specification \cite{zenodo-tla-specs}.  We converted the TLA+ specification to Ivy in order to compare \textit{endive} with other invariant inference tools.  This conversion was nontrivial; we describe the the process in this appendix along with the challenges we faced.  We targeted Ivy $1.8$ in our conversion, the latest version of Ivy to date.
+
+
+\subsection{Ivy's Decidable Logic Fragment}
+
+The Ivy tool suite is designed to work specifically for protocols and invariants that lie within the decidable logic fragment FAU \cite{Ge2009Complete}.  The \textit{ivy\_check} command line tool--Ivy's user interface for checking specifications--refuses to check a specification outside of FAU by default, and behaves unreliably if a user opts to bypass the logic fragment checks.
+
+One of our primary goals is to validate the translated MLDR Ivy specification, and thus we aimed to fit the MLDR Ivy specification into FAU in order to leverage Ivy's tool suite for our validation.  A specification that lies within FAU, but uses no interpreted types, lies with in the \textit{Extended EPR} \cite{padonpaxosEPR} logic fragment.  We can easily avoid interpreted types in the MLDR Ivy specification, and hence we target the Extended EPR logic fragment.  While we were able to translate the MLDR protocol itself into Extended EPR, the full specification, including our only known inductive invariant for MLDR, falls outside of Extended EPR.  We disucss our MLDR protocol translation process into Extended EPR in section \ref{subsec:protocol-conv}, followed by a discussion of our translation process for the inductive invariant that falls outside of Extended EPR in section \ref{subsec:indinv-conv}.
+
 
 \subsection{Protocol Conversion}
+\label{subsec:protocol-conv}
 
 The conversion can be summarized as a mapping from each component of the MLDR TLA+ specification to a component in the MLDR Ivy specification.  We show the mapping at a high level in Figure \ref{fig:conv-map}, and provide detail in the sections below.
 
@@ -45,14 +55,14 @@ The conversion can be summarized as a mapping from each component of the MLDR TL
   \begin{tabular}{llcl}
     Protocol & \qquad TLA+& & \qquad Ivy $1.8$\\
     \hline
-    Sort & \qquad \tla{constant}& $\qquad\to$& \qquad \ivy{type}\\
+    Sorts / Types & \qquad \tla{constant}& $\qquad\to$& \qquad \ivy{type}\\
     State Variables& \qquad \tla{variable}& $\qquad\to$& \qquad \ivy{individual} / \ivy{function}\\
     Initial Constraint& \qquad \textit{Init} Operator& $\qquad\to$& \qquad \ivy{after init}\\
     Transition Relation& \qquad \textit{Next} Operator& $\qquad\to$& \qquad \ivy{action}\\
-    Helper Definitions& \qquad Operators& $\qquad\to$& \qquad \ivy{relation}\\
+    Helper Definitions& \qquad Operators& $\qquad\to$& \qquad \ivy{function} / \ivy{relation}\\
   \end{tabular}
   \end{center}
-  \caption{High Level Conversion Mapping}
+  \caption{High level conversion mapping.}
   \label{fig:conv-map}
 \end{figure}
 
@@ -66,14 +76,16 @@ State variables are encoded in TLA+ using the \tla{variable} keyword, and map to
 
 \begin{figure}
   \begin{align*}
-    T&ypeOK ==& \text{I}&\text{vy translation:}\\
-      &\land currentTerm \in [Server \to \mathbb{N}]& &\text{function } current\_term(S:server) : nat\\
-      &\land state \in [Server \to \{Secondary, Primary\}]& &\text{function } state(S:server) : state\_type\\
-      &\land config \in [Server \to \text{SUBSET } Server]& &\text{function } config(S:server) : conf\\
-      &\land configVersion \in [Server \to \mathbb{N}]& &\text{function } config\_version(S:server) : nat\\
-      &\land configTerm \in [Server \to \mathbb{N}]& &\text{function } config\_term(S:server) : nat\\
+    &\text{TLA+} && \text{Ivy} 1.8\\
+    \hline
+    &TypeOK ==&&\\
+      &\quad\land currentTerm \in [Server \to \mathbb{N}]& &\text{function } current\_term(S:server) : nat\\
+      &\quad\land state \in [Server \to \{Secondary, Primary\}]& &\text{function } state(S:server) : state\_type\\
+      &\quad\land config \in [Server \to \text{SUBSET } Server]& &\text{function } config(S:server) : conf\\
+      &\quad\land configVersion \in [Server \to \mathbb{N}]& &\text{function } config\_version(S:server) : nat\\
+      &\quad\land configTerm \in [Server \to \mathbb{N}]& &\text{function } config\_term(S:server) : nat\\
   \end{align*}
-  \caption{State Variable Conversion Mapping}
+  \caption{State variable conversion mapping.}
   \label{fig:statevar-map}
 \end{figure}
 
@@ -98,11 +110,11 @@ The transition relation is encoded in TLA+ as a disjunction of actions, each of 
       $\qquad \land \, config = [i \in Server \mapsto c]$\\
   \end{tabular}
   \end{center}
-  \caption{Initial Constraint Conversion Mapping}
+  \caption{Initial constraint conversion mapping.}
   \label{fig:init-map}
 \end{figure}
 
-\subsubsection{Helper Operators}
+\subsubsection{Helper Definitions}
 
 In TLA+ it is standard to wrap the initial constraint, transition relation, and each individual action in an operator.  However, operators are also often used as ``helpers" as a means to make a specification modular and readable.  These helper operators directly map to functions and relations in Ivy.  We provide an example mapping for the \textit{IsNewerConfig} operator in Figure \ref{fig:help-op-map}.
 
@@ -123,40 +135,49 @@ In TLA+ it is standard to wrap the initial constraint, transition relation, and 
   \label{fig:help-op-map}
 \end{figure}
 
+\subsubsection{The Protocol Lies Within Extended EPR}
+
+The MLDR Ivy specification has the quantifier alternation graph: \ivy{conf}$\to$\ivy{quorum}$\to$\ivy{server}.  This graph is stratified, and hence fits into Extended EPR.  
+
+
 \subsection{Inductive Invariant Conversion}
 \label{subsec:indinv-conv}
 
-\textit{Endive} successfully synthesized an inductive invariant for MLDR which we tried to convert from TLA+ to Ivy.  Unfortunately, this inductive invariant introduces a cycle in the quantifier alternation graph of the MLDR Ivy specification, and hence falls outside of Extended EPR \cite{padonpaxosEPR}.  Although techniques exist that may fit a protocol into Extended EPR--such as splitting code with mutually dependent types into modules \cite{McMillan2018DeductiveVI,padonpaxosEPR}--these techniques may require significant effort and, in general, are not guaranteed to be complete \cite{padonpaxosEPR}.  Instead of manually using Ivy to find an inductive invariant in Extended EPR, we left this task for the invariant inference tools.
+\textit{Endive} successfully synthesized an inductive invariant for MLDR which we converted from TLA+ to Ivy \cite{mldr-ivy-spec}.  Unfortunately, this inductive invariant introduces a cycle in the quantifier alternation graph of the MLDR Ivy specification, and hence falls outside of Extended EPR \cite{padonpaxosEPR}.  The cycle is introduced in the \textit{ActiveConfigSafeAtTerms} conjunct as a $\forall\exists$ edge from \ivy{server} to itself, and is shown in Figure \ref{fig:ind-invar-cycle}.
 
-\subsection{Challenges}
+Although techniques exist that may fit a protocol into Extended EPR--such as splitting code with mutually dependent types into modules \cite{McMillan2018DeductiveVI,padonpaxosEPR}--these techniques may require significant effort and, in general, are not guaranteed to be complete \cite{padonpaxosEPR}.  Instead of manually using Ivy to find an inductive invariant in Extended EPR, we left this task for the invariant inference tools.
 
-During the conversion process we faced two main challenges: fitting MLDR into Extended EPR and validating our newly translated Ivy specification.  We discuss these two challenges below, and incldue a higher level discussion afterward.
+\begin{figure}
+  \begin{center}
+  \begin{tabular}{l}
+    \ivy{invariant [ActiveConfigSafeAtTerms]}\\
+    \quad \ivy{forall S, T : server. active\_config(T)} $\to$\\
+    \quad \ivy{forall Q:quorum. quorumof(Q,config(T))} $\to$\\
+    \quad \ivy{exists N:server. qmember(N,Q)}\\
+    \qquad \ivy{\& (config\_term(S) = current\_term(N) $\mid$ lt(config\_term(S), current\_term(N)))}\\
+  \end{tabular}
+  \end{center}
+  \caption{The inductive invariant conjunct \textit{ActiveConfigsSafeAtTerms} introduces a $\forall\exists$ edge from \ivy{server} to itself because \ivy{exists N:server} appears within the scope of \ivy{forall S, T : server}.}
+  \label{fig:ind-invar-cycle}
+\end{figure}
 
-\subsubsection{Extended EPR}
-\label{sec:mldr-epr}
 
-% EPR & Enough Axioms
-% For example, we can't have: axiom ~empty(A) -> quorumof(A, A)
-
-%Fitting MLDR into EPR was especially tough because of the quorum overlap property that must be encoded into MLDR.  They key here is to separate the type for configs and quorums, even though their types are both subsets of \textit{Server}.
-
-Designing MLDR to fit into Extended EPR was not simple, considering that we are newcomers to Ivy.  One of the key hurdles we faced was modeling quorums and configurations without a power set operator; we ultimately converged on using separate types for quorums and configurations which resulted in the quantifier alternation graph \ivy{conf}$\to$\ivy{quorum}$\to$\ivy{server}.  This graph is stratified, and hence fits into Extended EPR.  
-
-\subsubsection{Validating The Translation}
+\subsection{Validating The Translation}
 
 %Once we completed the conversion process, it was not clear how we might test our spec since our inductive invariant puts our spec outside of EPR.  One option would be to develop a new inductive invariant within EPR using Ivy, but this is a costly process and it is not clear whether we are guaranteed to find such an inductive invariant.  Instead we gained intuition by proving simple properties, and by confirming our inductive invariant ``works" in IC3PO for sufficiently large sort sizes.
 
-Once we completed the conversion process, we sought to verify that the Ivy specification was correct.  The ideal test would have been to translate the inductive invariant that \textit{endive} synthesized to prove correctness, yet unfortunately, the inductive invariant places the specification outside of Extended EPR as we noted in section \ref{subsec:indinv-conv}.  Instead, we leveraged IC3PO for our sanity checks.  IC3PO may accept a protocol outside of Ivy's decidable fragment (FAU \cite{Ge2009Complete}), and hence we were able to pass the MLDR Ivy specification along with \textit{endive}'s synthesized inductive invariant.  We performed sanity checks by running IC3PO for several finite instances and confirming that it terminated successfully without adding additional invariants.  This sanity check gave us confidence that our conversion process for MLDR was successful.
+Once we completed the conversion process, we sought to verify that the Ivy specification was correct.  The ideal test would have been to translate the inductive invariant that \textit{endive} synthesized to prove correctness, yet unfortunately, the inductive invariant places the specification outside of Extended EPR as we noted in section \ref{subsec:indinv-conv}.  Instead, we leveraged IC3PO for our sanity checks.  IC3PO may accept a protocol outside of Ivy's decidable fragment, and hence we were able to pass the MLDR Ivy specification along with \textit{endive}'s synthesized inductive invariant.  We performed sanity checks by running IC3PO for several finite instances and confirming that it terminated successfully without adding additional invariants.  This sanity check gave us confidence that our conversion process for MLDR was successful.
 
-\subsubsection{Discussion}
+
+\subsection{Discussion}
 
 TLA+ is a rather expressive language where we can explicitly create a protocol and model check safety properties to gain confidence.  Ivy, on the other hand, is a more restricted language, and forces protocol designers to write complex code within an individual module in a more implicit fashion.  This implicit fashion entails defining bear bones constructs and providing key axioms--this workflow is aimed at keeping each construct powerful enough to prove key properties, but light enough to remain in the decidable fragment FAU.  For example, consider quorums in the MLDR protocol, whose type is the power set of \textit{Server}.  In TLA+, we can explicitly use a power set operator, making quorums simple to define.  In Ivy, however, there is no support for power sets; instead, a protocol designer can define a binary \textit{member} ${\scriptstyle\subseteq}$ \ivy{server}$\times$\ivy{quorum} relation as a means for providing key axioms that will be necessary for any proofs about quorums.
 
 Ivy's implicit construction workflow begs an important question: how does a protocol designer know when she has provided sufficent axioms in order to prove key theorems on implicitly-defined types?  Presumably, the designer who uses Ivy's interactive workflow will eventually deduce when the set of axioms are insufficient, along with which additional axioms are needed.  Invariant inference tools, however,  provide little to no insight into whether a failure is due to insufficient axioms versus other potential reasons.
 
-Furthermore, it is not clear that a protocol within Extended EPR is guaranteed to have an inductive invariant that is also in Extended EPR.  For any tool that exclusively operates in Extended EPR--or even \textit{works better} in Extended EPR--the tool may experience issues if it is tough, or even impossible, for an inductive invariant to exist in Extended EPR.  In this case, presumably, a designer using Ivy's interactive workflow would eventually discover the need to split the protocol and invariants into modules that avoid quantifier alternation graph cycles, along with exactly how this may be done.  Unfortunately, invariant inference tools offer little to no insight into whether a protocol must be split into modules, and how it may be done.
+Furthermore, it is not clear that a protocol that lies within FAU is guaranteed to have an inductive invariant that is also in FAU.  For any invariant inference tool that operates exclusively in FAU--or even \textit{works better} in FAU--the tool may experience issues if it is tough, or even impossible, for an inductive invariant to exist in FAU.  In this case, presumably, a designer using Ivy's interactive workflow would eventually discover the need to split the protocol and invariants into modules that avoid quantifier alternation graph cycles, along with exactly how this may be done.  Unfortunately, invariant inference tools offer little to no insight into whether a protocol must be split into modules, and how it may be done.
 
-We do not know the answer to the questions posed above, however, we consider these aspects to be potential limmitations of any tool that operates within Extended EPR or relies on SMT queries in an unbounded domain.  Thus we believe that, to the best of our abilities, we provide a fair comparison for the MLDR protocol between \textit{endive} and any tool that accepts the Ivy version as input.
+We do not know the answer to the questions posed above, however, we consider these aspects to be potential limmitations of any invariant inference tool that operates within FAU or relies on SMT queries in an unbounded domain.  Thus we believe that, to the best of our abilities, we provide a fair comparison for the MLDR protocol between \textit{endive} and any tool that accepts the Ivy version as input.
 
 
 
