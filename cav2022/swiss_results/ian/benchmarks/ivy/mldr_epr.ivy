@@ -1,4 +1,4 @@
-#lang ivy1.7
+#lang ivy1.8
 
 type server
 type conf
@@ -98,7 +98,7 @@ action reconfig(s:server, c:conf, v:nat) = {
       qmember(T,Q) -> current_term(s) = current_term(T);
   assume quorums_overlap(config(s), c);
   assume cmember(s, c);
-  
+
   config_term(s) := current_term(s);
   config_version(s) := v;
   config(s) := c;
@@ -139,7 +139,7 @@ export updateTerms
 
 
 # OnePrimaryPerTerm / election safety
-conjecture state(S1) = primary & state(S2) = primary & current_term(S1) = current_term(S2) -> S1 = S2
+invariant state(S1) = primary & state(S2) = primary & current_term(S1) = current_term(S2) -> S1 = S2
 
 # PrimaryConfigTermEqualToCurrentTerm
 #invariant state(S) = primary -> config_term(S) = current_term(S)
@@ -150,13 +150,24 @@ conjecture state(S1) = primary & state(S2) = primary & current_term(S1) = curren
 # PrimaryInTermContainsNewestConfigOfTerm
 #invariant state(P) = primary & config_term(S) = config_term(P) -> (config_version(S) = config_version(P) | lt(config_version(S), config_version(P)))
 
-# ActiveConfigsOverlap
+# ActiveConfigsOverlap v1
 #invariant active_config(S) & active_config(T) -> quorums_overlap(config(S), config(T))
+# ActiveConfigsOverlap v2
+#invariant forall C1:conf, C2:conf. ~quorums_overlap(C1,C2) ->
+  #(forall S1:server, S2:server.
+    #(active_config(S1) & active_config(S2)) -> (C1 ~= config(S1) | C2 ~= config(S2)))
 
-# ActiveConfigsSafeAtTerms
+# ActiveConfigsSafeAtTerms v1
 #invariant forall S, T : server. active_config(T) ->
   #forall Q:quorum. quorumof(Q,config(T)) ->
     #exists N:server. qmember(N,Q) & (config_term(S) = current_term(N) | lt(config_term(S), current_term(N)))
+# ActiveConfigsSafeAtTerms v2
+#invariant
+  #forall Q:quorum.
+  #forall S, T : server.
+  #exists N:server.
+    #(active_config(T) & quorumof(Q,config(T))) ->
+      #qmember(N,Q) & (config_term(S) = current_term(N) | lt(config_term(S), current_term(N)))
 
 
 
